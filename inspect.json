@@ -1,0 +1,38 @@
+{
+  "root": {
+    "children": [
+      {
+        "id": "05fa8500-92dc-4658-8fe7-14358cf96af9",
+        "children": [
+          {
+            "id": "8d5a2447-6fbf-4f3f-9405-58f41bbfa049",
+            "children": [
+              {
+                "id": "cb4323f7-eaee-4363-a0f0-06efb48fe3cc",
+                "children": [],
+                "fiber": {
+                  "props": {},
+                  "state": []
+                }
+              }
+            ],
+            "fiber": {
+              "props": {},
+              "state": []
+            }
+          }
+        ],
+        "fiber": {
+          "props": {},
+          "state": []
+        }
+      }
+    ],
+    "fiber": {
+      "props": {},
+      "state": []
+    },
+    "id": "d6caadab-2ccd-4182-a0d3-9fd5e0ba7b23"
+  },
+  "currentHookCallOrder": 0
+}
