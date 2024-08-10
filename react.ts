@@ -3,12 +3,12 @@ const run = <T>(f: () => T) => f();
 
 type ReactComponentFunction<T extends AnyProps> = (
   props: AnyProps
-) => ReactComponentInternalMetadata;
+) => ReactRenderTreeNode;
 
 type ReactComponentExternalMetadata<T extends AnyProps> = {
   component: keyof HTMLElementTagNameMap | ReactComponentFunction<T>;
   props: T;
-  children: Array<ReactComponentInternalMetadata>;
+  children: Array<ReactRenderTreeNode>;
 };
 
 type ReactHookMetadata = {
@@ -29,22 +29,34 @@ type ReactComponentInternalMetadata = {
       };
 
   props: AnyProps;
-  children: Array<ReactComponentInternalMetadata>;
+  children: Array<ReactRenderTreeNode>;
   hooks: Array<ReactHookMetadata>;
   id: string;
 };
 
-type ReactTreeNode = {
+type ReactViewTreeNode = {
   id: string;
-  childNodes: Array<ReactTreeNode>;
+  childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
 };
 
-type ReactTree = {
-  root: ReactTreeNode;
-  currentlyRendering: ReactComponentInternalMetadata | null;
-  currentHookOrderInsideComponent: number;
+type ReactViewTree = {
+  root: ReactViewTreeNode;
+  // currentlyRendering: ReactComponentInternalMetadata | null;
+  // currentHookOrderInsideComponent: number;
   // would hold component being rendered, current hook being called, info for the hooks basically, but don't need this yet
+};
+type ReactRenderTree = {
+  currentlyRendering: ReactRenderTreeNode | null;
+  currentHookOrderInsideComponent: number;
+  root: ReactRenderTreeNode;
+};
+
+type ReactRenderTreeNode = {
+  id: string;
+  childNodes: Array<ReactRenderTreeNode>;
+  computedViewTreeNode: ReactViewTreeNode | null;
+  internalMetadata: ReactComponentInternalMetadata;
 };
 
 const mapComponentToTaggedUnion = (
@@ -54,9 +66,11 @@ const mapComponentToTaggedUnion = (
     ? { kind: "tag", tagName: component }
     : { kind: "function", function: component, name: component.name };
 
-const mapExternalMetadataToInternalMetadata = (
-  internalMetadata: ReactComponentExternalMetadata<AnyProps>
-): ReactComponentInternalMetadata => ({
+const mapExternalMetadataToInternalMetadata = ({
+  internalMetadata,
+}: {
+  internalMetadata: ReactComponentExternalMetadata<AnyProps>;
+}): ReactComponentInternalMetadata => ({
   component: mapComponentToTaggedUnion(internalMetadata.component),
   children: internalMetadata.children,
   props: internalMetadata.props,
@@ -64,220 +78,260 @@ const mapExternalMetadataToInternalMetadata = (
   id: crypto.randomUUID(),
 });
 
+// how do you know if it was the same component called?
+// well i guess the order it was called and the name of the component? sheesh
 const createElement = <T extends AnyProps>(
   component: ReactComponentExternalMetadata<T>["component"],
   props: ReactComponentExternalMetadata<T>["props"],
   ...children: ReactComponentExternalMetadata<T>["children"]
-): ReactComponentInternalMetadata =>
-  mapExternalMetadataToInternalMetadata({
-    children,
-    component,
-    props,
+): ReactRenderTreeNode => {
+  const internalMetadata = mapExternalMetadataToInternalMetadata({
+    internalMetadata: { children, component, props },
   });
 
-const makeTagNode = (
-  tagName: keyof HTMLElementTagNameMap,
-  id: string
-): ReactTreeNode => ({
-  id: crypto.randomUUID(),
-  childNodes: [],
-  metadata: {
-    component: {
-      kind: "tag",
-      tagName,
-    },
-    children: [],
-    props: {},
-    hooks: [],
-    id,
-  },
-});
-
-const renderComponent = ({
-  internalMetadata,
-  parentNode,
-}: {
-  parentNode: ReactTreeNode;
-  internalMetadata: ReactComponentInternalMetadata;
-}): ReactTreeNode => {
-  if (!currentTreeRef.tree) {
-    throw new Error("Cannot render component outside of react tree");
+  if (!currentTreeRef.renderTree?.currentlyRendering) {
+    const rootRenderNode: ReactRenderTreeNode = {
+      internalMetadata: internalMetadata,
+      id: crypto.randomUUID(),
+      childNodes: [],
+      computedViewTreeNode: null,
+    };
+    currentTreeRef.renderTree = {
+      currentHookOrderInsideComponent: 0,
+      currentlyRendering: null,
+      root: rootRenderNode,
+    };
+    return rootRenderNode;
   }
-  currentTreeRef.tree.currentlyRendering = internalMetadata;
-
-  const newNode: ReactTreeNode = {
+  const newRenderTreeNode: ReactRenderTreeNode = {
     id: crypto.randomUUID(),
-    metadata: internalMetadata,
     childNodes: [],
+    computedViewTreeNode: null,
+    internalMetadata: internalMetadata,
   };
-  const existingMetadataNode = parentNode.childNodes.find(
-    ({ metadata }) => metadata.id === internalMetadata.id
+  currentTreeRef.renderTree.currentlyRendering.childNodes.push(
+    newRenderTreeNode
   );
 
-  if (existingMetadataNode) {
-    existingMetadataNode.metadata = internalMetadata; // update the existing metadata to the latest as it used the updated state value to generate it
-  } else {
-    parentNode.childNodes.push(newNode);
+  // const parentRenderTreeNode =
+  //   ??
+  //   currentTreeRef.renderTree.root;
+
+  return newRenderTreeNode;
+};
+
+// const makeTagNode = ({
+//   id,
+//   tagName,
+// }: {
+//   tagName: keyof HTMLElementTagNameMap;
+//   id: string;
+// }): ReactViewTreeNode => ({
+//   id: crypto.randomUUID(),
+//   childNodes: [],
+//   metadata: {
+//     component: {
+//       kind: "tag",
+//       tagName,
+//     },
+//     children: [],
+//     props: {},
+//     hooks: [],
+//     id,
+//   },
+// });
+
+const renderComponent = ({
+  renderTreeNode,
+  parentViewNode,
+}: {
+  parentViewNode: ReactViewTreeNode;
+
+  renderTreeNode: ReactRenderTreeNode;
+}): ReactViewTreeNode => {
+  if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
+    throw new Error("Cannot render component outside of react tree");
   }
-  switch (internalMetadata.component.kind) {
+
+  currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
+  const newNode: ReactViewTreeNode = {
+    id: crypto.randomUUID(),
+    metadata: renderTreeNode.internalMetadata, // now making a new div node
+    childNodes: [],
+  };
+
+  // parentViewNode.childNodes.push(newNode);
+
+  // const associatedRenderNodes = findAssociatedRenderNode(internalMetadata);
+  renderTreeNode.computedViewTreeNode = newNode;
+  // at first computes button and span
+
+  // it should be appended to the new output of the function, not the parent
+  // wait not even, it should just be passed we shouldn't be doing that
+  const fullyComputedChildren = renderTreeNode.internalMetadata.children.map(
+    // now we have all the div's computed children
+    (child) =>
+      renderComponent({
+        renderTreeNode: child,
+        parentViewNode: newNode,
+      })
+  );
+
+  switch (renderTreeNode.internalMetadata.component.kind) {
     case "tag": {
+      newNode.childNodes = fullyComputedChildren;
+      parentViewNode.childNodes.push(newNode);
       break;
     }
     case "function": {
-      const childMetadata = internalMetadata.component.function(
-        internalMetadata.props
-      );
+      const childrenSpreadProps =
+        fullyComputedChildren.length > 0
+          ? { children: fullyComputedChildren }
+          : false;
+      // a component can only output one computed metadata, hence the reason for fragments
 
-      renderComponent({
-        internalMetadata: childMetadata,
-        parentNode: newNode,
+      const computedRenderTreeNode =
+        renderTreeNode.internalMetadata.component.function({
+          ...renderTreeNode.internalMetadata.props,
+          ...childrenSpreadProps,
+        }); // Component outputs a div
+
+      const viewNode = renderComponent({
+        renderTreeNode: computedRenderTreeNode,
+        parentViewNode: newNode,
       });
+      parentViewNode.childNodes.push(viewNode);
       break;
     }
   }
 
-  // then render the children as siblings...
-  internalMetadata.children.forEach((childMetadata) => {
-    renderComponent({
-      internalMetadata: childMetadata,
-      parentNode: newNode,
-    });
-  });
-
   return newNode;
 };
-let currentTreeRef: { tree: ReactTree | null; firstRender: boolean } = {
-  firstRender: true,
-  tree: null,
+const currentTreeRef: {
+  viewTree: ReactViewTree | null;
+  renderTree: ReactRenderTree | null;
+} = {
+  viewTree: null,
+  renderTree: null,
 };
-const buildReactTree = (
-  rootComponentMetadata: ReactComponentInternalMetadata
-): ReactTree => {
-  const rootNode: ReactTreeNode = {
+
+function deepTraverseAndModify(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(deepTraverseAndModify);
+  } else if (typeof obj === "object" && obj !== null) {
+    const newObj: any = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (
+        key === "computedViewTreeNode" &&
+        value &&
+        typeof value === "object" &&
+        "id" in value
+      ) {
+        newObj["computedViewTreeNodeId"] = value.id;
+      } else if (
+        key === "internalMetadata" &&
+        value &&
+        typeof value === "object" &&
+        "id" in value
+      ) {
+        let x = value as unknown as { component: any; id: string };
+        newObj["internalMetadataName+Id"] = (
+          x.component.tagName +
+          x.component.name +
+          "-" +
+          x.id.slice(0, 4)
+        ).replace("undefined", "");
+      } else {
+        newObj[key] = deepTraverseAndModify(value);
+      }
+    }
+
+    return newObj;
+  }
+
+  return obj;
+}
+
+const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
+  const rootViewNode: ReactViewTreeNode = {
     id: crypto.randomUUID(),
     childNodes: [],
-    metadata: rootComponentMetadata,
+    metadata: rootRenderTreeNode.internalMetadata,
   };
-  const reactTree: ReactTree = {
-    root: rootNode,
-    currentlyRendering: null,
-    currentHookOrderInsideComponent: 0,
-  };
-  currentTreeRef.tree = reactTree;
+  // const rootRenderNode: ReactRenderTreeNode = {
+  //   id: crypto.randomUUID(),
+  //   childNodes: [],
+  //   computedViewTreeNode: null,
+  //   internalMetadata: rootComponentMetadata,
+  // };
 
-  renderComponent({
-    internalMetadata: rootComponentMetadata,
-    parentNode: rootNode,
+  if (!currentTreeRef.renderTree) {
+    throw new Error("Root node passed is not apart of any react render tree");
+  }
+  const reactViewTree: ReactViewTree = {
+    root: rootViewNode,
+  };
+
+  // const reactRenderTree: ReactRenderTree = {
+  //   currentHookOrderInsideComponent: 0,
+  //   currentlyRendering: null,
+  //   root: rootRenderNode,
+  // };
+  currentTreeRef.viewTree = reactViewTree;
+  // currentTreeRef.renderTree = reactRenderTree;computedViewTreeNode
+
+  const rootOfView = renderComponent({
+    renderTreeNode: rootRenderTreeNode,
+    parentViewNode: rootViewNode,
+    // parentViewNode: rootNode,
   });
 
-  currentTreeRef.tree.currentlyRendering = null;
-  currentTreeRef.firstRender = false;
+  currentTreeRef.viewTree.root = rootOfView;
 
-  console.log(JSON.stringify(reactTree));
+  currentTreeRef.renderTree.currentlyRendering = null;
+  // c.currentlyRendering = null;
 
-  return reactTree;
-};
+  // console.log(JSON.stringify(currentTreeRef));
+  console.log(JSON.stringify(deepTraverseAndModify(currentTreeRef.renderTree)));
 
-const findAssociatedNode = (
-  internalMetadata: ReactComponentInternalMetadata
-) => {
-  if (!currentTreeRef.tree) {
-    throw new Error("Initialized tree");
-  }
-  const aux = (node: ReactTreeNode) => {
-    for (const childNode of node.childNodes) {
-      if (childNode.metadata.id === internalMetadata.id) {
-        return { node: childNode, parentNode: node };
-      }
-
-      return aux(childNode);
-    }
-    return null;
+  return {
+    reactRenderTree: currentTreeRef.renderTree,
+    reactViewTree: currentTreeRef.viewTree,
   };
-
-  return aux(currentTreeRef.tree.root);
-};
-
-const useState = <T>(initialValue: T) => {
-  if (!currentTreeRef.tree?.currentlyRendering) {
-    throw new Error("Cannot call use state outside of a react component");
-  }
-
-  const currentStateOrder = currentTreeRef.tree.currentHookOrderInsideComponent;
-  currentTreeRef.tree.currentHookOrderInsideComponent += 1;
-
-  const capturedCurrentlyRendering = currentTreeRef.tree.currentlyRendering;
-  // const capturedCurrentlyRendering = currentTreeRef.tree.
-
-  if (currentTreeRef.firstRender) {
-    capturedCurrentlyRendering.hooks[currentStateOrder] = {
-      kind: "state",
-      value: initialValue,
-    };
-  }
-
-  const hookMetadata = capturedCurrentlyRendering.hooks[currentStateOrder];
-
-  return [
-    hookMetadata.value as T,
-    (value: T) => {
-      const maybeNode = findAssociatedNode(capturedCurrentlyRendering);
-      if (!maybeNode) {
-        throw new Error("Stale callback, this should never happen");
-      }
-
-      const { node, parentNode } = maybeNode;
-
-      const currentIndex = parentNode.childNodes.findIndex(
-        (childNode) => childNode.id === node.id
-      );
-
-      const newNode: ReactTreeNode = {
-        childNodes: [],
-        id: crypto.randomUUID(),
-        metadata: capturedCurrentlyRendering,
-      };
-
-      hookMetadata.value = value;
-
-      parentNode.childNodes[currentIndex] = renderComponent({
-        parentNode: newNode,
-        internalMetadata: capturedCurrentlyRendering,
-      });
-
-      // associatedNode.
-      hookMetadata.value = value;
-    },
-  ] as const;
 };
 
 const Bar = () => {
-  return createElement("div", {}, createElement("div", {}));
+  return createElement("area", {}, createElement("bdo", {}));
 };
 const Foo = () => {
   const foo = createElement(
-    "div",
+    "br",
     {},
-    createElement("div", null),
+    createElement("article", null),
     createElement(Bar, null)
   );
   return foo;
 };
 
 const Component = () => {
-  const [x, setX] = useState(2);
+  // const [x, setX] = useState(2);
   return createElement(
     "div",
     {},
     createElement(Foo, null),
     createElement("button", {
-      innerText: x,
-      onClick: () => {
-        setX(x + 1);
-      },
+      // innerText: x,
+      // onClick: () => {
+      //   setX(x + 1);
+      // },
     }),
     createElement("span", null)
   );
 };
 
-buildReactTree(createElement(Component, null));
+const applyReactTreeToDom = (rootElement: ReturnType<typeof createElement>) => {
+  const reactTree = buildReactTrees(rootElement);
+};
+
+applyReactTreeToDom(createElement(Component, null));
