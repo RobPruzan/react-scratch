@@ -1,38 +1,187 @@
 {
   "root": {
-    "children": [
+    "id": "166ec765-73a8-41c1-909b-858145fba50b",
+    "childNodes": [
       {
-        "id": "05fa8500-92dc-4658-8fe7-14358cf96af9",
-        "children": [
-          {
-            "id": "8d5a2447-6fbf-4f3f-9405-58f41bbfa049",
-            "children": [
-              {
-                "id": "cb4323f7-eaee-4363-a0f0-06efb48fe3cc",
-                "children": [],
-                "fiber": {
-                  "props": {},
-                  "state": []
-                }
-              }
-            ],
-            "fiber": {
+        "id": "a2bc6511-8a59-4c8f-9a09-7e5f050f63c7",
+        "metadata": {
+          "component": { "kind": "tag", "tagName": "div" },
+          "children": [
+            {
+              "component": { "kind": "function", "name": "Foo" },
+              "children": [],
               "props": {},
-              "state": []
+              "hooks": [],
+              "id": "bc3654ae-2d5a-4439-b664-fac5097bce9d"
+            },
+            {
+              "component": { "kind": "tag", "tagName": "div" },
+              "children": [],
+              "props": {},
+              "hooks": [],
+              "id": "857dd54a-19ff-4fdc-8214-cce32857e70a"
+            },
+            {
+              "component": { "kind": "tag", "tagName": "span" },
+              "children": [],
+              "props": {},
+              "hooks": [],
+              "id": "237bceba-2695-4213-ade9-39f56b03bf5e"
             }
-          }
-        ],
-        "fiber": {
+          ],
           "props": {},
-          "state": []
-        }
+          "hooks": [],
+          "id": "0d7ad5c9-9b4d-4a61-b1af-646be82d322b"
+        },
+        "childNodes": [
+          {
+            "id": "38daa00d-ada9-4d08-93de-9eb7e5b8efe4",
+            "metadata": {
+              "component": { "kind": "function", "name": "Foo" },
+              "children": [],
+              "props": {},
+              "hooks": [],
+              "id": "bc3654ae-2d5a-4439-b664-fac5097bce9d"
+            },
+            "childNodes": [
+              {
+                "id": "fd15e959-a77d-4f13-bcd7-0ba52f754023",
+                "metadata": {
+                  "component": { "kind": "tag", "tagName": "div" },
+                  "children": [
+                    {
+                      "component": { "kind": "tag", "tagName": "div" },
+                      "children": [],
+                      "props": {},
+                      "hooks": [],
+                      "id": "5812af80-fdf4-41fa-b839-53140b5c283a"
+                    },
+                    {
+                      "component": { "kind": "function", "name": "Bar" },
+                      "children": [],
+                      "props": {},
+                      "hooks": [],
+                      "id": "d9c2791a-f056-4236-803f-540e04a0125c"
+                    }
+                  ],
+                  "props": {},
+                  "hooks": [],
+                  "id": "98d591f0-c3a9-40f5-84e8-d00f5f7d4ccb"
+                },
+                "childNodes": [
+                  {
+                    "id": "ddcf39bb-ef2f-411d-b9d8-f412ee03e851",
+                    "metadata": {
+                      "component": { "kind": "tag", "tagName": "div" },
+                      "children": [],
+                      "props": {},
+                      "hooks": [],
+                      "id": "5812af80-fdf4-41fa-b839-53140b5c283a"
+                    },
+                    "childNodes": []
+                  },
+                  {
+                    "id": "af68b4cd-f0ca-4fc4-b4d8-9d2fc4fbf478",
+                    "metadata": {
+                      "component": { "kind": "function", "name": "Bar" },
+                      "children": [],
+                      "props": {},
+                      "hooks": [],
+                      "id": "d9c2791a-f056-4236-803f-540e04a0125c"
+                    },
+                    "childNodes": [
+                      {
+                        "id": "6b39e1ee-a96e-4f05-853f-9d8f90e5239a",
+                        "metadata": {
+                          "component": { "kind": "tag", "tagName": "div" },
+                          "children": [
+                            {
+                              "component": { "kind": "tag", "tagName": "div" },
+                              "children": [],
+                              "props": {},
+                              "hooks": [],
+                              "id": "d711e0f4-bbbd-464a-98a6-1cc3553bc422"
+                            }
+                          ],
+                          "props": {},
+                          "hooks": [],
+                          "id": "c476235a-7b08-4df4-a970-71e7d8d12f6b"
+                        },
+                        "childNodes": [
+                          {
+                            "id": "3e353d8e-2e52-40ed-aba2-1b8496c1c7d2",
+                            "metadata": {
+                              "component": { "kind": "tag", "tagName": "div" },
+                              "children": [],
+                              "props": {},
+                              "hooks": [],
+                              "id": "d711e0f4-bbbd-464a-98a6-1cc3553bc422"
+                            },
+                            "childNodes": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "1e305321-04a7-4ea1-b3c3-3e8b64b775ce",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "div" },
+              "children": [],
+              "props": {},
+              "hooks": [],
+              "id": "857dd54a-19ff-4fdc-8214-cce32857e70a"
+            },
+            "childNodes": []
+          },
+          {
+            "id": "971acb05-4e98-4583-a2d5-00bef14f68ef",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "span" },
+              "children": [],
+              "props": {},
+              "hooks": [],
+              "id": "237bceba-2695-4213-ade9-39f56b03bf5e"
+            },
+            "childNodes": []
+          }
+        ]
       }
     ],
-    "fiber": {
+    "metadata": {
+      "component": { "kind": "tag", "tagName": "div" },
+      "children": [
+        {
+          "component": { "kind": "function", "name": "Foo" },
+          "children": [],
+          "props": {},
+          "hooks": [],
+          "id": "bc3654ae-2d5a-4439-b664-fac5097bce9d"
+        },
+        {
+          "component": { "kind": "tag", "tagName": "div" },
+          "children": [],
+          "props": {},
+          "hooks": [],
+          "id": "857dd54a-19ff-4fdc-8214-cce32857e70a"
+        },
+        {
+          "component": { "kind": "tag", "tagName": "span" },
+          "children": [],
+          "props": {},
+          "hooks": [],
+          "id": "237bceba-2695-4213-ade9-39f56b03bf5e"
+        }
+      ],
       "props": {},
-      "state": []
-    },
-    "id": "d6caadab-2ccd-4182-a0d3-9fd5e0ba7b23"
+      "hooks": [],
+      "id": "0d7ad5c9-9b4d-4a61-b1af-646be82d322b"
+    }
   },
-  "currentHookCallOrder": 0
+  "currentlyRendering": null,
+  "currentHookOrderInsideComponent": 0
 }

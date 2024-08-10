@@ -1,228 +1,315 @@
+/**
+ *
+ *
+ * End state im too tired
+ *
+ *
+ * i do want the tree lazily evaluated how its currently happening so we can control the renderings more
+ *
+ *
+ * I want a component to return an "element" object. I don't care what the internal representation is
+ *
+ * the element object should take the tag | component, props and children
+ *
+ * we can than enhance that into a fiber which includes state and effects
+ *
+ *
+ * and the actual tree that holds all that is just an abstraction on top of the fiber
+ *
+ *
+ * so something like:
+ *
+ *
+ * returns -> ReactElement
+ *
+ *
+ * ReactElement immediately lifted to -> ReactFiber
+ *
+ *
+ * ReactFiber rendered to generate -> ReactInternalTree
+ *
+ *
+ * we are currently pretty close to that, we just need the ReactElement -> ReactFiber lifting intermediary step
+ *
+ *
+ *
+ * late night thought, have Internal types and External types, we immediately lift external types to internal types to make it easier to process
+ */
+
 type AnyProps = Record<string, unknown>;
+type run = <T>(f: () => T) => T;
 
-type ReactFiber<T extends Record<string, unknown>> = {
+type ReactComponentFunction<T extends AnyProps> = (
+  props: AnyProps
+) => ReactComponentInternalMetadata;
+
+type ReactComponentExternalMetadata<T extends AnyProps> = {
+  component: keyof HTMLElementTagNameMap | ReactComponentFunction<T>;
   props: T;
-
-  // null tells u when u hit a leaf and u can stop traversing
-  renderFn:
-    | null
-    | ((props: T) => Array<ReactFiber<AnyProps> | keyof HTMLElementTagNameMap>);
-  state: Array<unknown>;
+  children: Array<ReactComponentInternalMetadata>;
 };
 
-type ReactNode = {
+type ReactHookMetadata = {
+  kind: "state";
+  value: unknown;
+};
+
+type ReactComponentInternalMetadata = {
+  component:
+    | {
+        kind: "tag";
+        tagName: keyof HTMLElementTagNameMap;
+      }
+    | {
+        kind: "function";
+        name: string;
+        function: ReactComponentFunction<AnyProps>;
+      };
+
+  props: AnyProps;
+  children: Array<ReactComponentInternalMetadata>;
+  hooks: Array<ReactHookMetadata>;
   id: string;
-  children: Array<ReactNode>;
-  fiber: ReactFiber<AnyProps>;
 };
 
-type ReactInternals = {
-  root: ReactNode;
-  currentHookCallOrder: number;
-};
-type CreateElementArgs<T extends Record<string, any>> = {
-  nodeFnOrLeaf:
-    | ((props: T) => Array<ReactFiber<AnyProps>>)
-    | keyof HTMLElementTagNameMap;
-  props: T;
+type ReactTreeNode = {
+  id: string;
+  childNodes: Array<ReactTreeNode>;
+  metadata: ReactComponentInternalMetadata;
 };
 
-// const reactInternals: ReactInternals = {
-//   currentHookCallOrder: 0,
-//   currentlyRendering: null,
-//   root: null,
-// };
-
-// const dfsFind = ({
-//   searchId,
-//   node,
-// }: {
-//   searchId: string;
-//   node: ReactNode<AnyProps> | null;
-// }): ReactNode<AnyProps> | null => {
-//   if (node === null) {
-//     return null;
-//   }
-
-//   node.children.forEach((childNode) => {
-//     const node = dfsFind({
-//       node: childNode,
-//       searchId,
-//     });
-
-//     if (node?.id === searchId) {
-//       return node;
-//     }
-//   });
-
-//   return null;
-// };
-
-// const mapTagToReactNode = <T extends Record<string, unknown>>(
-//   tagName: keyof HTMLElementTagNameMap
-// ): ReactFiber<T> => ({
-//   props: {} as T,
-//   renderFn: null,
-//   state: [],
-// });
-
-// const mapLeafOrApplyNodeFn = <TProps extends Record<string, unknown>, TMap>({
-//   fn,
-//   nodeFnOrLeaf,
-//   props,
-// }: {
-//   nodeFnOrLeaf: CreateElementArgs<TProps>["nodeFnOrLeaf"];
-//   fn: (leaf: keyof HTMLElementTagNameMap) => TMap;
-//   props: TProps;
-// }) => {
-//   if (typeof nodeFnOrLeaf === "string") {
-//     return fn(nodeFnOrLeaf);
-//   }
-
-//   return nodeFnOrLeaf(props);
-// };
-
-const mapLeafOverNodeFn = <TProps extends Record<string, unknown>, TMap>({
-  fn,
-  nodeFnOrLeaf,
-}: {
-  nodeFnOrLeaf: CreateElementArgs<TProps>["nodeFnOrLeaf"];
-  fn: (leaf: keyof HTMLElementTagNameMap) => TMap;
-}): ((props: TProps) => Array<ReactFiber<AnyProps>>) | TMap => {
-  if (typeof nodeFnOrLeaf === "string") {
-    return fn(nodeFnOrLeaf);
-  }
-
-  return nodeFnOrLeaf;
+type ReactTree = {
+  root: ReactTreeNode;
+  currentlyRendering: ReactComponentInternalMetadata | null;
+  currentHookOrderInsideComponent: number;
+  // would hold component being rendered, current hook being called, info for the hooks basically, but don't need this yet
 };
 
-const mapLeafOverFiber = <TProps extends Record<string, unknown>, TMap>({
-  fn,
-  fiber,
-}: {
-  fiber: ReactFiber<AnyProps> | keyof HTMLElementTagNameMap;
-  fn: (leaf: keyof HTMLElementTagNameMap) => TMap;
-}): ReactFiber<AnyProps> | TMap => {
-  if (typeof fiber === "string") {
-    return fn(fiber);
-  }
+const mapComponentToTaggedUnion = (
+  component: ReactComponentExternalMetadata<AnyProps>["component"]
+): ReactComponentInternalMetadata["component"] =>
+  typeof component === "string"
+    ? { kind: "tag", tagName: component }
+    : { kind: "function", function: component, name: component.name };
 
-  return fiber;
-};
-
-const createFiber = <T extends Record<string, unknown>>({
-  nodeFnOrLeaf,
-  props,
-}: CreateElementArgs<T>): ReactFiber<T> => ({
-  props,
-  state: [],
-  renderFn: mapLeafOverNodeFn({
-    nodeFnOrLeaf,
-    fn: () => null,
-  }),
+const mapExternalMetadataToInternalMetadata = (
+  internalMetadata: ReactComponentExternalMetadata<AnyProps>
+): ReactComponentInternalMetadata => ({
+  component: mapComponentToTaggedUnion(internalMetadata.component),
+  children: internalMetadata.children,
+  props: internalMetadata.props,
+  hooks: [],
+  id: crypto.randomUUID(),
 });
 
-const buildInternals = ({
-  internals,
-  fiber,
-  parentNode,
-}: {
-  internals: ReactInternals;
-  fiber: ReactFiber<AnyProps>;
-  parentNode: ReactNode;
-}) => {
-  if (fiber.renderFn == null) {
-    return;
-  }
-
-  const node: ReactNode = {
-    id: crypto.randomUUID(),
-    children: [],
-    fiber,
-  };
-  parentNode.children.push(node);
-
-  const children = fiber.renderFn(fiber.props);
-
-  for (const fiberOrLeaf of children) {
-    const fiber = mapLeafOverFiber({
-      fn: (leaf) => createFiber({ nodeFnOrLeaf: leaf, props: {} }),
-      fiber: fiberOrLeaf,
-    });
-
-    buildInternals({
-      fiber,
-      internals,
-      parentNode: node,
-    });
-  }
-};
-const generateVirtualDom = (rootFiber: ReactFiber<AnyProps>) => {
-  const root = {
-    children: [],
-    fiber: rootFiber,
-
-    id: crypto.randomUUID(),
-  };
-  const reactInternals: ReactInternals = {
-    root,
-    currentHookCallOrder: 0,
-  };
-
-  buildInternals({
-    fiber: rootFiber,
-    internals: reactInternals,
-    parentNode: root,
+const createElement = <T extends AnyProps>(
+  component: ReactComponentExternalMetadata<T>["component"],
+  props: ReactComponentExternalMetadata<T>["props"],
+  ...children: ReactComponentExternalMetadata<T>["children"]
+): ReactComponentInternalMetadata =>
+  mapExternalMetadataToInternalMetadata({
+    children,
+    component,
+    props,
   });
 
-  console.log(JSON.stringify(reactInternals));
+const makeTagNode = (
+  tagName: keyof HTMLElementTagNameMap,
+  id: string
+): ReactTreeNode => ({
+  id: crypto.randomUUID(),
+  childNodes: [],
+  metadata: {
+    component: {
+      kind: "tag",
+      tagName,
+    },
+    children: [],
+    props: {},
+    hooks: [],
+    id,
+  },
+});
+
+// const renderComponent = ({
+//   component,
+//   parentNode,
+// }: {
+//   parentNode: ReactTreeNode;
+//   component: ReactComponentInternalMetadata["component"];
+//   }): ReactTreeNode => {
+//   if (!currentTreeRef.tree) {
+//     throw new Error("Cannot render component outside of react tree")
+//   }
+//   switch (component.kind) {
+//     case "tag": {
+//       // its a leaf node
+//       const newNode = makeTagNode(component.tagName);
+//       parentNode.childNodes.push(newNode);
+//       return newNode;
+//     }
+
+//     case "function": {
+
+//       const returnedInternalMetadata = component.function(
+//         parentNode.metadata.props
+//       );
+
+//       const newNode: ReactTreeNode = {
+//         id: crypto.randomUUID(),
+//         metadata: returnedInternalMetadata,
+//         childNodes: [],
+//       };
+//       returnedInternalMetadata.children.forEach((childComponent) => {
+//         const childNode = renderComponent({
+//           component: childComponent,
+//           parentNode: newNode,
+//         });
+//         // avoid appending the leaf twice
+//         if (childNode.metadata.component.kind === "function") {
+//           newNode.childNodes.push(childNode);
+//         }
+//       });
+
+//       parentNode.childNodes.push(newNode);
+
+//       return newNode;
+//     }
+//   }
+//   component satisfies never;
+// };
+
+const renderComponent = ({
+  internalMetadata,
+  parentNode,
+}: {
+  parentNode: ReactTreeNode;
+  internalMetadata: ReactComponentInternalMetadata;
+}): ReactTreeNode => {
+  if (!currentTreeRef.tree) {
+    throw new Error("Cannot render component outside of react tree");
+  }
+
+  const newNode: ReactTreeNode = {
+    id: crypto.randomUUID(),
+    metadata: internalMetadata,
+    childNodes: [],
+  };
+  // if (parentNode)
+  parentNode.childNodes.push(newNode);
+  switch (internalMetadata.component.kind) {
+    case "tag": {
+      // const tagNode = makeTagNode(
+      //   internalMetadata.component.tagName,
+      //   internalMetadata.id
+      // );
+      // parentNode.childNodes.push(tagNode);
+      break;
+      // return tagNode;
+    }
+    case "function": {
+      currentTreeRef.tree.currentlyRendering = internalMetadata;
+      const childMetadata = internalMetadata.component.function(
+        internalMetadata.props
+      );
+      renderComponent({
+        internalMetadata: childMetadata,
+        parentNode: newNode,
+      });
+      break;
+    }
+  }
+
+  // then render the children as siblings...
+  internalMetadata.children.forEach((childMetadata) => {
+    renderComponent({
+      internalMetadata: childMetadata,
+      parentNode: newNode,
+    });
+  });
+
+  return newNode;
+};
+let currentTreeRef: { tree: ReactTree | null; firstRender: boolean } = {
+  firstRender: true,
+  tree: null,
+};
+const buildReactTree = (
+  rootComponentMetadata: ReactComponentInternalMetadata
+): ReactTree => {
+  const rootNode: ReactTreeNode = {
+    id: crypto.randomUUID(),
+    childNodes: [],
+    metadata: rootComponentMetadata,
+  };
+  const reactTree: ReactTree = {
+    root: rootNode,
+    currentlyRendering: null,
+    currentHookOrderInsideComponent: 0,
+  };
+  currentTreeRef.tree = reactTree;
+
+  renderComponent({
+    internalMetadata: rootComponentMetadata,
+    parentNode: rootNode,
+  });
+
+  currentTreeRef.tree.currentlyRendering = null;
+  currentTreeRef.firstRender = false;
+
+  console.log(JSON.stringify(reactTree));
+
+  return reactTree;
 };
 
-const SomeComponent = () => {
+const useState = <T>(initialValue: T) => {
+  if (!currentTreeRef.tree?.currentlyRendering) {
+    throw new Error("Cannot call use state outside of a react component");
+  }
+
+  const currentStateOrder = currentTreeRef.tree.currentHookOrderInsideComponent;
+  currentTreeRef.tree.currentHookOrderInsideComponent += 1;
+
+  if (currentTreeRef.firstRender) {
+    currentTreeRef.tree.currentlyRendering.hooks[currentStateOrder] = {
+      kind: "state",
+      value: initialValue,
+    };
+  }
+
+  const hookMetadata =
+    currentTreeRef.tree.currentlyRendering.hooks[currentStateOrder];
+
   return [
-    createFiber({
-      nodeFnOrLeaf: "div",
-      props: {},
-    }),
-    createFiber({
-      nodeFnOrLeaf: () => [
-        {
-          renderFn: () => ["div"],
-          props: {},
-          state: [],
-        },
-      ],
-      props: {},
-    }),
+    hookMetadata.value as T,
+    (value: T) => {
+      hookMetadata.value = value;
+    },
   ];
 };
 
-generateVirtualDom({
-  props: {},
-  renderFn: SomeComponent,
-  state: [],
-});
+const Bar = () => {
+  return createElement("div", {}, createElement("div", {}));
+};
+const Foo = () => {
+  const foo = createElement(
+    "div",
+    {},
+    createElement("div", {}),
+    createElement(Bar, {})
+  );
+  return foo;
+};
 
-// const reactTree: ReactTree = {
+const Component = () => {
+  // const [x, setX] = useState(2);
+  return createElement(
+    "div",
+    {},
+    createElement(Foo, {}),
+    createElement("div", {}),
+    createElement("span", {})
+  );
+};
 
-// }
-
-// const createElementFromNode = (node: ReactNode) => {
-//   const newEl = document.createElement(node.tagName);
-//   return newEl;
-// };
-
-// const render = (node: ReactNode, domElement: HTMLElement) => {
-//   console.log("rendering root");
-//   const el = createElementFromNode(node);
-//   domElement.appendChild(el);
-// };
-
-// window.onload = () => {
-//   render(
-//     {
-//       tagName: "div",
-//     },
-//     document.getElementById("root")!
-//   );
-// };
+buildReactTree(Component());
