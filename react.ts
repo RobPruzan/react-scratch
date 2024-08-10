@@ -1,5 +1,5 @@
 type AnyProps = Record<string, unknown> | null;
-type run = <T>(f: () => T) => T;
+const run = <T>(f: () => T) => f();
 
 type ReactComponentFunction<T extends AnyProps> = (
   props: AnyProps
@@ -110,7 +110,15 @@ const renderComponent = ({
     metadata: internalMetadata,
     childNodes: [],
   };
-  parentNode.childNodes.push(newNode);
+  const existingMetadataNode = parentNode.childNodes.find(
+    ({ metadata }) => metadata.id === internalMetadata.id
+  );
+
+  if (existingMetadataNode) {
+    existingMetadataNode.metadata = internalMetadata; // update the existing metadata to the latest as it used the updated state value to generate it
+  } else {
+    parentNode.childNodes.push(newNode);
+  }
   switch (internalMetadata.component.kind) {
     case "tag": {
       break;
@@ -119,6 +127,7 @@ const renderComponent = ({
       const childMetadata = internalMetadata.component.function(
         internalMetadata.props
       );
+
       renderComponent({
         internalMetadata: childMetadata,
         parentNode: newNode,
@@ -169,6 +178,26 @@ const buildReactTree = (
   return reactTree;
 };
 
+const findAssociatedNode = (
+  internalMetadata: ReactComponentInternalMetadata
+) => {
+  if (!currentTreeRef.tree) {
+    throw new Error("Initialized tree");
+  }
+  const aux = (node: ReactTreeNode) => {
+    for (const childNode of node.childNodes) {
+      if (childNode.metadata.id === internalMetadata.id) {
+        return { node: childNode, parentNode: node };
+      }
+
+      return aux(childNode);
+    }
+    return null;
+  };
+
+  return aux(currentTreeRef.tree.root);
+};
+
 const useState = <T>(initialValue: T) => {
   if (!currentTreeRef.tree?.currentlyRendering) {
     throw new Error("Cannot call use state outside of a react component");
@@ -177,19 +206,46 @@ const useState = <T>(initialValue: T) => {
   const currentStateOrder = currentTreeRef.tree.currentHookOrderInsideComponent;
   currentTreeRef.tree.currentHookOrderInsideComponent += 1;
 
+  const capturedCurrentlyRendering = currentTreeRef.tree.currentlyRendering;
+  // const capturedCurrentlyRendering = currentTreeRef.tree.
+
   if (currentTreeRef.firstRender) {
-    currentTreeRef.tree.currentlyRendering.hooks[currentStateOrder] = {
+    capturedCurrentlyRendering.hooks[currentStateOrder] = {
       kind: "state",
       value: initialValue,
     };
   }
 
-  const hookMetadata =
-    currentTreeRef.tree.currentlyRendering.hooks[currentStateOrder];
+  const hookMetadata = capturedCurrentlyRendering.hooks[currentStateOrder];
 
   return [
     hookMetadata.value as T,
     (value: T) => {
+      const maybeNode = findAssociatedNode(capturedCurrentlyRendering);
+      if (!maybeNode) {
+        throw new Error("Stale callback, this should never happen");
+      }
+
+      const { node, parentNode } = maybeNode;
+
+      const currentIndex = parentNode.childNodes.findIndex(
+        (childNode) => childNode.id === node.id
+      );
+
+      const newNode: ReactTreeNode = {
+        childNodes: [],
+        id: crypto.randomUUID(),
+        metadata: capturedCurrentlyRendering,
+      };
+
+      hookMetadata.value = value;
+
+      parentNode.childNodes[currentIndex] = renderComponent({
+        parentNode: newNode,
+        internalMetadata: capturedCurrentlyRendering,
+      });
+
+      // associatedNode.
       hookMetadata.value = value;
     },
   ] as const;
