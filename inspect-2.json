@@ -1,0 +1,112 @@
+[
+  {
+    "id": "ac327e5b-6b0a-4bb7-8002-714d7db5cbb0",
+    "childNodes": [],
+    "computedViewTreeNode": {
+      "id": "bfe645a2-991a-4281-b0c9-e0dd9d7e0e81",
+      "metadata": {
+        "component": { "kind": "tag", "tagName": "button" },
+        "children": [],
+        "props": { "innerText": "Count: 3" },
+        "hooks": [],
+        "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+      },
+      "childNodes": []
+    },
+    "internalMetadata": {
+      "component": { "kind": "tag", "tagName": "button" },
+      "children": [],
+      "props": { "innerText": "Count: 3" },
+      "hooks": [],
+      "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+    },
+    "hooks": [],
+    "localRenderOrder": 1
+  },
+  {
+    "id": "546f076a-bbad-4a01-b009-910068824e26",
+    "childNodes": [],
+    "computedViewTreeNode": {
+      "id": "82c760be-2eb3-4631-b974-ade14c2878a4",
+      "metadata": {
+        "component": { "kind": "tag", "tagName": "div" },
+        "children": [
+          {
+            "id": "ac327e5b-6b0a-4bb7-8002-714d7db5cbb0",
+            "childNodes": [],
+            "computedViewTreeNode": {
+              "id": "bfe645a2-991a-4281-b0c9-e0dd9d7e0e81",
+              "metadata": {
+                "component": { "kind": "tag", "tagName": "button" },
+                "children": [],
+                "props": { "innerText": "Count: 3" },
+                "hooks": [],
+                "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+              },
+              "childNodes": []
+            },
+            "internalMetadata": {
+              "component": { "kind": "tag", "tagName": "button" },
+              "children": [],
+              "props": { "innerText": "Count: 3" },
+              "hooks": [],
+              "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+            },
+            "hooks": [],
+            "localRenderOrder": 1
+          }
+        ],
+        "props": {},
+        "hooks": [],
+        "id": "9d364cb3-b359-4707-abae-4d24371fd101"
+      },
+      "childNodes": [
+        {
+          "id": "bfe645a2-991a-4281-b0c9-e0dd9d7e0e81",
+          "metadata": {
+            "component": { "kind": "tag", "tagName": "button" },
+            "children": [],
+            "props": { "innerText": "Count: 3" },
+            "hooks": [],
+            "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+          },
+          "childNodes": []
+        }
+      ]
+    },
+    "internalMetadata": {
+      "component": { "kind": "tag", "tagName": "div" },
+      "children": [
+        {
+          "id": "ac327e5b-6b0a-4bb7-8002-714d7db5cbb0",
+          "childNodes": [],
+          "computedViewTreeNode": {
+            "id": "bfe645a2-991a-4281-b0c9-e0dd9d7e0e81",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "button" },
+              "children": [],
+              "props": { "innerText": "Count: 3" },
+              "hooks": [],
+              "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+            },
+            "childNodes": []
+          },
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "button" },
+            "children": [],
+            "props": { "innerText": "Count: 3" },
+            "hooks": [],
+            "id": "a409441c-ecd9-44dd-8380-2f59f2d0b6b1"
+          },
+          "hooks": [],
+          "localRenderOrder": 1
+        }
+      ],
+      "props": {},
+      "hooks": [],
+      "id": "9d364cb3-b359-4707-abae-4d24371fd101"
+    },
+    "hooks": [],
+    "localRenderOrder": 1
+  }
+]

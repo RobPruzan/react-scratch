@@ -1,0 +1,60 @@
+{
+  "id": "bac1bc74-68b2-44c0-8f06-21fb089bb30f",
+  "childNodes": [
+    {
+      "id": "cae27795-6707-4d7b-ba21-77985a8ba75b",
+      "metadata": {
+        "component": { "kind": "tag", "tagName": "div" },
+        "children": [
+          {
+            "id": "f398c93f-521d-4f30-842c-77dd7bc6a48a",
+            "childNodes": [],
+            "computedViewTreeNode": {
+              "id": "72126b74-1571-4f16-be49-64b931f1ddc2",
+              "metadata": {
+                "component": { "kind": "tag", "tagName": "button" },
+                "children": [],
+                "props": { "innerText": "Count: 3" },
+                "hooks": [],
+                "id": "7b6c7530-1e97-4f23-97bc-1f9ef0ad5e9a"
+              },
+              "childNodes": []
+            },
+            "internalMetadata": {
+              "component": { "kind": "tag", "tagName": "button" },
+              "children": [],
+              "props": { "innerText": "Count: 3" },
+              "hooks": [],
+              "id": "7b6c7530-1e97-4f23-97bc-1f9ef0ad5e9a"
+            },
+            "hooks": [],
+            "localRenderOrder": 1
+          }
+        ],
+        "props": {},
+        "hooks": [],
+        "id": "5b30428a-c35b-41ee-8880-f15ff8d6ed51"
+      },
+      "childNodes": [
+        {
+          "id": "3f5c42e2-66de-4f6f-90bf-bba18777b7d8",
+          "metadata": {
+            "component": { "kind": "tag", "tagName": "button" },
+            "children": [],
+            "props": { "innerText": "Count: 2" },
+            "hooks": [],
+            "id": "32b69568-b8fd-4a3c-a519-d4b2e2a2c801"
+          },
+          "childNodes": []
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "component": { "kind": "function", "name": "Component" },
+    "children": [],
+    "props": null,
+    "hooks": [],
+    "id": "70a8b56b-8ecb-4530-816a-c1da33f93e4c"
+  }
+}
