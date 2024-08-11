@@ -1,97 +1,161 @@
 {
-  "id": "d8fcb072-201b-4ec9-9326-a99880190efe",
-  "metadata": {
+  "internalMetadata": {
     "component": { "kind": "function", "name": "NestThis" },
     "children": [],
     "props": null,
     "hooks": [],
-    "id": "6f51e3f3-6418-4465-99a0-2b5b7fe19844"
+    "id": "e40f0477-692c-425f-9a3b-a3557a88cbb9"
   },
+  "id": "eb073910-4b46-47da-91ca-804e69fab027",
   "childNodes": [
     {
-      "id": "2266fd5f-5f09-4edd-8ef4-18146d0b870a",
-      "metadata": {
-        "component": { "kind": "function", "name": "SimpleParent" },
-        "children": [
-          {
-            "id": "616dc033-c103-4f86-be66-28211aa2574f",
-            "childNodes": [
-              {
-                "id": "8d54e760-c317-46b4-a8c3-59274a070c59",
-                "childNodes": [],
-                "computedViewTreeNodeId": "8fb43c8e-e0ea-4190-ae1f-fb543130c0b7",
-                "internalMetadata": {
-                  "component": { "kind": "tag", "tagName": "h2" },
-                  "children": [],
-                  "props": { "innerText": "Im a simple child!!" },
-                  "hooks": [],
-                  "id": "2d02b929-3036-4015-9c3c-9638b8279876"
-                },
-                "hooks": [],
-                "localRenderOrder": 1
-              }
-            ],
-            "computedViewTreeNodeId": "40067ec3-2c00-450e-8919-e4b9e6fe130a",
-            "internalMetadata": {
-              "component": { "kind": "function", "name": "SimpleChild" },
-              "children": [],
-              "props": null,
-              "hooks": [],
-              "id": "586cd923-5c7d-4df8-95c3-6151953b9c56"
-            },
-            "hooks": [],
-            "localRenderOrder": 1
-          }
-        ],
-        "props": null,
-        "hooks": [],
-        "id": "35d427b5-8e9b-4dd8-99c1-3700b52630b7"
-      },
+      "id": "9eb33e6a-1a99-4438-86c4-b346fe6fceb1",
       "childNodes": [
         {
-          "id": "e032a01e-9c26-444f-87e7-65c7bf16c693",
-          "metadata": {
+          "id": "b00fd101-a942-44f4-ae7b-f66aaee6e25a",
+          "childNodes": [],
+          "computedViewTreeNodeId": "a1fd9caf-6b64-483a-b685-c41f9eab21c8",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "h2" },
+            "children": [],
+            "props": { "innerText": "Im a simple child!!" },
+            "hooks": [],
+            "id": "f958729c-a01e-4328-a520-ad3ef6e4769f"
+          },
+          "hooks": [],
+          "localRenderOrder": 1
+        }
+      ],
+      "computedViewTreeNodeId": "b922bc9e-b101-45d4-9153-2b3cc3015dcf",
+      "internalMetadata": {
+        "component": { "kind": "function", "name": "SimpleChild" },
+        "children": [],
+        "props": null,
+        "hooks": [],
+        "id": "72f93681-3df2-45c8-9448-b25ba27505a0"
+      },
+      "hooks": [],
+      "localRenderOrder": 1
+    },
+    {
+      "id": "29a4b765-5a70-4d63-bd7d-63bff5fd6d67",
+      "childNodes": [],
+      "computedViewTreeNodeId": "c794f0ea-c3de-4acf-b733-0e8cab431114",
+      "internalMetadata": {
+        "component": { "kind": "tag", "tagName": "div" },
+        "children": [],
+        "props": { "innerText": "part of the simple child" },
+        "hooks": [],
+        "id": "518661eb-190a-4c68-8085-e8a4d6d3f789"
+      },
+      "hooks": [],
+      "localRenderOrder": 1
+    },
+    {
+      "id": "6047f748-1141-4517-b26a-bdcc3a64c2db",
+      "childNodes": [
+        {
+          "id": "9bcd811d-b1b3-4b3d-bafe-b563da6631c3",
+          "childNodes": [],
+          "computedViewTreeNodeId": "d5b74f4f-6e6c-4bae-b0ed-af9d176f554d",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "button" },
+            "children": [],
+            "props": { "innerText": "trigger update" },
+            "hooks": [],
+            "id": "7d43469b-2423-49dd-8be6-cc80d0791b1b"
+          },
+          "hooks": [],
+          "localRenderOrder": 1
+        },
+        {
+          "id": "fc6e965c-eb31-4ebb-a9d8-2f6987bd2157",
+          "childNodes": [],
+          "computedViewTreeNodeId": "7bc97384-2abb-40de-9842-0bdac184d6fb",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "div" },
+            "children": [],
+            "props": { "innerText": "parent of the simple parent" },
+            "hooks": [],
+            "id": "ad29fc69-2acc-4800-84fd-599ae4cee2b1"
+          },
+          "hooks": [],
+          "localRenderOrder": 1
+        },
+        {
+          "id": "ba0f599d-a15d-4cb6-aa45-75a6719f0548",
+          "childNodes": [],
+          "computedViewTreeNodeId": "adce12f5-76c4-4500-8e9d-8d825b876444",
+          "internalMetadata": {
             "component": { "kind": "tag", "tagName": "div" },
             "children": [
               {
-                "id": "00debfe7-4f26-40d8-9e1d-0927c023b481",
+                "id": "9bcd811d-b1b3-4b3d-bafe-b563da6631c3",
                 "childNodes": [],
-                "computedViewTreeNodeId": "ee264d22-02c6-46d1-928b-8b83ee572586",
+                "computedViewTreeNodeId": "d5b74f4f-6e6c-4bae-b0ed-af9d176f554d",
                 "internalMetadata": {
                   "component": { "kind": "tag", "tagName": "button" },
                   "children": [],
                   "props": { "innerText": "trigger update" },
                   "hooks": [],
-                  "id": "3625d84f-5916-46b9-b776-0cceab445dd5"
+                  "id": "7d43469b-2423-49dd-8be6-cc80d0791b1b"
                 },
                 "hooks": [],
                 "localRenderOrder": 1
               },
               {
-                "id": "616dc033-c103-4f86-be66-28211aa2574f",
+                "id": "fc6e965c-eb31-4ebb-a9d8-2f6987bd2157",
+                "childNodes": [],
+                "computedViewTreeNodeId": "7bc97384-2abb-40de-9842-0bdac184d6fb",
+                "internalMetadata": {
+                  "component": { "kind": "tag", "tagName": "div" },
+                  "children": [],
+                  "props": { "innerText": "parent of the simple parent" },
+                  "hooks": [],
+                  "id": "ad29fc69-2acc-4800-84fd-599ae4cee2b1"
+                },
+                "hooks": [],
+                "localRenderOrder": 1
+              },
+              {
+                "id": "9eb33e6a-1a99-4438-86c4-b346fe6fceb1",
                 "childNodes": [
                   {
-                    "id": "8d54e760-c317-46b4-a8c3-59274a070c59",
+                    "id": "b00fd101-a942-44f4-ae7b-f66aaee6e25a",
                     "childNodes": [],
-                    "computedViewTreeNodeId": "8fb43c8e-e0ea-4190-ae1f-fb543130c0b7",
+                    "computedViewTreeNodeId": "a1fd9caf-6b64-483a-b685-c41f9eab21c8",
                     "internalMetadata": {
                       "component": { "kind": "tag", "tagName": "h2" },
                       "children": [],
                       "props": { "innerText": "Im a simple child!!" },
                       "hooks": [],
-                      "id": "2d02b929-3036-4015-9c3c-9638b8279876"
+                      "id": "f958729c-a01e-4328-a520-ad3ef6e4769f"
                     },
                     "hooks": [],
                     "localRenderOrder": 1
                   }
                 ],
-                "computedViewTreeNodeId": "40067ec3-2c00-450e-8919-e4b9e6fe130a",
+                "computedViewTreeNodeId": "b922bc9e-b101-45d4-9153-2b3cc3015dcf",
                 "internalMetadata": {
                   "component": { "kind": "function", "name": "SimpleChild" },
                   "children": [],
                   "props": null,
                   "hooks": [],
-                  "id": "586cd923-5c7d-4df8-95c3-6151953b9c56"
+                  "id": "72f93681-3df2-45c8-9448-b25ba27505a0"
+                },
+                "hooks": [],
+                "localRenderOrder": 1
+              },
+              {
+                "id": "29a4b765-5a70-4d63-bd7d-63bff5fd6d67",
+                "childNodes": [],
+                "computedViewTreeNodeId": "c794f0ea-c3de-4acf-b733-0e8cab431114",
+                "internalMetadata": {
+                  "component": { "kind": "tag", "tagName": "div" },
+                  "children": [],
+                  "props": { "innerText": "part of the simple child" },
+                  "hooks": [],
+                  "id": "518661eb-190a-4c68-8085-e8a4d6d3f789"
                 },
                 "hooks": [],
                 "localRenderOrder": 1
@@ -99,46 +163,69 @@
             ],
             "props": null,
             "hooks": [],
-            "id": "9b173350-48c7-4f92-89d2-aa2ca13693a4"
+            "id": "b3d90b4a-6b99-4e42-b00e-0723619b04ce"
           },
-          "childNodes": [
-            {
-              "id": "ee264d22-02c6-46d1-928b-8b83ee572586",
-              "metadata": {
-                "component": { "kind": "tag", "tagName": "button" },
-                "children": [],
-                "props": { "innerText": "trigger update" },
-                "hooks": [],
-                "id": "3625d84f-5916-46b9-b776-0cceab445dd5"
-              },
-              "childNodes": []
-            },
-            {
-              "id": "40067ec3-2c00-450e-8919-e4b9e6fe130a",
-              "metadata": {
-                "component": { "kind": "function", "name": "SimpleChild" },
-                "children": [],
-                "props": null,
-                "hooks": [],
-                "id": "586cd923-5c7d-4df8-95c3-6151953b9c56"
-              },
-              "childNodes": [
-                {
-                  "id": "8fb43c8e-e0ea-4190-ae1f-fb543130c0b7",
-                  "metadata": {
-                    "component": { "kind": "tag", "tagName": "h2" },
-                    "children": [],
-                    "props": { "innerText": "Im a simple child!!" },
-                    "hooks": [],
-                    "id": "2d02b929-3036-4015-9c3c-9638b8279876"
-                  },
-                  "childNodes": []
-                }
-              ]
-            }
-          ]
+          "hooks": [],
+          "localRenderOrder": 2
         }
-      ]
+      ],
+      "computedViewTreeNodeId": "6b678425-c9d9-405d-b6b8-2134780e0797",
+      "internalMetadata": {
+        "component": { "kind": "function", "name": "SimpleParent" },
+        "children": [
+          {
+            "id": "9eb33e6a-1a99-4438-86c4-b346fe6fceb1",
+            "childNodes": [
+              {
+                "id": "b00fd101-a942-44f4-ae7b-f66aaee6e25a",
+                "childNodes": [],
+                "computedViewTreeNodeId": "a1fd9caf-6b64-483a-b685-c41f9eab21c8",
+                "internalMetadata": {
+                  "component": { "kind": "tag", "tagName": "h2" },
+                  "children": [],
+                  "props": { "innerText": "Im a simple child!!" },
+                  "hooks": [],
+                  "id": "f958729c-a01e-4328-a520-ad3ef6e4769f"
+                },
+                "hooks": [],
+                "localRenderOrder": 1
+              }
+            ],
+            "computedViewTreeNodeId": "b922bc9e-b101-45d4-9153-2b3cc3015dcf",
+            "internalMetadata": {
+              "component": { "kind": "function", "name": "SimpleChild" },
+              "children": [],
+              "props": null,
+              "hooks": [],
+              "id": "72f93681-3df2-45c8-9448-b25ba27505a0"
+            },
+            "hooks": [],
+            "localRenderOrder": 1
+          },
+          {
+            "id": "29a4b765-5a70-4d63-bd7d-63bff5fd6d67",
+            "childNodes": [],
+            "computedViewTreeNodeId": "c794f0ea-c3de-4acf-b733-0e8cab431114",
+            "internalMetadata": {
+              "component": { "kind": "tag", "tagName": "div" },
+              "children": [],
+              "props": { "innerText": "part of the simple child" },
+              "hooks": [],
+              "id": "518661eb-190a-4c68-8085-e8a4d6d3f789"
+            },
+            "hooks": [],
+            "localRenderOrder": 1
+          }
+        ],
+        "props": null,
+        "hooks": [],
+        "id": "36d548b9-425e-49ba-8da6-1445d4afec65"
+      },
+      "hooks": [{ "kind": "state", "value": 2 }],
+      "localRenderOrder": 1
     }
-  ]
+  ],
+  "computedViewTreeNodeId": "fd11d761-1c28-45df-b91a-0bc3415fb167",
+  "hooks": [],
+  "localRenderOrder": 0
 }

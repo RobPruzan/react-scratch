@@ -38,6 +38,7 @@ type ReactViewTreeNode = {
   id: string;
   childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
+  renderedById: string;
 };
 
 type ReactViewTree = {
@@ -275,13 +276,63 @@ function deepClone(obj: any) {
   return copy;
 }
 
+const isChildOf = ({
+  potentialChildId,
+  potentialParentId,
+}: {
+  potentialParentId: string;
+  potentialChildId: string;
+}): boolean => {
+  const aux = ({
+    node,
+    searchId,
+  }: {
+    node: ReactRenderTreeNode;
+    searchId: string;
+  }): ReactRenderTreeNode | undefined => {
+    if (node.id === searchId) {
+      return node;
+    }
+
+    for (const child of node.childNodes) {
+      const res = aux({
+        node: child,
+        searchId,
+      });
+      if (res) {
+        return res;
+      }
+    }
+  };
+
+  if (!currentTreeRef.renderTree) {
+    throw new Error("Invariant error must have render tree");
+  }
+
+  const start = aux({
+    node: currentTreeRef.renderTree.root,
+    searchId: potentialParentId,
+  });
+
+  if (!start) {
+    throw new Error("Invariant error can't start from a detached node");
+  }
+
+  return !!aux({
+    node: start,
+    searchId: potentialChildId,
+  });
+};
+
 const renderComponent = ({
   renderTreeNode,
   parentViewNode,
+  startingFromRenderNodeId,
 }: {
   parentViewNode: ReactViewTreeNode;
 
   renderTreeNode: ReactRenderTreeNode;
+  startingFromRenderNodeId: string;
 }): ReactViewTreeNode => {
   if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
     throw new Error("Cannot render component outside of react tree");
@@ -291,6 +342,7 @@ const renderComponent = ({
     id: crypto.randomUUID(),
     metadata: renderTreeNode.internalMetadata, // now making a new div node
     childNodes: [],
+    renderedById: renderTreeNode.id,
   };
 
   currentTreeRef.viewTree.viewNodePool.push(newNode);
@@ -301,33 +353,83 @@ const renderComponent = ({
   // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
   // so we should make a pool of view nodes that we can access during render
   const fullyComputedChildren = renderTreeNode.internalMetadata.children.map(
-    (child) => {
-      if (child.computedViewTreeNodeId) {
-        const node = currentTreeRef.viewTree?.viewNodePool.find(
-          (node) => node.id === child.computedViewTreeNodeId
-        );
-        if (!node) {
-          throw new Error("Invariant, this must exist");
-        }
-        // const node = findParentViewNode(child.computedViewTreeNodeId);
-        return { viewNode: node, renderNode: child };
+    (
+      child
+    ): { viewNode: ReactViewTreeNode; renderNode: ReactRenderTreeNode } => {
+      const reRenderChild = () => {
+        const accumulatingNode: ReactViewTreeNode = {
+          id: crypto.randomUUID(),
+          metadata: child.internalMetadata,
+          childNodes: [],
+          renderedById: child.id,
+        };
+        const viewNode = renderComponent({
+          renderTreeNode: child,
+          parentViewNode: accumulatingNode,
+          startingFromRenderNodeId,
+        });
+        return { viewNode, renderNode: child };
+      };
+      // this check isn't good because it means we will never re-compute
+      // what we need to do is check the render tree if we need to re-render this child
+      // we can do this by checking if this associated tree node is a child of the rendered component
+      // maybe each view node should have a parent component id
+      // every time we render (call the function) we pass that function render node down
+      const computedNode = currentTreeRef.viewTree?.viewNodePool.find(
+        (node) => node.id === child.computedViewTreeNodeId
+      );
+
+      if (!computedNode) {
+        // console.log("no computed node, rendering for the first time");
+        return reRenderChild();
       }
+      // console.log("render tree node", JSON.stringify(renderTreeNode));
+      // console.log("the render tree", JSON.stringify(currentTreeRef.renderTree));
+      const shouldReRender = isChildOf({
+        potentialChildId: child.id,
+        potentialParentId: startingFromRenderNodeId, // this doesn't make sense, we are rendering x, first we render the children, and it will never be the case the children
+        // have a parent of what they are a child of
+      });
+
+      if (!shouldReRender) {
+        console.log(
+          `skipping re-rendering, ${getComponentName(
+            child.internalMetadata
+          )}-${JSON.stringify(
+            child.internalMetadata.props
+          )} not a child of ${getComponentName(
+            renderTreeNode.internalMetadata
+          )}-${JSON.stringify(renderTreeNode.internalMetadata.props)}`
+        );
+        // skip re-rendering if not a child in the render tree
+        return { viewNode: computedNode, renderNode: child };
+      }
+
+      // console.log("Re-rendering, is a child of re-rendered component");
+
+      return reRenderChild();
+      // const parent =
+      // computedNode?.renderedById
+
+      // if (child.computedViewTreeNodeId) {
+      //   const node = currentTreeRef.viewTree?.viewNodePool.find(
+      //     (node) => node.id === child.computedViewTreeNodeId
+      //   );
+      //   if (!node) {
+      //     throw new Error("Invariant, this must exist");
+      //   }
+      //   // const node = findParentViewNode(child.computedViewTreeNodeId);
+      //   return { viewNode: node, renderNode: child };
+      // }
       // we want to build up the child temporarily detached from the tree
       // then when the consumer decides to render it we add it to the tree
-      const accumulatingNode: ReactViewTreeNode = {
-        id: crypto.randomUUID(),
-        metadata: child.internalMetadata,
-        childNodes: [],
-        poop: "doop",
-      };
 
-      const viewNode = renderComponent({
-        renderTreeNode: child,
-        parentViewNode: accumulatingNode,
-      });
-      console.log("accumulated nodes", JSON.stringify(accumulatingNode));
-      console.log("the view node output", JSON.stringify(viewNode));
-      return { viewNode, renderNode: child };
+      // const viewNode = renderComponent({
+      //   renderTreeNode: child,
+      //   parentViewNode: accumulatingNode,
+      // });
+      // console.log("accumulated nodes", JSON.stringify(accumulatingNode));
+      // console.log("the view node output", JSON.stringify(viewNode));
     }
   );
 
@@ -338,6 +440,8 @@ const renderComponent = ({
       newNode.childNodes = fullyComputedChildren.map(
         ({ viewNode }) => viewNode
       );
+      // currentTreeRef.viewTree.viewNodePool =
+      //   currentTreeRef.viewTree.viewNodePool.filter((n) => n.id !== newNode.id);
       parentViewNode.childNodes.push(newNode);
       break;
     }
@@ -364,8 +468,11 @@ const renderComponent = ({
       const viewNode = renderComponent({
         renderTreeNode: computedRenderTreeNode,
         parentViewNode: newNode,
+        startingFromRenderNodeId,
       });
 
+      // currentTreeRef.viewTree.viewNodePool =
+      //   currentTreeRef.viewTree.viewNodePool.filter((n) => n.id !== newNode.id);
       parentViewNode.childNodes.push(viewNode);
       break;
     }
@@ -423,6 +530,7 @@ const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
     id: crypto.randomUUID(),
     metadata: rootRenderTreeNode.internalMetadata,
     childNodes: [],
+    renderedById: rootRenderTreeNode.id,
   };
   // rootRenderTreeNode.computedViewTreeNode = rootViewNode;
 
@@ -444,10 +552,11 @@ const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
     // i need to understand what this outputs
     renderTreeNode: rootRenderTreeNode,
     parentViewNode: rootViewNode,
+    startingFromRenderNodeId: rootRenderTreeNode.id,
   });
-
-  console.log("output", JSON.stringify(output));
-  console.log("root", JSON.stringify(rootViewNode));
+  // currentTreeRef.viewTree.root = output;
+  // console.log("output", JSON.stringify(output));
+  // console.log("root", JSON.stringify(rootViewNode));
   currentTreeRef.renderTree.currentlyRendering = null;
   currentTreeRef.renderTree.isFirstRender = false;
 
@@ -539,6 +648,7 @@ const useState = <T>(initialValue: T) => {
         childNodes: [],
         id: crypto.randomUUID(),
         metadata: capturedCurrentlyRenderingRenderNode.internalMetadata,
+        renderedById: capturedCurrentlyRenderingRenderNode.id,
       };
 
       const captureNodeId =
@@ -550,6 +660,7 @@ const useState = <T>(initialValue: T) => {
       const reGeneratedViewTree = renderComponent({
         renderTreeNode: capturedCurrentlyRenderingRenderNode,
         parentViewNode: rootSubTreeNode, // this node needs to be added to the tree
+        startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
       });
 
       // its a detached node and because of that we set it as the root
@@ -625,34 +736,6 @@ const Foo = () => {
   return foo;
 };
 
-const Component = (props: any) => {
-  console.log("Component");
-  // console.log("am i running?");
-  const [x, setX] = useState(2);
-  // console.log("value being read", x);
-  return createElement(
-    "div",
-    {
-      lol: "ok",
-    },
-    createElement("button", {
-      innerText: "so many counters me",
-      onclick: () => {
-        setX(x + 1);
-      },
-    }),
-    createElement("div", {
-      innerText: `look at this count?: ${x}`,
-      style: "color:white;",
-    }),
-    createElement(Bar, null),
-
-    createElement("span", {
-      innerText: "im a span!",
-    })
-  );
-};
-
 const PropsTest = (props: any) => {
   console.log("PropsTest");
   const [update, setUpdate] = useState(false);
@@ -700,9 +783,44 @@ const IsAChild = () => {
 //     createElement(PropsTest, null, childHere)
 //   );
 // };
+const Component = (props: any) => {
+  console.log("Component");
+  // console.log("am i running?");
+  const [x, setX] = useState(2);
+  // console.log("value being read", x);
+  return createElement(
+    "div",
+    {
+      lol: "ok",
+    },
+    createElement("button", {
+      innerText: "so many counters me",
+      onclick: () => {
+        setX(x + 1);
+      },
+    }),
+    createElement("div", {
+      innerText: `look at this count?: ${x}`,
+      style: "color:white;",
+    }),
+    createElement(Bar, null),
+
+    createElement("span", {
+      innerText: "im a span!",
+    })
+  );
+};
 
 const NestThis = () => {
-  return createElement(SimpleParent, null, createElement(SimpleChild, null));
+  return createElement(
+    SimpleParent,
+    null,
+    createElement(SimpleChild, null),
+    createElement("div", {
+      innerText: "part of the simple child",
+    }),
+    createElement(Component, null)
+  );
 };
 
 const SimpleParent = (props: any) => {
@@ -716,6 +834,9 @@ const SimpleParent = (props: any) => {
         setX(x + 1);
       },
       innerText: "trigger update",
+    }),
+    createElement("div", {
+      innerText: "parent of the simple parent",
     }),
     ...props.children
   );
@@ -772,7 +893,7 @@ const render = (
   domEl: HTMLElement
 ) => {
   const { reactViewTree } = buildReactTrees(rootElement);
-  console.log(JSON.stringify(reactViewTree));
+  // console.log(JSON.stringify(reactViewTree));
   applyViewTreeToDomEl({
     parentDomNode: domEl,
     reactViewNode: reactViewTree.root,

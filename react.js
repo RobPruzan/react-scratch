@@ -175,8 +175,41 @@ function deepClone(obj) {
     }
     return copy;
 }
+var isChildOf = function (_a) {
+    var potentialChildId = _a.potentialChildId, potentialParentId = _a.potentialParentId;
+    var aux = function (_a) {
+        var node = _a.node, searchId = _a.searchId;
+        if (node.id === searchId) {
+            return node;
+        }
+        for (var _i = 0, _b = node.childNodes; _i < _b.length; _i++) {
+            var child = _b[_i];
+            var res = aux({
+                node: child,
+                searchId: searchId,
+            });
+            if (res) {
+                return res;
+            }
+        }
+    };
+    if (!currentTreeRef.renderTree) {
+        throw new Error("Invariant error must have render tree");
+    }
+    var start = aux({
+        node: currentTreeRef.renderTree.root,
+        searchId: potentialParentId,
+    });
+    if (!start) {
+        throw new Error("Invariant error can't start from a detached node");
+    }
+    return !!aux({
+        node: start,
+        searchId: potentialChildId,
+    });
+};
 var renderComponent = function (_a) {
-    var renderTreeNode = _a.renderTreeNode, parentViewNode = _a.parentViewNode;
+    var renderTreeNode = _a.renderTreeNode, parentViewNode = _a.parentViewNode, startingFromRenderNodeId = _a.startingFromRenderNodeId;
     if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
         throw new Error("Cannot render component outside of react tree");
     }
@@ -184,6 +217,7 @@ var renderComponent = function (_a) {
         id: crypto.randomUUID(),
         metadata: renderTreeNode.internalMetadata, // now making a new div node
         childNodes: [],
+        renderedById: renderTreeNode.id,
     };
     currentTreeRef.viewTree.viewNodePool.push(newNode);
     renderTreeNode.computedViewTreeNodeId = newNode.id;
@@ -193,29 +227,64 @@ var renderComponent = function (_a) {
     // so we should make a pool of view nodes that we can access during render
     var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
         var _a;
-        if (child.computedViewTreeNodeId) {
-            var node = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
-            if (!node) {
-                throw new Error("Invariant, this must exist");
-            }
-            // const node = findParentViewNode(child.computedViewTreeNodeId);
-            return { viewNode: node, renderNode: child };
+        var reRenderChild = function () {
+            var accumulatingNode = {
+                id: crypto.randomUUID(),
+                metadata: child.internalMetadata,
+                childNodes: [],
+                renderedById: child.id,
+            };
+            var viewNode = renderComponent({
+                renderTreeNode: child,
+                parentViewNode: accumulatingNode,
+                startingFromRenderNodeId: startingFromRenderNodeId,
+            });
+            return { viewNode: viewNode, renderNode: child };
+        };
+        // this check isn't good because it means we will never re-compute
+        // what we need to do is check the render tree if we need to re-render this child
+        // we can do this by checking if this associated tree node is a child of the rendered component
+        // maybe each view node should have a parent component id
+        // every time we render (call the function) we pass that function render node down
+        var computedNode = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
+        if (!computedNode) {
+            // console.log("no computed node, rendering for the first time");
+            return reRenderChild();
         }
+        // console.log("render tree node", JSON.stringify(renderTreeNode));
+        // console.log("the render tree", JSON.stringify(currentTreeRef.renderTree));
+        var shouldReRender = isChildOf({
+            potentialChildId: child.id,
+            potentialParentId: startingFromRenderNodeId, // this doesn't make sense, we are rendering x, first we render the children, and it will never be the case the children
+            // have a parent of what they are a child of
+        });
+        if (!shouldReRender) {
+            console.log("skipping re-rendering, ".concat(getComponentName(child.internalMetadata), "-").concat(JSON.stringify(child.internalMetadata.props), " not a child of ").concat(getComponentName(renderTreeNode.internalMetadata), "-").concat(JSON.stringify(renderTreeNode.internalMetadata.props)));
+            // skip re-rendering if not a child in the render tree
+            return { viewNode: computedNode, renderNode: child };
+        }
+        // console.log("Re-rendering, is a child of re-rendered component");
+        return reRenderChild();
+        // const parent =
+        // computedNode?.renderedById
+        // if (child.computedViewTreeNodeId) {
+        //   const node = currentTreeRef.viewTree?.viewNodePool.find(
+        //     (node) => node.id === child.computedViewTreeNodeId
+        //   );
+        //   if (!node) {
+        //     throw new Error("Invariant, this must exist");
+        //   }
+        //   // const node = findParentViewNode(child.computedViewTreeNodeId);
+        //   return { viewNode: node, renderNode: child };
+        // }
         // we want to build up the child temporarily detached from the tree
         // then when the consumer decides to render it we add it to the tree
-        var accumulatingNode = {
-            id: crypto.randomUUID(),
-            metadata: child.internalMetadata,
-            childNodes: [],
-            poop: "doop",
-        };
-        var viewNode = renderComponent({
-            renderTreeNode: child,
-            parentViewNode: accumulatingNode,
-        });
-        console.log("accumulated nodes", JSON.stringify(accumulatingNode));
-        console.log("the view node output", JSON.stringify(viewNode));
-        return { viewNode: viewNode, renderNode: child };
+        // const viewNode = renderComponent({
+        //   renderTreeNode: child,
+        //   parentViewNode: accumulatingNode,
+        // });
+        // console.log("accumulated nodes", JSON.stringify(accumulatingNode));
+        // console.log("the view node output", JSON.stringify(viewNode));
     });
     switch (renderTreeNode.internalMetadata.component.kind) {
         case "tag": {
@@ -225,6 +294,8 @@ var renderComponent = function (_a) {
                 var viewNode = _a.viewNode;
                 return viewNode;
             });
+            // currentTreeRef.viewTree.viewNodePool =
+            //   currentTreeRef.viewTree.viewNodePool.filter((n) => n.id !== newNode.id);
             parentViewNode.childNodes.push(newNode);
             break;
         }
@@ -246,7 +317,10 @@ var renderComponent = function (_a) {
             var viewNode = renderComponent({
                 renderTreeNode: computedRenderTreeNode,
                 parentViewNode: newNode,
+                startingFromRenderNodeId: startingFromRenderNodeId,
             });
+            // currentTreeRef.viewTree.viewNodePool =
+            //   currentTreeRef.viewTree.viewNodePool.filter((n) => n.id !== newNode.id);
             parentViewNode.childNodes.push(viewNode);
             break;
         }
@@ -294,6 +368,7 @@ var buildReactTrees = function (rootRenderTreeNode) {
         id: crypto.randomUUID(),
         metadata: rootRenderTreeNode.internalMetadata,
         childNodes: [],
+        renderedById: rootRenderTreeNode.id,
     };
     // rootRenderTreeNode.computedViewTreeNode = rootViewNode;
     if (!currentTreeRef.renderTree) {
@@ -312,9 +387,11 @@ var buildReactTrees = function (rootRenderTreeNode) {
         // i need to understand what this outputs
         renderTreeNode: rootRenderTreeNode,
         parentViewNode: rootViewNode,
+        startingFromRenderNodeId: rootRenderTreeNode.id,
     });
-    console.log("output", JSON.stringify(output));
-    console.log("root", JSON.stringify(rootViewNode));
+    // currentTreeRef.viewTree.root = output;
+    // console.log("output", JSON.stringify(output));
+    // console.log("root", JSON.stringify(rootViewNode));
     currentTreeRef.renderTree.currentlyRendering = null;
     currentTreeRef.renderTree.isFirstRender = false;
     return {
@@ -394,6 +471,7 @@ var useState = function (initialValue) {
                 childNodes: [],
                 id: crypto.randomUUID(),
                 metadata: capturedCurrentlyRenderingRenderNode.internalMetadata,
+                renderedById: capturedCurrentlyRenderingRenderNode.id,
             };
             var captureNodeId = capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId;
             var parentNode = findParentViewNode(captureNodeId);
@@ -401,6 +479,7 @@ var useState = function (initialValue) {
             var reGeneratedViewTree = renderComponent({
                 renderTreeNode: capturedCurrentlyRenderingRenderNode,
                 parentViewNode: rootSubTreeNode, // this node needs to be added to the tree
+                startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
             });
             // its a detached node and because of that we set it as the root
             var index = parentNode === null || parentNode === void 0 ? void 0 : parentNode.childNodes.findIndex(function (node) { return captureNodeId === node.id; });
@@ -458,25 +537,6 @@ var Foo = function () {
     }));
     return foo;
 };
-var Component = function (props) {
-    console.log("Component");
-    // console.log("am i running?");
-    var _a = useState(2), x = _a[0], setX = _a[1];
-    // console.log("value being read", x);
-    return createElement("div", {
-        lol: "ok",
-    }, createElement("button", {
-        innerText: "so many counters me",
-        onclick: function () {
-            setX(x + 1);
-        },
-    }), createElement("div", {
-        innerText: "look at this count?: ".concat(x),
-        style: "color:white;",
-    }), createElement(Bar, null), createElement("span", {
-        innerText: "im a span!",
-    }));
-};
 var PropsTest = function (props) {
     console.log("PropsTest");
     var _a = useState(false), update = _a[0], setUpdate = _a[1];
@@ -519,8 +579,29 @@ var IsAChild = function () {
 //     createElement(PropsTest, null, childHere)
 //   );
 // };
+var Component = function (props) {
+    console.log("Component");
+    // console.log("am i running?");
+    var _a = useState(2), x = _a[0], setX = _a[1];
+    // console.log("value being read", x);
+    return createElement("div", {
+        lol: "ok",
+    }, createElement("button", {
+        innerText: "so many counters me",
+        onclick: function () {
+            setX(x + 1);
+        },
+    }), createElement("div", {
+        innerText: "look at this count?: ".concat(x),
+        style: "color:white;",
+    }), createElement(Bar, null), createElement("span", {
+        innerText: "im a span!",
+    }));
+};
 var NestThis = function () {
-    return createElement(SimpleParent, null, createElement(SimpleChild, null));
+    return createElement(SimpleParent, null, createElement(SimpleChild, null), createElement("div", {
+        innerText: "part of the simple child",
+    }), createElement(Component, null));
 };
 var SimpleParent = function (props) {
     console.log("rendering simple parent");
@@ -532,6 +613,9 @@ var SimpleParent = function (props) {
                 setX(x + 1);
             },
             innerText: "trigger update",
+        }),
+        createElement("div", {
+            innerText: "parent of the simple parent",
         })], props.children, false));
 };
 var SimpleChild = function () {
@@ -571,7 +655,7 @@ var applyViewTreeToDomEl = function (_a) {
 };
 var render = function (rootElement, domEl) {
     var reactViewTree = buildReactTrees(rootElement).reactViewTree;
-    console.log(JSON.stringify(reactViewTree));
+    // console.log(JSON.stringify(reactViewTree));
     applyViewTreeToDomEl({
         parentDomNode: domEl,
         reactViewNode: reactViewTree.root,
