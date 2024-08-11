@@ -1,91 +1,13 @@
-[
-  {
-    "id": "71b57eae-5326-4ad7-bcfc-897aea252b52",
+{
+  "root": {
+    "id": "2d18bc76-74ed-4ee0-be81-7c850c9fe9d3",
+    "childNodes": [],
     "metadata": {
-      "component": { "kind": "tag", "tagName": "area" },
-      "children": [
-        {
-          "id": "c197b4d0-3c7c-4076-ad07-8d68a56c7142",
-          "childNodes": [],
-          "computedViewTreeNode": {
-            "id": "d7f3bc66-29e4-4cd3-b19a-f3bc592c7d19",
-            "metadata": {
-              "component": { "kind": "tag", "tagName": "button" },
-              "children": [],
-              "props": { "innerText": "conditional render" },
-              "hooks": [],
-              "id": "a2f1eee5-fdd7-4c1f-9317-bc0626edb131"
-            },
-            "childNodes": []
-          },
-          "internalMetadata": {
-            "component": { "kind": "tag", "tagName": "button" },
-            "children": [],
-            "props": { "innerText": "conditional render" },
-            "hooks": [],
-            "id": "a2f1eee5-fdd7-4c1f-9317-bc0626edb131"
-          },
-          "hooks": [],
-          "localRenderOrder": 1
-        },
-        {
-          "id": "75ad0ecd-5e82-4a50-b36c-c501854a0232",
-          "childNodes": [],
-          "computedViewTreeNode": {
-            "id": "71612a90-f64c-49bf-b699-b649c87c4535",
-            "metadata": {
-              "component": { "kind": "tag", "tagName": "span" },
-              "children": [],
-              "props": {
-                "style": "display:flex; height:50px; width:50px; background-color: white;"
-              },
-              "hooks": [],
-              "id": "387b9391-78be-41c4-b3f9-192eeb7bbb72"
-            },
-            "childNodes": []
-          },
-          "internalMetadata": {
-            "component": { "kind": "tag", "tagName": "span" },
-            "children": [],
-            "props": {
-              "style": "display:flex; height:50px; width:50px; background-color: white;"
-            },
-            "hooks": [],
-            "id": "387b9391-78be-41c4-b3f9-192eeb7bbb72"
-          },
-          "hooks": [],
-          "localRenderOrder": 1
-        }
-      ],
-      "props": {},
+      "component": { "kind": "function", "name": "NestThis" },
+      "children": [],
+      "props": null,
       "hooks": [],
-      "id": "71ca6c45-4c4c-43ef-a294-4b67fdc37fc5"
-    },
-    "childNodes": [
-      {
-        "id": "d7f3bc66-29e4-4cd3-b19a-f3bc592c7d19",
-        "metadata": {
-          "component": { "kind": "tag", "tagName": "button" },
-          "children": [],
-          "props": { "innerText": "conditional render" },
-          "hooks": [],
-          "id": "a2f1eee5-fdd7-4c1f-9317-bc0626edb131"
-        },
-        "childNodes": []
-      },
-      {
-        "id": "71612a90-f64c-49bf-b699-b649c87c4535",
-        "metadata": {
-          "component": { "kind": "tag", "tagName": "span" },
-          "children": [],
-          "props": {
-            "style": "display:flex; height:50px; width:50px; background-color: white;"
-          },
-          "hooks": [],
-          "id": "387b9391-78be-41c4-b3f9-192eeb7bbb72"
-        },
-        "childNodes": []
-      }
-    ]
+      "id": "22487a01-77ae-4d68-a6f2-3a773dfcd5fc"
+    }
   }
-]
+}
