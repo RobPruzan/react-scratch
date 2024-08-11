@@ -380,7 +380,6 @@ namespace React {
     if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
       throw new Error("Cannot render component outside of react tree");
     }
-
     const newNode: ReactViewTreeNode = {
       id: crypto.randomUUID(),
       metadata: renderTreeNode.internalMetadata,
@@ -394,66 +393,71 @@ namespace React {
     // then later when attempting to access its children it will check if its already computed
     // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
     // so we should make a pool of view nodes that we can access during render
-    const fullyComputedChildren = renderTreeNode.internalMetadata.children.map(
-      (
-        child
-      ): { viewNode: ReactViewTreeNode; renderNode: ReactRenderTreeNode } => {
-        const reRenderChild = () => {
-          // root of the new tree, we can safely ignore it
-          const accumulatingNode: ReactViewTreeNode = {
-            id: crypto.randomUUID(),
-            metadata: child.internalMetadata,
-            childNodes: [],
-          };
-
-          const viewNode = renderComponent({
-            renderTreeNode: child,
-            parentViewNode: accumulatingNode,
-            startingFromRenderNodeId,
-          });
-          if (accumulatingNode.childNodes.length > 1) {
-            throw new Error(
-              "Invariant error, should never have more than one child"
-            );
-          }
-          return { viewNode, renderNode: child };
-        };
-        const computedNode = currentTreeRef.viewTree?.viewNodePool.find(
-          (node) => node.id === child.computedViewTreeNodeId
-        );
-        if (!child.computedViewTreeNodeId) {
-          // logging only
-        }
-
-        if (!computedNode) {
-          return reRenderChild();
-        }
-        const shouldReRender = isChildOf({
-          potentialChildId: child.id,
-          potentialParentId: startingFromRenderNodeId,
-        });
-        const parentRenderNode = findNode(
-          startingFromRenderNodeId,
-          currentTreeRef.renderTree?.root!
-        );
-
-        if (!shouldReRender) {
-          console.log(
-            `skipping re-rendering, ${getComponentName(
-              child.internalMetadata
-            )} not a child of ${getComponentName(
-              parentRenderNode.internalMetadata
-            )}`
-          );
-          // skip re-rendering if not a child in the render tree
-          return { viewNode: computedNode, renderNode: child };
-        }
-        return reRenderChild();
-      }
-    );
 
     switch (renderTreeNode.internalMetadata.component.kind) {
       case "tag": {
+        const fullyComputedChildren =
+          renderTreeNode.internalMetadata.children.map(
+            (
+              child
+            ): {
+              viewNode: ReactViewTreeNode;
+              renderNode: ReactRenderTreeNode;
+            } => {
+              const reRenderChild = () => {
+                // root of the new tree, we can safely ignore it
+                const accumulatingNode: ReactViewTreeNode = {
+                  id: crypto.randomUUID(),
+                  metadata: child.internalMetadata,
+                  childNodes: [],
+                };
+
+                const viewNode = renderComponent({
+                  renderTreeNode: child,
+                  parentViewNode: accumulatingNode,
+                  startingFromRenderNodeId,
+                });
+                if (accumulatingNode.childNodes.length > 1) {
+                  throw new Error(
+                    "Invariant error, should never have more than one child"
+                  );
+                }
+                return { viewNode, renderNode: child };
+              };
+              const computedNode = currentTreeRef.viewTree?.viewNodePool.find(
+                (node) => node.id === child.computedViewTreeNodeId
+              );
+              if (!child.computedViewTreeNodeId) {
+                // logging only
+              }
+
+              if (!computedNode) {
+                return reRenderChild();
+              }
+              const shouldReRender = isChildOf({
+                potentialChildId: child.id,
+                potentialParentId: startingFromRenderNodeId,
+              });
+              const parentRenderNode = findNode(
+                startingFromRenderNodeId,
+                currentTreeRef.renderTree?.root!
+              );
+
+              if (!shouldReRender) {
+                console.log(
+                  `skipping re-rendering, ${getComponentName(
+                    child.internalMetadata
+                  )} not a child of ${getComponentName(
+                    parentRenderNode.internalMetadata
+                  )}`
+                );
+                // skip re-rendering if not a child in the render tree
+                return { viewNode: computedNode, renderNode: child };
+              }
+              return reRenderChild();
+            }
+          );
+
         newNode.childNodes = fullyComputedChildren.map(
           ({ viewNode }) => viewNode
         );
@@ -464,14 +468,16 @@ namespace React {
         const childrenSpreadProps =
           renderTreeNode.internalMetadata.children.length > 0
             ? {
-                children: fullyComputedChildren.map(
-                  ({ renderNode }) => renderNode
-                ),
+                children: renderTreeNode.internalMetadata.children,
               }
             : false;
         currentTreeRef.renderTree.localCurrentHookOrder = 0;
         currentTreeRef.renderTree.localComponentRenderMap = {};
         currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
+        console.log(
+          "Running:",
+          getComponentName(renderTreeNode.internalMetadata)
+        );
         const computedRenderTreeNode =
           renderTreeNode.internalMetadata.component.function({
             ...renderTreeNode.internalMetadata.props,

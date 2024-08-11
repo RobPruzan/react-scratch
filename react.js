@@ -259,46 +259,46 @@ var React;
         // then later when attempting to access its children it will check if its already computed
         // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
         // so we should make a pool of view nodes that we can access during render
-        var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
-            var _a, _b;
-            var reRenderChild = function () {
-                // root of the new tree, we can safely ignore it
-                var accumulatingNode = {
-                    id: crypto.randomUUID(),
-                    metadata: child.internalMetadata,
-                    childNodes: [],
-                };
-                var viewNode = renderComponent({
-                    renderTreeNode: child,
-                    parentViewNode: accumulatingNode,
-                    startingFromRenderNodeId: startingFromRenderNodeId,
-                });
-                if (accumulatingNode.childNodes.length > 1) {
-                    throw new Error("Invariant error, should never have more than one child");
-                }
-                return { viewNode: viewNode, renderNode: child };
-            };
-            var computedNode = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
-            if (!child.computedViewTreeNodeId) {
-                // logging only
-            }
-            if (!computedNode) {
-                return reRenderChild();
-            }
-            var shouldReRender = isChildOf({
-                potentialChildId: child.id,
-                potentialParentId: startingFromRenderNodeId,
-            });
-            var parentRenderNode = findNode(startingFromRenderNodeId, (_b = currentTreeRef.renderTree) === null || _b === void 0 ? void 0 : _b.root);
-            if (!shouldReRender) {
-                console.log("skipping re-rendering, ".concat(getComponentName(child.internalMetadata), " not a child of ").concat(getComponentName(parentRenderNode.internalMetadata)));
-                // skip re-rendering if not a child in the render tree
-                return { viewNode: computedNode, renderNode: child };
-            }
-            return reRenderChild();
-        });
         switch (renderTreeNode.internalMetadata.component.kind) {
             case "tag": {
+                var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
+                    var _a, _b;
+                    var reRenderChild = function () {
+                        // root of the new tree, we can safely ignore it
+                        var accumulatingNode = {
+                            id: crypto.randomUUID(),
+                            metadata: child.internalMetadata,
+                            childNodes: [],
+                        };
+                        var viewNode = renderComponent({
+                            renderTreeNode: child,
+                            parentViewNode: accumulatingNode,
+                            startingFromRenderNodeId: startingFromRenderNodeId,
+                        });
+                        if (accumulatingNode.childNodes.length > 1) {
+                            throw new Error("Invariant error, should never have more than one child");
+                        }
+                        return { viewNode: viewNode, renderNode: child };
+                    };
+                    var computedNode = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
+                    if (!child.computedViewTreeNodeId) {
+                        // logging only
+                    }
+                    if (!computedNode) {
+                        return reRenderChild();
+                    }
+                    var shouldReRender = isChildOf({
+                        potentialChildId: child.id,
+                        potentialParentId: startingFromRenderNodeId,
+                    });
+                    var parentRenderNode = findNode(startingFromRenderNodeId, (_b = currentTreeRef.renderTree) === null || _b === void 0 ? void 0 : _b.root);
+                    if (!shouldReRender) {
+                        console.log("skipping re-rendering, ".concat(getComponentName(child.internalMetadata), " not a child of ").concat(getComponentName(parentRenderNode.internalMetadata)));
+                        // skip re-rendering if not a child in the render tree
+                        return { viewNode: computedNode, renderNode: child };
+                    }
+                    return reRenderChild();
+                });
                 newNode.childNodes = fullyComputedChildren.map(function (_a) {
                     var viewNode = _a.viewNode;
                     return viewNode;
@@ -309,15 +309,13 @@ var React;
             case "function": {
                 var childrenSpreadProps = renderTreeNode.internalMetadata.children.length > 0
                     ? {
-                        children: fullyComputedChildren.map(function (_a) {
-                            var renderNode = _a.renderNode;
-                            return renderNode;
-                        }),
+                        children: renderTreeNode.internalMetadata.children,
                     }
                     : false;
                 currentTreeRef.renderTree.localCurrentHookOrder = 0;
                 currentTreeRef.renderTree.localComponentRenderMap = {};
                 currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
+                console.log("Running:", getComponentName(renderTreeNode.internalMetadata));
                 var computedRenderTreeNode = renderTreeNode.internalMetadata.component.function(__assign(__assign({}, renderTreeNode.internalMetadata.props), childrenSpreadProps));
                 var viewNode = renderComponent({
                     renderTreeNode: computedRenderTreeNode,
