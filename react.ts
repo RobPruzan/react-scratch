@@ -221,9 +221,7 @@ const createElement = <T extends AnyProps>(
 const findParentViewNode = (renderNode: ReactViewTreeNode) => {
   console.log("searchign for", renderNode.metadata.id);
   const aux = (viewNode: ReactViewTreeNode) => {
-    if (
-      viewNode.childNodes.some((n) => n.metadata.id === renderNode.metadata.id)
-    ) {
+    if (viewNode.childNodes.some((n) => n.id === renderNode.id)) {
       console.log("for sure found it", viewNode);
       return viewNode;
     }
@@ -237,6 +235,7 @@ const findParentViewNode = (renderNode: ReactViewTreeNode) => {
     if (!currentTreeRef.viewTree?.root) {
       throw new Error("no node found");
     }
+    console.log("the bad case");
     return currentTreeRef.viewTree.root;
   }
   console.log("what?????", result);
@@ -467,6 +466,21 @@ function deepEqual(a: any, b: any): boolean {
 
   return false;
 }
+
+const isInViewTree = (viewNode: ReactViewTreeNode) => {
+  if (!currentTreeRef.viewTree) {
+    throw new Error("invariant");
+  }
+  const aux = (node: ReactViewTreeNode) => {
+    if (node.id === viewNode.id) {
+      return true;
+    }
+
+    return node.childNodes.some(aux);
+  };
+
+  return aux(currentTreeRef.viewTree.root);
+};
 const useState = <T>(initialValue: T) => {
   if (!currentTreeRef.renderTree?.currentlyRendering) {
     throw new Error("Cannot call use state outside of a react component");
@@ -492,6 +506,7 @@ const useState = <T>(initialValue: T) => {
   return [
     hookMetadata.value as T,
     (value: T) => {
+      // console.log("fn id", crypto.randomUUID());
       // console.log("being passed", value);
       hookMetadata.value = value;
       // console.log("setting the hook metadata to", hookMetadata.value);
@@ -510,20 +525,80 @@ const useState = <T>(initialValue: T) => {
         metadata: capturedCurrentlyRenderingRenderNode.internalMetadata,
       };
 
+      const captureNode =
+        capturedCurrentlyRenderingRenderNode.computedViewTreeNode!;
+
       const reGeneratedViewTree = renderComponent({
         renderTreeNode: capturedCurrentlyRenderingRenderNode,
-        parentViewNode: rootSubTreeNode,
+        parentViewNode: rootSubTreeNode, // this node needs to be added to the tree
       });
 
-      const parentNode = findParentViewNode(rootSubTreeNode);
-      // problem, if it renders next to a sibling it will kill it since it does not render that
-      // we shouldn't set the parents child nodes, instead we should find the node, maybe add it, or maybe update it
-      // reGeneratedViewTree.childNodes.forEach(node => )
+      // this updates the render tree to be in sync, but the view tree is still out of sync
 
+      /**
+       * I see so the current setup is:
+       *
+       * u regenerate the view tree at the render node
+       *
+       * the render tree is all up to date with that information
+       *
+       *
+       * the view tree now needs to be updated
+       *
+       * we need the view node of the component so we can update all of its children
+       *
+       * that should just be the view node before we update it?
+       */
+
+      const capturedString = JSON.stringify(captureNode.childNodes);
+      const parentNode = findParentViewNode(captureNode);
+
+      console.log(
+        "is in view tree:",
+        isInViewTree(captureNode),
+        captureNode,
+        "and parent view node",
+        findParentViewNode(captureNode)
+      );
+      // captureNode.childNodes = reGeneratedViewTree.childNodes;
+      const index = parentNode.childNodes.findIndex(
+        (node) => captureNode.id === node.id
+      );
+      parentNode.childNodes[index] = reGeneratedViewTree;
+      // findParentViewNode
+
+      // we want to find the existing node, which should be captured?
+      // console.log("what am i", JSON.stringify(captureNode));
+      // const parentNode = findParentViewNode(captureNode);
+
+      // reGeneratedViewTree.childNodes.forEach(newNode => {
+      //   parentNode.childNodes.forEach(oldNode => {
+      //     if (newNode.metadata.id === oldNode.metadata.id) {
+
+      //     }
+      //   })
+      // } )
+      // console.log("what are you", JSON.stringify(parentNode));
+      // // we are incorrectly updating the tag node, we should be updating the component node which should be there?
+      // console.log("parent node im updating", JSON.stringify(parentNode));
+      // // console.log('child we used', JSON.stringify());
       // parentNode.childNodes.map((existingNode) => {
       //   if (existingNode.metadata.id === )
       // })
-      parentNode.childNodes = reGeneratedViewTree.childNodes;
+
+      // this makes no sense, we should be updating the render nodes element
+
+      // captureNode.childNodes = reGeneratedViewTree
+      console.log(
+        "what is the rengenerated view representing",
+        JSON.stringify(reGeneratedViewTree)
+      );
+      // parentNode.childNodes = reGeneratedViewTree.childNodes;
+
+      // const index = parentNode.childNodes.findIndex(
+      //   (childNode) => childNode.id === rootSubTreeNode.id
+      // );
+      // parentNode.childNodes[index] = reGeneratedViewTree;
 
       if (!capturedCurrentlyRenderingRenderNode.computedViewTreeNode) {
         throw new Error(
@@ -534,10 +609,6 @@ const useState = <T>(initialValue: T) => {
       if (!currentTreeRef.viewTree) {
         throw new Error("Invariant error, no view tree");
       }
-
-      const captured = JSON.stringify(
-        capturedCurrentlyRenderingRenderNode.computedViewTreeNode
-      );
 
       // capturedCurrentlyRenderingRenderNode.internalMetadata.
       console.log(
@@ -550,8 +621,8 @@ const useState = <T>(initialValue: T) => {
         JSON.stringify(reGeneratedViewTree.childNodes),
 
         "\n\n",
-        `But what im assigning to is: \n\n`,
-        captured
+        `But what im replacing is: \n\n`,
+        capturedString
       );
 
       const root = document.getElementById("root")!;
@@ -571,6 +642,7 @@ const useState = <T>(initialValue: T) => {
 
 const Bar = () => {
   const [isRenderingSpan, setIsRenderingSpan] = useState(false);
+  const [x, setX] = useState(2);
   return createElement(
     "area",
     {},
@@ -580,7 +652,13 @@ const Bar = () => {
         setIsRenderingSpan(!isRenderingSpan);
       },
     }),
-
+    createElement("button", {
+      innerText: `Count: ${x}`,
+      onclick: () => {
+        console.log("clicked");
+        setX(x + 1);
+      },
+    }),
     isRenderingSpan &&
       createElement("span", {
         style:
@@ -601,19 +679,13 @@ const Bar = () => {
 
 const Component = () => {
   // console.log("am i running?");
-  const [x, setX] = useState(2);
-  console.log("value being read", x);
+  // const [x, setX] = useState(2);
+  // console.log("value being read", x);
   return createElement(
     "div",
     {},
     // createElement(Foo, null),
-    createElement("button", {
-      innerText: `Count: ${x}`,
-      onclick: () => {
-        console.log("clicked");
-        setX(x + 1);
-      },
-    }),
+
     createElement(Bar, null)
     // createElement("div", {
     //   innerText: `Count: ${x}`,
