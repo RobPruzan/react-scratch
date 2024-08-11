@@ -185,18 +185,36 @@ var renderComponent = function (_a) {
         metadata: renderTreeNode.internalMetadata, // now making a new div node
         childNodes: [],
     };
+    currentTreeRef.viewTree.viewNodePool.push(newNode);
     renderTreeNode.computedViewTreeNodeId = newNode.id;
+    // the idea is we immediately execute the children before running the parent
+    // then later when attempting to access its children it will check if its already computed
+    // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
+    // so we should make a pool of view nodes that we can access during render
     var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
+        var _a;
         if (child.computedViewTreeNodeId) {
-            var node = findParentViewNode(child.computedViewTreeNodeId);
+            var node = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
+            if (!node) {
+                throw new Error("Invariant, this must exist");
+            }
+            // const node = findParentViewNode(child.computedViewTreeNodeId);
             return { viewNode: node, renderNode: child };
         }
-        // we want to lazily add it to the view
-        var copiedNode = deepClone(newNode); // detach from tree, user determines when to add it back
+        // we want to build up the child temporarily detached from the tree
+        // then when the consumer decides to render it we add it to the tree
+        var accumulatingNode = {
+            id: crypto.randomUUID(),
+            metadata: child.internalMetadata,
+            childNodes: [],
+            poop: "doop",
+        };
         var viewNode = renderComponent({
             renderTreeNode: child,
-            parentViewNode: copiedNode,
+            parentViewNode: accumulatingNode,
         });
+        console.log("accumulated nodes", JSON.stringify(accumulatingNode));
+        console.log("the view node output", JSON.stringify(viewNode));
         return { viewNode: viewNode, renderNode: child };
     });
     switch (renderTreeNode.internalMetadata.component.kind) {
@@ -274,8 +292,8 @@ function deepTraverseAndModify(obj) {
 var buildReactTrees = function (rootRenderTreeNode) {
     var rootViewNode = {
         id: crypto.randomUUID(),
-        childNodes: [],
         metadata: rootRenderTreeNode.internalMetadata,
+        childNodes: [],
     };
     // rootRenderTreeNode.computedViewTreeNode = rootViewNode;
     if (!currentTreeRef.renderTree) {
@@ -283,12 +301,20 @@ var buildReactTrees = function (rootRenderTreeNode) {
     }
     var reactViewTree = {
         root: rootViewNode,
+        viewNodePool: [],
     };
     currentTreeRef.viewTree = reactViewTree;
+    // theres clearly something wrong
+    // it replaces what the behavior of the parent that was passed
+    // but does not receive all the appends the root does
+    // the root should be the correct one?
     var output = renderComponent({
+        // i need to understand what this outputs
         renderTreeNode: rootRenderTreeNode,
         parentViewNode: rootViewNode,
     });
+    console.log("output", JSON.stringify(output));
+    console.log("root", JSON.stringify(rootViewNode));
     currentTreeRef.renderTree.currentlyRendering = null;
     currentTreeRef.renderTree.isFirstRender = false;
     return {

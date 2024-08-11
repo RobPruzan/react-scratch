@@ -42,6 +42,7 @@ type ReactViewTreeNode = {
 
 type ReactViewTree = {
   root: ReactViewTreeNode;
+  viewNodePool: Array<ReactViewTreeNode>;
   // currentlyRendering: ReactComponentInternalMetadata | null;
   // currentHookOrderInsideComponent: number;
   // would hold component being rendered, current hook being called, info for the hooks basically, but don't need this yet
@@ -292,19 +293,40 @@ const renderComponent = ({
     childNodes: [],
   };
 
+  currentTreeRef.viewTree.viewNodePool.push(newNode);
+
   renderTreeNode.computedViewTreeNodeId = newNode.id;
+  // the idea is we immediately execute the children before running the parent
+  // then later when attempting to access its children it will check if its already computed
+  // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
+  // so we should make a pool of view nodes that we can access during render
   const fullyComputedChildren = renderTreeNode.internalMetadata.children.map(
     (child) => {
       if (child.computedViewTreeNodeId) {
-        const node = findParentViewNode(child.computedViewTreeNodeId);
+        const node = currentTreeRef.viewTree?.viewNodePool.find(
+          (node) => node.id === child.computedViewTreeNodeId
+        );
+        if (!node) {
+          throw new Error("Invariant, this must exist");
+        }
+        // const node = findParentViewNode(child.computedViewTreeNodeId);
         return { viewNode: node, renderNode: child };
       }
-      // we want to lazily add it to the view
-      const copiedNode = deepClone(newNode); // detach from tree, user determines when to add it back
+      // we want to build up the child temporarily detached from the tree
+      // then when the consumer decides to render it we add it to the tree
+      const accumulatingNode: ReactViewTreeNode = {
+        id: crypto.randomUUID(),
+        metadata: child.internalMetadata,
+        childNodes: [],
+        poop: "doop",
+      };
+
       const viewNode = renderComponent({
         renderTreeNode: child,
-        parentViewNode: copiedNode,
+        parentViewNode: accumulatingNode,
       });
+      console.log("accumulated nodes", JSON.stringify(accumulatingNode));
+      console.log("the view node output", JSON.stringify(viewNode));
       return { viewNode, renderNode: child };
     }
   );
@@ -399,8 +421,8 @@ function deepTraverseAndModify(obj: any): any {
 const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
   const rootViewNode: ReactViewTreeNode = {
     id: crypto.randomUUID(),
-    childNodes: [],
     metadata: rootRenderTreeNode.internalMetadata,
+    childNodes: [],
   };
   // rootRenderTreeNode.computedViewTreeNode = rootViewNode;
 
@@ -409,13 +431,23 @@ const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
   }
   const reactViewTree: ReactViewTree = {
     root: rootViewNode,
+    viewNodePool: [],
   };
 
   currentTreeRef.viewTree = reactViewTree;
+
+  // theres clearly something wrong
+  // it replaces what the behavior of the parent that was passed
+  // but does not receive all the appends the root does
+  // the root should be the correct one?
   const output = renderComponent({
+    // i need to understand what this outputs
     renderTreeNode: rootRenderTreeNode,
     parentViewNode: rootViewNode,
   });
+
+  console.log("output", JSON.stringify(output));
+  console.log("root", JSON.stringify(rootViewNode));
   currentTreeRef.renderTree.currentlyRendering = null;
   currentTreeRef.renderTree.isFirstRender = false;
 
