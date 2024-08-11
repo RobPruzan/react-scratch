@@ -1,75 +1,121 @@
 {
-  "id": "a4d4ff9f-c4fc-45fa-8ddc-72b74c9e36a6",
-  "metadata": {
-    "component": { "kind": "function", "name": "NestThis" },
-    "children": [],
-    "props": null,
-    "hooks": [],
-    "id": "0ec1ea6f-4cf5-4ea3-ac08-9176986d3a78"
-  },
-  "childNodes": [
-    {
-      "id": "15a53671-8f51-40a8-be74-c4e1e1fa1018",
-      "metadata": {
-        "component": { "kind": "tag", "tagName": "div" },
-        "children": [
+  "root": {
+    "id": "eb6be5bf-ff0e-476f-8d31-6146321ff648",
+    "childNodes": [
+      {
+        "id": "c30c55e3-f1c8-413a-8cd7-e9221c137597",
+        "metadata": {},
+        "childNodes": [
           {
-            "id": "a5a32a25-e2c4-465e-bef3-6f1d9dd3af7b",
-            "childNodes": [],
-            "computedViewTreeNodeId": "98c68451-51b6-4c9a-92ab-15a586486c57",
-            "internalMetadata": {
-              "component": { "kind": "tag", "tagName": "button" },
+            "id": "0d040741-4b6e-4575-8dad-040e2cc1badb",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "h2" },
               "children": [],
-              "props": { "innerText": "clicka me" },
+              "props": { "innerText": "Im a simple child!!" },
               "hooks": [],
-              "id": "36d401c2-fb96-4f1f-b02d-97aa1c943bda"
+              "id": "51eaeee3-2901-47cc-9a3d-7134d53c7887"
             },
-            "hooks": [],
-            "localRenderOrder": 1
+            "childNodes": []
           },
           {
-            "id": "531e3090-0e7b-42f1-99bf-36e429a22798",
-            "childNodes": [],
-            "computedViewTreeNodeId": "d88b74e8-57cb-4ff8-b1a2-0e1fa2133a27",
-            "internalMetadata": {
+            "id": "a1696f6f-767b-4e0e-81ff-f8499a816e88",
+            "metadata": {
               "component": { "kind": "tag", "tagName": "div" },
-              "children": [],
-              "props": { "innerText": "Count: 3", "style": "color:white;" },
+              "children": [
+                {
+                  "id": "f5006751-08ba-4b29-b337-26ece84c7460",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "140de243-4c45-4615-8a86-a55c9e35a489",
+                  "internalMetadata": {
+                    "component": { "kind": "tag", "tagName": "button" },
+                    "children": [],
+                    "props": { "innerText": "trigger update" },
+                    "hooks": [],
+                    "id": "2aaf6881-e77a-4afb-a700-4676ad876189"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1
+                },
+                {
+                  "id": "e81b944b-4d96-46ef-b1d0-f1212dbad221",
+                  "childNodes": [
+                    {
+                      "id": "5e970cd0-be70-4d93-8ba3-af9e788230ba",
+                      "childNodes": [],
+                      "computedViewTreeNodeId": "3c3305ac-41ca-46b6-a368-496a3b7b48b7",
+                      "internalMetadata": {
+                        "component": { "kind": "tag", "tagName": "h2" },
+                        "children": [],
+                        "props": { "innerText": "Im a simple child!!" },
+                        "hooks": [],
+                        "id": "96b0b0fb-0ae8-4584-9469-3d04f012da6c"
+                      },
+                      "hooks": [],
+                      "localRenderOrder": 1
+                    }
+                  ],
+                  "computedViewTreeNodeId": "02b2fc0b-ed0b-4313-b93c-5cc7bfe2822f",
+                  "internalMetadata": {
+                    "component": { "kind": "function", "name": "SimpleChild" },
+                    "children": [],
+                    "props": null,
+                    "hooks": [],
+                    "id": "686260ae-8619-461c-90e2-b3d74c8a896f"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1
+                }
+              ],
+              "props": null,
               "hooks": [],
-              "id": "35446b1b-91dc-45af-a0d5-c819928a0419"
+              "id": "2deae182-2ba8-4305-bd6b-ad8708c1cabf"
             },
-            "hooks": [],
-            "localRenderOrder": 1
+            "childNodes": [
+              {
+                "id": "140de243-4c45-4615-8a86-a55c9e35a489",
+                "metadata": {
+                  "component": { "kind": "tag", "tagName": "button" },
+                  "children": [],
+                  "props": { "innerText": "trigger update" },
+                  "hooks": [],
+                  "id": "2aaf6881-e77a-4afb-a700-4676ad876189"
+                },
+                "childNodes": []
+              },
+              {
+                "id": "02b2fc0b-ed0b-4313-b93c-5cc7bfe2822f",
+                "metadata": {
+                  "component": { "kind": "function", "name": "SimpleChild" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "686260ae-8619-461c-90e2-b3d74c8a896f"
+                },
+                "childNodes": [
+                  {
+                    "id": "3c3305ac-41ca-46b6-a368-496a3b7b48b7",
+                    "metadata": {
+                      "component": { "kind": "tag", "tagName": "h2" },
+                      "children": [],
+                      "props": { "innerText": "Im a simple child!!" },
+                      "hooks": [],
+                      "id": "96b0b0fb-0ae8-4584-9469-3d04f012da6c"
+                    },
+                    "childNodes": []
+                  }
+                ]
+              }
+            ]
           }
-        ],
-        "props": null,
-        "hooks": [],
-        "id": "849a141b-f55a-4f7b-8baa-e2a2a21939f7"
-      },
-      "childNodes": [
-        {
-          "id": "98c68451-51b6-4c9a-92ab-15a586486c57",
-          "metadata": {
-            "component": { "kind": "tag", "tagName": "button" },
-            "children": [],
-            "props": { "innerText": "clicka me" },
-            "hooks": [],
-            "id": "36d401c2-fb96-4f1f-b02d-97aa1c943bda"
-          },
-          "childNodes": []
-        },
-        {
-          "id": "d88b74e8-57cb-4ff8-b1a2-0e1fa2133a27",
-          "metadata": {
-            "component": { "kind": "tag", "tagName": "div" },
-            "children": [],
-            "props": { "innerText": "Count: 3", "style": "color:white;" },
-            "hooks": [],
-            "id": "35446b1b-91dc-45af-a0d5-c819928a0419"
-          },
-          "childNodes": []
-        }
-      ]
+        ]
+      }
+    ],
+    "metadata": {
+      "component": { "kind": "function", "name": "NestThis" },
+      "children": [],
+      "props": null,
+      "hooks": [],
+      "id": "3d5233e8-f1fd-4fdf-af9a-0b4664761b50"
     }
-  ]
+  }
 }

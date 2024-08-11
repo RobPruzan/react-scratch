@@ -1,13 +1,157 @@
 {
   "root": {
-    "id": "2d18bc76-74ed-4ee0-be81-7c850c9fe9d3",
-    "childNodes": [],
+    "id": "6592941a-6d6e-4c10-bf33-eb4887b2abab",
+    "childNodes": [
+      {
+        "id": "144396eb-d1c3-47bd-aeb6-e68b4f8d86c5",
+        "metadata": {
+          "component": { "kind": "function", "name": "SimpleParent" },
+          "children": [
+            {
+              "id": "6b351173-50e8-4555-bab4-50fe00441008",
+              "childNodes": [
+                {
+                  "id": "ab912dff-c34e-40bc-834b-98b453babf85",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "19680f32-59f4-41a3-8285-0a002246e514",
+                  "internalMetadata": {
+                    "component": { "kind": "tag", "tagName": "h2" },
+                    "children": [],
+                    "props": { "innerText": "Im a simple child!!" },
+                    "hooks": [],
+                    "id": "1e72c85b-e01b-4969-981f-5498a4aff00d"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1
+                }
+              ],
+              "computedViewTreeNodeId": "f8037468-a97a-4fb4-949a-529aa2cd2377",
+              "internalMetadata": {
+                "component": { "kind": "function", "name": "SimpleChild" },
+                "children": [],
+                "props": null,
+                "hooks": [],
+                "id": "750ca329-8b3e-47e4-836c-89ce62ebad57"
+              },
+              "hooks": [],
+              "localRenderOrder": 1
+            }
+          ],
+          "props": null,
+          "hooks": [],
+          "id": "a2245da6-9356-404b-a6ee-f4f36ebc9289"
+        },
+        "childNodes": [
+          {
+            "id": "087c9f32-74c7-4a23-bff4-3cd0f15864ee",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "h2" },
+              "children": [],
+              "props": { "innerText": "Im a simple child!!" },
+              "hooks": [],
+              "id": "eec4dde1-570c-4d47-a41e-24ecb4996da8"
+            },
+            "childNodes": []
+          },
+          {
+            "id": "31067bdd-bf0d-4670-b574-75bbaa82ab10",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "div" },
+              "children": [
+                {
+                  "id": "524dd724-dc15-455c-ad9f-550446c4de70",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "48218fde-3325-40e3-bb2b-682dc65874c4",
+                  "internalMetadata": {
+                    "component": { "kind": "tag", "tagName": "button" },
+                    "children": [],
+                    "props": { "innerText": "trigger update" },
+                    "hooks": [],
+                    "id": "d9fd343d-75a5-4c77-a0ac-1787c04c165c"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1
+                },
+                {
+                  "id": "6b351173-50e8-4555-bab4-50fe00441008",
+                  "childNodes": [
+                    {
+                      "id": "ab912dff-c34e-40bc-834b-98b453babf85",
+                      "childNodes": [],
+                      "computedViewTreeNodeId": "19680f32-59f4-41a3-8285-0a002246e514",
+                      "internalMetadata": {
+                        "component": { "kind": "tag", "tagName": "h2" },
+                        "children": [],
+                        "props": { "innerText": "Im a simple child!!" },
+                        "hooks": [],
+                        "id": "1e72c85b-e01b-4969-981f-5498a4aff00d"
+                      },
+                      "hooks": [],
+                      "localRenderOrder": 1
+                    }
+                  ],
+                  "computedViewTreeNodeId": "f8037468-a97a-4fb4-949a-529aa2cd2377",
+                  "internalMetadata": {
+                    "component": { "kind": "function", "name": "SimpleChild" },
+                    "children": [],
+                    "props": null,
+                    "hooks": [],
+                    "id": "750ca329-8b3e-47e4-836c-89ce62ebad57"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1
+                }
+              ],
+              "props": null,
+              "hooks": [],
+              "id": "8be39109-669f-4e0f-9801-7b3775372bb1"
+            },
+            "childNodes": [
+              {
+                "id": "48218fde-3325-40e3-bb2b-682dc65874c4",
+                "metadata": {
+                  "component": { "kind": "tag", "tagName": "button" },
+                  "children": [],
+                  "props": { "innerText": "trigger update" },
+                  "hooks": [],
+                  "id": "d9fd343d-75a5-4c77-a0ac-1787c04c165c"
+                },
+                "childNodes": []
+              },
+              {
+                "id": "f8037468-a97a-4fb4-949a-529aa2cd2377",
+                "metadata": {
+                  "component": { "kind": "function", "name": "SimpleChild" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "750ca329-8b3e-47e4-836c-89ce62ebad57"
+                },
+                "childNodes": [
+                  {
+                    "id": "19680f32-59f4-41a3-8285-0a002246e514",
+                    "metadata": {
+                      "component": { "kind": "tag", "tagName": "h2" },
+                      "children": [],
+                      "props": { "innerText": "Im a simple child!!" },
+                      "hooks": [],
+                      "id": "1e72c85b-e01b-4969-981f-5498a4aff00d"
+                    },
+                    "childNodes": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "metadata": {
       "component": { "kind": "function", "name": "NestThis" },
       "children": [],
       "props": null,
       "hooks": [],
-      "id": "22487a01-77ae-4d68-a6f2-3a773dfcd5fc"
+      "id": "267d5efa-4068-417d-ac78-3c32977c8aef"
     }
   }
 }
