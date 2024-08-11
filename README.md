@@ -1,15 +1,8 @@
-# react-scratch
+Reimplements:
+- the internal render tree
+- internal view hierarchy
+- application of view hierarchy to dom
+- a subset of hooks
 
-To install dependencies:
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+While adhering to the existing API and external behavior
