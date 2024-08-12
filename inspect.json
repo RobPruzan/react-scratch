@@ -1,86 +1,174 @@
 {
-  "id": "ba0f599d-a15d-4cb6-aa45-75a6719f0548",
-  "childNodes": [],
-  "computedViewTreeNodeId": "adce12f5-76c4-4500-8e9d-8d825b876444",
-  "internalMetadata": {
-    "component": { "kind": "tag", "tagName": "div" },
-    "children": [
+  "root": {
+    "id": "86f50127-ef2d-4a34-856e-fe3279f2b03b",
+    "metadata": {
+      "component": { "kind": "function", "name": "Increment" },
+      "children": [],
+      "props": null,
+      "hooks": [],
+      "id": "dd27a85e-5da1-4eb8-884d-d70fd7801d69"
+    },
+    "childNodes": [
       {
-        "id": "9bcd811d-b1b3-4b3d-bafe-b563da6631c3",
-        "childNodes": [],
-        "computedViewTreeNodeId": "d5b74f4f-6e6c-4bae-b0ed-af9d176f554d",
-        "internalMetadata": {
-          "component": { "kind": "tag", "tagName": "button" },
-          "children": [],
-          "props": { "innerText": "trigger update" },
-          "hooks": [],
-          "id": "7d43469b-2423-49dd-8be6-cc80d0791b1b"
-        },
-        "hooks": [],
-        "localRenderOrder": 1
-      },
-      {
-        "id": "fc6e965c-eb31-4ebb-a9d8-2f6987bd2157",
-        "childNodes": [],
-        "computedViewTreeNodeId": "7bc97384-2abb-40de-9842-0bdac184d6fb",
-        "internalMetadata": {
+        "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
+        "metadata": {
           "component": { "kind": "tag", "tagName": "div" },
-          "children": [],
-          "props": { "innerText": "parent of the simple parent" },
+          "children": [
+            {
+              "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
+              "childNodes": [],
+              "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+              "internalMetadata": {
+                "component": { "kind": "tag", "tagName": "button" },
+                "children": [],
+                "props": {
+                  "innerText": "so many counters me:2",
+                  "style": "color: orange"
+                },
+                "hooks": [],
+                "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+              },
+              "hooks": [],
+              "localRenderOrder": 1
+            }
+          ],
+          "props": { "style": "color:blue" },
           "hooks": [],
-          "id": "ad29fc69-2acc-4800-84fd-599ae4cee2b1"
+          "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
         },
-        "hooks": [],
-        "localRenderOrder": 1
-      },
-      {
-        "id": "9eb33e6a-1a99-4438-86c4-b346fe6fceb1",
         "childNodes": [
           {
-            "id": "b00fd101-a942-44f4-ae7b-f66aaee6e25a",
-            "childNodes": [],
-            "computedViewTreeNodeId": "a1fd9caf-6b64-483a-b685-c41f9eab21c8",
-            "internalMetadata": {
-              "component": { "kind": "tag", "tagName": "h2" },
+            "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+            "metadata": {
+              "component": { "kind": "tag", "tagName": "button" },
               "children": [],
-              "props": { "innerText": "Im a simple child!!" },
+              "props": {
+                "innerText": "so many counters me:2",
+                "style": "color: orange"
+              },
               "hooks": [],
-              "id": "f958729c-a01e-4328-a520-ad3ef6e4769f"
+              "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+            },
+            "childNodes": []
+          }
+        ]
+      }
+    ]
+  },
+  "viewNodePool": [
+    {
+      "id": "025a490d-df63-48c1-9fd1-fcdef01b689c",
+      "metadata": {
+        "component": { "kind": "function", "name": "Increment" },
+        "children": [],
+        "props": null,
+        "hooks": [],
+        "id": "dd27a85e-5da1-4eb8-884d-d70fd7801d69"
+      },
+      "childNodes": [
+        {
+          "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
+          "metadata": {
+            "component": { "kind": "tag", "tagName": "div" },
+            "children": [
+              {
+                "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
+                "childNodes": [],
+                "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+                "internalMetadata": {
+                  "component": { "kind": "tag", "tagName": "button" },
+                  "children": [],
+                  "props": {
+                    "innerText": "so many counters me:2",
+                    "style": "color: orange"
+                  },
+                  "hooks": [],
+                  "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+                },
+                "hooks": [],
+                "localRenderOrder": 1
+              }
+            ],
+            "props": { "style": "color:blue" },
+            "hooks": [],
+            "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
+          },
+          "childNodes": [
+            {
+              "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+              "metadata": {
+                "component": { "kind": "tag", "tagName": "button" },
+                "children": [],
+                "props": {
+                  "innerText": "so many counters me:2",
+                  "style": "color: orange"
+                },
+                "hooks": [],
+                "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+              },
+              "childNodes": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
+      "metadata": {
+        "component": { "kind": "tag", "tagName": "div" },
+        "children": [
+          {
+            "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
+            "childNodes": [],
+            "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+            "internalMetadata": {
+              "component": { "kind": "tag", "tagName": "button" },
+              "children": [],
+              "props": {
+                "innerText": "so many counters me:2",
+                "style": "color: orange"
+              },
+              "hooks": [],
+              "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
             },
             "hooks": [],
             "localRenderOrder": 1
           }
         ],
-        "computedViewTreeNodeId": "b922bc9e-b101-45d4-9153-2b3cc3015dcf",
-        "internalMetadata": {
-          "component": { "kind": "function", "name": "SimpleChild" },
-          "children": [],
-          "props": null,
-          "hooks": [],
-          "id": "72f93681-3df2-45c8-9448-b25ba27505a0"
-        },
+        "props": { "style": "color:blue" },
         "hooks": [],
-        "localRenderOrder": 1
+        "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
       },
-      {
-        "id": "29a4b765-5a70-4d63-bd7d-63bff5fd6d67",
-        "childNodes": [],
-        "computedViewTreeNodeId": "c794f0ea-c3de-4acf-b733-0e8cab431114",
-        "internalMetadata": {
-          "component": { "kind": "tag", "tagName": "div" },
-          "children": [],
-          "props": { "innerText": "part of the simple child" },
-          "hooks": [],
-          "id": "518661eb-190a-4c68-8085-e8a4d6d3f789"
+      "childNodes": [
+        {
+          "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+          "metadata": {
+            "component": { "kind": "tag", "tagName": "button" },
+            "children": [],
+            "props": {
+              "innerText": "so many counters me:2",
+              "style": "color: orange"
+            },
+            "hooks": [],
+            "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+          },
+          "childNodes": []
+        }
+      ]
+    },
+    {
+      "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
+      "metadata": {
+        "component": { "kind": "tag", "tagName": "button" },
+        "children": [],
+        "props": {
+          "innerText": "so many counters me:2",
+          "style": "color: orange"
         },
         "hooks": [],
-        "localRenderOrder": 1
-      }
-    ],
-    "props": null,
-    "hooks": [],
-    "id": "b3d90b4a-6b99-4e42-b00e-0723619b04ce"
-  },
-  "hooks": [],
-  "localRenderOrder": 2
+        "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+      },
+      "childNodes": []
+    }
+  ]
 }
