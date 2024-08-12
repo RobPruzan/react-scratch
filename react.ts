@@ -584,7 +584,7 @@ namespace React {
     return newRenderTreeNode;
   };
 
-  const findNode = <T extends { id: string; childNodes: Array<T> }>(
+  const findNodeOrThrow = <T extends { id: string; childNodes: Array<T> }>(
     eq: (node: T) => boolean,
     tree: T
   ): T => {
@@ -614,6 +614,17 @@ namespace React {
       );
     }
     return result;
+  };
+
+  const findNode = <T extends { id: string; childNodes: Array<T> }>(
+    eq: (node: T) => boolean,
+    tree: T
+  ): T | null => {
+    try {
+      return findNodeOrThrow(eq, tree);
+    } catch {
+      return null;
+    }
   };
 
   // const findViewNode = (
@@ -797,11 +808,11 @@ namespace React {
   const generateViewTreeHelper = ({
     renderTreeNode,
     startingFromRenderNodeId,
-    viewNodePool,
-  }: {
+  }: // viewNodePool,
+  {
     renderTreeNode: ReactRenderTreeNode;
     startingFromRenderNodeId: string;
-    viewNodePool: Array<ReactViewTreeNode>;
+    // viewNodePool: Array<ReactViewTreeNode>;
   }): ReactViewTreeNode => {
     if (!currentTreeRef.renderTree) {
       throw new Error("Cannot render component outside of react tree");
@@ -831,10 +842,14 @@ namespace React {
               renderNode: ReactRenderTreeNode;
             } => {
               const reRenderChild = () => {
+                console.log(
+                  "re-rendering child",
+                  getComponentRepr(child.internalMetadata)
+                );
                 const viewNode = generateViewTreeHelper({
                   renderTreeNode: child,
                   startingFromRenderNodeId,
-                  viewNodePool,
+                  // viewNodePool,
                 });
                 if (viewNode.childNodes.length > 1) {
                   throw new Error(
@@ -843,21 +858,42 @@ namespace React {
                 }
                 return { viewNode, renderNode: child };
               };
-              const computedNode = viewNodePool.find(
-                (node) => node.id === child.computedViewTreeNodeId
+              // const computedNode = viewNodePool.find(
+              //   (node) => node.id === child.computedViewTreeNodeId
+              // );
+              console.log("node we need", child.computedViewTreeNodeId);
+              console.log(
+                "view tree at time",
+                JSON.stringify(currentTreeRef.viewTree)
               );
               if (!child.computedViewTreeNodeId) {
                 // logging only
               }
+              if (!currentTreeRef.viewTree) {
+                console.log("no tree yet!");
+                // throw new Error(
+                //   "Invariant error must have view tree available"
+                // );
+                return reRenderChild();
+              }
 
+              const computedNode = findNode(
+                (node) => node.id === child.computedViewTreeNodeId,
+                currentTreeRef.viewTree.root
+              );
               if (!computedNode) {
+                // console.log(
+                //   "no computed node, big el",
+                //   getComponentRepr(child.internalMetadata),
+                //   viewNodePool
+                // );
                 return reRenderChild();
               }
               const shouldReRender = isChildOf({
                 potentialChildId: child.id,
                 potentialParentId: startingFromRenderNodeId,
               });
-              const parentRenderNode = findNode(
+              const parentRenderNode = findNodeOrThrow(
                 (node) => node.id === startingFromRenderNodeId,
                 currentTreeRef.renderTree?.root!
               );
@@ -872,6 +908,8 @@ namespace React {
                 );
                 // skip re-rendering if not a child in the render tree
                 return { viewNode: computedNode, renderNode: child };
+              } else {
+                console.log("will NOT be skipping re-rendering");
               }
               return reRenderChild();
             }
@@ -907,9 +945,10 @@ namespace React {
         const viewNode = generateViewTreeHelper({
           renderTreeNode: computedRenderTreeNode,
           startingFromRenderNodeId: renderTreeNode.id,
-          viewNodePool,
+          // viewNodePool,
         });
 
+        // viewNodePool.push(viewNode);
         newNode.childNodes.push(viewNode);
         break;
       }
@@ -1079,7 +1118,7 @@ namespace React {
         );
 
         const previousViewTree = deepCloneTree(
-          findNode(
+          findNodeOrThrow(
             (node) =>
               node.id ===
               capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId,
@@ -1351,7 +1390,12 @@ const NestThis = () => {
   return React.createElement(
     "div",
     null,
-    // React.createElement(SimpleChild, null),
+    React.createElement(SimpleChild, null),
+    React.createElement(
+      SimpleParent,
+      null,
+      React.createElement(SimpleChild, null)
+    ),
     // React.createElement("div", {
     //   innerText: "part of the simple child",
     // }),

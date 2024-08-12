@@ -401,7 +401,7 @@ var React;
         currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
         return newRenderTreeNode;
     };
-    var findNode = function (eq, tree) {
+    var findNodeOrThrow = function (eq, tree) {
         var aux = function (viewNode) {
             for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
                 var node = _a[_i];
@@ -422,6 +422,14 @@ var React;
             throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
         }
         return result;
+    };
+    var findNode = function (eq, tree) {
+        try {
+            return findNodeOrThrow(eq, tree);
+        }
+        catch (_a) {
+            return null;
+        }
     };
     // const findViewNode = (
     //   id: string,
@@ -558,7 +566,7 @@ var React;
         });
     };
     var generateViewTreeHelper = function (_a) {
-        var renderTreeNode = _a.renderTreeNode, startingFromRenderNodeId = _a.startingFromRenderNodeId, viewNodePool = _a.viewNodePool;
+        var renderTreeNode = _a.renderTreeNode, startingFromRenderNodeId = _a.startingFromRenderNodeId;
         if (!currentTreeRef.renderTree) {
             throw new Error("Cannot render component outside of react tree");
         }
@@ -578,32 +586,53 @@ var React;
                 var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
                     var _a;
                     var reRenderChild = function () {
+                        console.log("re-rendering child", getComponentRepr(child.internalMetadata));
                         var viewNode = generateViewTreeHelper({
                             renderTreeNode: child,
                             startingFromRenderNodeId: startingFromRenderNodeId,
-                            viewNodePool: viewNodePool,
+                            // viewNodePool,
                         });
                         if (viewNode.childNodes.length > 1) {
                             throw new Error("Invariant error, should never have more than one child");
                         }
                         return { viewNode: viewNode, renderNode: child };
                     };
-                    var computedNode = viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
+                    // const computedNode = viewNodePool.find(
+                    //   (node) => node.id === child.computedViewTreeNodeId
+                    // );
+                    console.log("node we need", child.computedViewTreeNodeId);
+                    console.log("view tree at time", JSON.stringify(currentTreeRef.viewTree));
                     if (!child.computedViewTreeNodeId) {
                         // logging only
                     }
+                    if (!currentTreeRef.viewTree) {
+                        console.log("no tree yet!");
+                        // throw new Error(
+                        //   "Invariant error must have view tree available"
+                        // );
+                        return reRenderChild();
+                    }
+                    var computedNode = findNode(function (node) { return node.id === child.computedViewTreeNodeId; }, currentTreeRef.viewTree.root);
                     if (!computedNode) {
+                        // console.log(
+                        //   "no computed node, big el",
+                        //   getComponentRepr(child.internalMetadata),
+                        //   viewNodePool
+                        // );
                         return reRenderChild();
                     }
                     var shouldReRender = isChildOf({
                         potentialChildId: child.id,
                         potentialParentId: startingFromRenderNodeId,
                     });
-                    var parentRenderNode = findNode(function (node) { return node.id === startingFromRenderNodeId; }, (_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.root);
+                    var parentRenderNode = findNodeOrThrow(function (node) { return node.id === startingFromRenderNodeId; }, (_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.root);
                     if (!shouldReRender) {
                         console.log("skipping re-rendering, ".concat(getComponentRepr(child.internalMetadata), " not a child of ").concat(getComponentRepr(parentRenderNode.internalMetadata)));
                         // skip re-rendering if not a child in the render tree
                         return { viewNode: computedNode, renderNode: child };
+                    }
+                    else {
+                        console.log("will NOT be skipping re-rendering");
                     }
                     return reRenderChild();
                 });
@@ -628,8 +657,9 @@ var React;
                 var viewNode = generateViewTreeHelper({
                     renderTreeNode: computedRenderTreeNode,
                     startingFromRenderNodeId: renderTreeNode.id,
-                    viewNodePool: viewNodePool,
+                    // viewNodePool,
                 });
+                // viewNodePool.push(viewNode);
                 newNode.childNodes.push(viewNode);
                 break;
             }
@@ -764,7 +794,7 @@ var React;
                 console.log("the captured node", capturedCurrentlyRenderingRenderNode);
                 var parentNode = findParentViewNode(capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId);
                 console.log("\n\nRENDER START----------------------------------------------");
-                var previousViewTree = deepCloneTree(findNode(function (node) {
+                var previousViewTree = deepCloneTree(findNodeOrThrow(function (node) {
                     return node.id ===
                         capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId;
                 }, currentTreeRef.viewTree.root));
@@ -962,8 +992,7 @@ var SimpleParent = function (props) {
         })], props.children, false));
 };
 var NestThis = function () {
-    return React.createElement("div", null, 
-    // React.createElement(SimpleChild, null),
+    return React.createElement("div", null, React.createElement(SimpleChild, null), React.createElement(SimpleParent, null, React.createElement(SimpleChild, null)), 
     // React.createElement("div", {
     //   innerText: "part of the simple child",
     // }),
