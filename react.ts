@@ -141,22 +141,13 @@ namespace React {
     props: AnyProps;
     lastParent: HTMLElement;
   }) => {
-    console.log("called updateDom");
     const newEl = document.createElement(tagComponent.tagName);
     Object.assign(newEl, props);
 
     if (previousDomRef) {
       const parent = previousDomRef.parentNode;
-      // const clonedEl = newEl.cloneNode();
-      // console.log("the new cloned el", clonedEl, "passed props", props);
-      // Array.from(previousDomRef.childNodes).forEach((child) =>
-      //   clonedEl.appendChild(child)
-      // );
-      console.log("replacing", previousDomRef, "on", parent);
       parent?.replaceChild(newEl, previousDomRef);
-      // parent?.removeChild(previousDomRef);
     } else {
-      console.log("adding", newEl, "to", lastParent);
       lastParent.appendChild(newEl);
     }
 
@@ -204,12 +195,6 @@ namespace React {
         if (
           deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)
         ) {
-          // console.log(
-          //   "is deep equal, passing on the dom node",
-          //   oldNode.node,
-          //   newNode.node
-          // );
-          // newNode.metadata.component.
           newNode.component.domRef = oldNode.component.domRef;
           return aux({
             localNewViewTree: newNode.node,
@@ -217,7 +202,6 @@ namespace React {
             lastParent,
           });
         } else {
-          console.log("update on the early cond (not suprised this breaks)");
           const newEl = updateDom({
             lastParent,
             previousDomRef: oldNode.component.domRef,
@@ -231,11 +215,8 @@ namespace React {
           });
         }
       };
-      // if (localNewViewTree.)
-      console.log("reconciling", localOldViewTree, localNewViewTree);
       switch (localNewViewTree.metadata.component.kind) {
         case "function": {
-          console.log("simple return", localOldViewTree, localNewViewTree);
           // we should be doing a comp here because we will never do it again for this...
           const oldNode = localOldViewTree
             ? findFirstTagNode(localOldViewTree)
@@ -251,44 +232,10 @@ namespace React {
 
           reconcileTags({ newNode, oldNode });
           return;
-          // if (
-          //   deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)
-          // ) {
-          //   console.log(
-          //     "is deep equal, passing on the dom node",
-          //     oldNode.node,
-          //     newNode.node
-          //   );
-          //   // newNode.metadata.component.
-          //   newNode.component.domRef = oldNode.component.domRef;
-          //   return aux({
-          //     localNewViewTree: newNode.node,
-          //     localOldViewTree: oldNode.node,
-          //     lastParent,
-          //   });
-          // } else {
-          //   console.log("update on the early cond (not suprised this breaks)");
-          //   const newEl = updateDom({
-          //     lastParent,
-          //     previousDomRef: oldNode.component.domRef,
-          //     props: newNode.node.metadata.props,
-          //     tagComponent: newNode.component,
-          //   });
-          //   return aux({
-          //     localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
-          //     localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
-          //     lastParent: newEl,
-          //   });
-          // }
         }
 
         case "tag": {
           if (!localOldViewTree) {
-            console.log(
-              "wahoo i have nothing to comp against",
-              localNewViewTree
-            );
-
             // but u cant do this twice on the element
 
             const newEl = updateDom({
@@ -297,11 +244,6 @@ namespace React {
               previousDomRef: null,
               props: localNewViewTree.metadata.props,
             });
-            console.log(
-              "update dom node early",
-              localOldViewTree,
-              localNewViewTree
-            );
 
             for (const childNode of localNewViewTree.childNodes) {
               aux({
@@ -332,12 +274,10 @@ namespace React {
                   return;
                 }
                 case "tag": {
-                  console.log("a remove for the tag", oldNode);
                   // for some reason the parent element is returning null?
                   oldNode.metadata.component.domRef?.parentElement?.removeChild(
                     oldNode.metadata.component.domRef
                   );
-                  console.log("removed?", oldNode.metadata.component.domRef);
                   return;
                 }
               }
@@ -348,12 +288,9 @@ namespace React {
           localNewViewTree.childNodes.forEach((newNode) => {
             const associatedWith = newToOld[newNode.id];
 
-            console.log("comping", newNode, associatedWith);
-
             if (!associatedWith) {
               switch (newNode.metadata.component.kind) {
                 case "function": {
-                  console.log("nothing associated", newNode);
                   return aux({
                     lastParent,
                     localNewViewTree: newNode,
@@ -361,7 +298,6 @@ namespace React {
                   });
                 }
                 case "tag": {
-                  console.log("update here");
                   // const newEl = updateDom({
                   //   lastParent,
                   //   tagComponent: newNode.metadata.component,
@@ -372,7 +308,7 @@ namespace React {
                   // okay of course it doesn't have anything associated
                   // it didn't exist previously
                   // and it has no child nodes, so it should just flop?
-                  console.log("new el for the comp", associatedWith, newNode);
+
                   // this must be wrong
                   // so convoluted but another case will catch it.
                   return aux({
@@ -383,8 +319,6 @@ namespace React {
                 }
               }
             }
-            console.log("moved on");
-
             switch (newNode.metadata.component.kind) {
               case "function": {
                 return aux({
@@ -413,11 +347,6 @@ namespace React {
                     associatedWith.metadata.props
                   )
                 ) {
-                  console.log(
-                    "nodes are deep equal, passing on existing dom ref",
-                    newNode,
-                    existingDomRef
-                  );
                   newNode.metadata.component.domRef = existingDomRef;
                   return aux({
                     lastParent: existingDomRef,
@@ -425,14 +354,13 @@ namespace React {
                     localOldViewTree: associatedWith,
                   });
                 }
-                console.log("update uhh here");
+
                 const newEl = updateDom({
                   lastParent,
                   props: newNode.metadata.props,
                   tagComponent: newNode.metadata.component,
                   previousDomRef: existingDomRef,
                 });
-                console.log("ending update", associatedWith, newNode);
 
                 return aux({
                   lastParent: newEl,
@@ -442,16 +370,12 @@ namespace React {
               }
             }
           });
-          console.log("not covered branch?");
+
           return;
         }
-        // }
-        //  localNewViewTree.metadata.component.kind satisfies never
-
-        // return;
       }
     };
-    // console.log('last ');
+
     return aux({
       lastParent: startingDomNode,
       localNewViewTree: newViewTree,
@@ -564,19 +488,7 @@ namespace React {
       localRenderOrder: newLocalRenderOrder,
       isFirstRender: true,
     };
-    console.log(
-      "pushing this render node to this node",
-      getComponentRepr(
-        currentTreeRef.renderTree.currentlyRendering.internalMetadata
-      ) +
-        "-" +
-        currentTreeRef.renderTree.currentlyRendering.id,
-      currentTreeRef.renderTree.currentlyRendering,
-      newRenderTreeNode,
-      getComponentName(newRenderTreeNode.internalMetadata) +
-        "-" +
-        newRenderTreeNode.id
-    );
+
     currentTreeRef.renderTree.currentlyRendering.childNodes.push(
       newRenderTreeNode
     );
@@ -626,40 +538,6 @@ namespace React {
       return null;
     }
   };
-
-  // const findViewNode = (
-  //   id: string,
-  //   tree: ReactViewTreeNode
-  // ): ReactViewTreeNode => {
-  //   const aux = (
-  //     viewNode: ReactViewTreeNode
-  //   ): ReactViewTreeNode | undefined => {
-  //     for (const node of viewNode.childNodes) {
-  //       if (node.id === id) {
-  //         return node;
-  //       }
-
-  //       const res = aux(node);
-
-  //       if (res) {
-  //         return res;
-  //       }
-  //     }
-  //   };
-
-  //   if (tree.id === id) {
-  //     return tree;
-  //   }
-
-  //   const result = aux(tree);
-
-  //   if (!result) {
-  //     throw new Error(
-  //       "detached node or wrong id:" + id + "\n\n" + JSON.stringify(tree)
-  //     );
-  //   }
-  //   return result;
-  // };
 
   const findParentViewNode = (id: string): ReactViewTreeNode => {
     const aux = (
@@ -801,7 +679,6 @@ namespace React {
     return generateViewTreeHelper({
       renderTreeNode,
       startingFromRenderNodeId: renderTreeNode.id,
-      viewNodePool: [],
     });
   };
 
@@ -842,14 +719,9 @@ namespace React {
               renderNode: ReactRenderTreeNode;
             } => {
               const reRenderChild = () => {
-                console.log(
-                  "re-rendering child",
-                  getComponentRepr(child.internalMetadata)
-                );
                 const viewNode = generateViewTreeHelper({
                   renderTreeNode: child,
                   startingFromRenderNodeId,
-                  // viewNodePool,
                 });
                 if (viewNode.childNodes.length > 1) {
                   throw new Error(
@@ -858,22 +730,10 @@ namespace React {
                 }
                 return { viewNode, renderNode: child };
               };
-              // const computedNode = viewNodePool.find(
-              //   (node) => node.id === child.computedViewTreeNodeId
-              // );
-              console.log("node we need", child.computedViewTreeNodeId);
-              console.log(
-                "view tree at time",
-                JSON.stringify(currentTreeRef.viewTree)
-              );
+
               if (!child.computedViewTreeNodeId) {
-                // logging only
               }
               if (!currentTreeRef.viewTree) {
-                console.log("no tree yet!");
-                // throw new Error(
-                //   "Invariant error must have view tree available"
-                // );
                 return reRenderChild();
               }
 
@@ -882,11 +742,6 @@ namespace React {
                 currentTreeRef.viewTree.root
               );
               if (!computedNode) {
-                // console.log(
-                //   "no computed node, big el",
-                //   getComponentRepr(child.internalMetadata),
-                //   viewNodePool
-                // );
                 return reRenderChild();
               }
               const shouldReRender = isChildOf({
@@ -899,17 +754,8 @@ namespace React {
               );
 
               if (!shouldReRender) {
-                console.log(
-                  `skipping re-rendering, ${getComponentRepr(
-                    child.internalMetadata
-                  )} not a child of ${getComponentRepr(
-                    parentRenderNode.internalMetadata
-                  )}`
-                );
                 // skip re-rendering if not a child in the render tree
                 return { viewNode: computedNode, renderNode: child };
-              } else {
-                console.log("will NOT be skipping re-rendering");
               }
               return reRenderChild();
             }
@@ -1059,20 +905,6 @@ namespace React {
     return false;
   }
 
-  const isInViewTree = (viewNode: ReactViewTreeNode) => {
-    if (!currentTreeRef.viewTree) {
-      throw new Error("invariant");
-    }
-    const aux = (node: ReactViewTreeNode) => {
-      if (node.id === viewNode.id) {
-        return true;
-      }
-
-      return node.childNodes.some(aux);
-    };
-
-    return aux(currentTreeRef.viewTree.root);
-  };
   export const useState = <T>(initialValue: T) => {
     if (!currentTreeRef.renderTree?.currentlyRendering) {
       throw new Error("Cannot call use state outside of a react component");
@@ -1108,7 +940,6 @@ namespace React {
         }
 
         hookMetadata.value = value;
-        console.log("the captured node", capturedCurrentlyRenderingRenderNode);
 
         const parentNode = findParentViewNode(
           capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
@@ -1126,20 +957,10 @@ namespace React {
           )
         );
 
-        console.log(
-          "before regenning tree (are we mutating)",
-          JSON.stringify(currentTreeRef.viewTree)
-        );
-        // const previousViewTree = deepCloneTree(capturedCurrentlyRenderingRenderNode)
         const reGeneratedViewTree = generateViewTree({
           renderTreeNode: capturedCurrentlyRenderingRenderNode,
-          // startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
         });
 
-        console.log(
-          "after regenning tree (are we mutating)",
-          JSON.stringify(currentTreeRef.viewTree)
-        );
         console.log(
           "RENDER END----------------------------------------------\n\n"
         );
@@ -1153,12 +974,6 @@ namespace React {
         // we can now update the view tree by replacing by component
         // equality (lets go keys)
         if (!parentNode || index === undefined || index === -1) {
-          console.log(
-            "setting root bad bad bad",
-            parentNode,
-            index,
-            capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
-          );
           currentTreeRef.viewTree.root = reGeneratedViewTree;
           currentTreeRef.renderTree.root.computedViewTreeNodeId =
             reGeneratedViewTree.id;
@@ -1166,14 +981,6 @@ namespace React {
           parentNode.childNodes[index] = reGeneratedViewTree;
         }
 
-        // next step is to diff the previous tree and current tree to determine set of updates needed to apply
-        // const root = document.getElementById("root")!;
-        // while (root.firstChild) {
-        //   root.removeChild(root.firstChild);
-        // }
-
-        console.log("view tree", JSON.stringify(currentTreeRef.viewTree));
-        // current problem definitely has to do with removing elements not being handled
         reconcileDom({
           newViewTree: reGeneratedViewTree,
           oldViewTree: previousViewTree,
@@ -1184,7 +991,6 @@ namespace React {
                   previousViewTree.childNodes[0]
                 );
 
-                console.log("what does this return", tagNode);
                 if (!tagNode.component.domRef) {
                   throw new Error(
                     "Invariant error, an already reconciled tree should have dom elements on every element"
@@ -1204,64 +1010,20 @@ namespace React {
             }
           }),
         });
-        // applyViewTreeToDomEl({
-        //   parentDomNode: root,
-        //   reactViewNode: currentTreeRef.viewTree?.root!,
-        // });
       },
     ] as const;
   };
-  // const applyViewTreeToDomEl = ({
-  //   reactViewNode,
-  //   parentDomNode,
-  // }: {
-  //   reactViewNode: ReactViewTreeNode;
-  //   parentDomNode: HTMLElement;
-  // }) => {
-  //   reactViewNode.childNodes.forEach((childViewNode) => {
-  //     switch (childViewNode.metadata.component.kind) {
-  //       case "tag": {
-  //         const newEl = document.createElement(
-  //           childViewNode.metadata.component.tagName
-  //         );
-  //         Object.assign(newEl, childViewNode.metadata.props);
-
-  //         parentDomNode.appendChild(newEl);
-  //         applyViewTreeToDomEl({
-  //           parentDomNode: newEl,
-  //           reactViewNode: childViewNode,
-  //         });
-  //         break;
-  //       }
-  //       case "function":
-  //         {
-  //           // nothing to add to the dom, just skip
-  //           // cant skip in the view tree to keep the binds between the 2 trees, i think?
-  //           applyViewTreeToDomEl({
-  //             parentDomNode,
-  //             reactViewNode: childViewNode,
-  //           });
-  //         }
-  //         break;
-  //     }
-  //   });
-  // };
 
   export const render = (
     rootElement: ReturnType<typeof createElement>,
     domEl: HTMLElement
   ) => {
     const { reactViewTree } = buildReactTrees(rootElement);
-    console.log("initial view tree", JSON.stringify(reactViewTree));
     reconcileDom({
       oldViewTree: null,
       newViewTree: reactViewTree.root,
       startingDomNode: domEl,
     });
-    // applyViewTreeToDomEl({
-    //   parentDomNode: domEl,
-    //   reactViewNode: reactViewTree.root,
-    // });
   };
 }
 
