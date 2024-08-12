@@ -120,16 +120,6 @@ namespace React {
     return [leftToRight, rightToLeft];
   };
 
-  const areViewNodesDeepEqual = ({
-    left,
-    right,
-  }: {
-    left: ReactViewTreeNode;
-    right: ReactViewTreeNode;
-  }) => {
-    return deepEqual(left.metadata.props, right.metadata.props);
-  };
-
   const updateDom = ({
     props,
     tagComponent,
@@ -891,7 +881,7 @@ namespace React {
       reactViewTree: currentTreeRef.viewTree,
     };
   };
-  function deepEqual(a: any, b: any, log = false): boolean {
+  function deepEqual(a: any, b: any): boolean {
     if (a === b) return true;
 
     if (a && b && typeof a === "object" && typeof b === "object") {
@@ -899,8 +889,6 @@ namespace React {
         if (a.length !== b.length) return false;
         for (let i = 0; i < a.length; i++) {
           if (!deepEqual(a[i], b[i])) {
-            console.log("1");
-
             return false;
           }
         }
@@ -908,7 +896,6 @@ namespace React {
       }
 
       if (a.constructor !== b.constructor) {
-        console.log("2");
         return false;
       }
 
@@ -916,24 +903,20 @@ namespace React {
       const keysB = Object.keys(b);
 
       if (keysA.length !== keysB.length) {
-        console.log("3");
         return false;
       }
 
       for (const key of keysA) {
         if (!keysB.includes(key)) {
-          console.log("4");
           return false;
         }
         if (!deepEqual(a[key], b[key])) {
-          console.log("5", a[key], b[key], key);
           return false;
         }
       }
 
       return true;
     }
-    console.log("6");
     return false;
   }
 
@@ -1251,6 +1234,149 @@ const SimpleChild = () => {
     innerText: "Im a simple child!!",
   });
 };
+
+const OuterWrapper = () => {
+  const [counter, setCounter] = React.useState(0);
+  const [toggleInner, setToggleInner] = React.useState(true);
+
+  return React.createElement(
+    "div",
+    {
+      id: "outer-wrapper",
+      style: "border: 2px solid black; padding: 10px; margin: 10px;",
+    },
+    React.createElement("div", {
+      innerText: "Counter: " + counter,
+    }),
+    React.createElement("button", {
+      onclick: () => setCounter(counter + 1),
+      innerText: "Increase Counter",
+    }),
+    React.createElement("button", {
+      onclick: () => setToggleInner(!toggleInner),
+      innerText: toggleInner ? "Hide Inner" : "Show Inner",
+    }),
+    toggleInner && React.createElement(InnerWrapper, { counter }),
+    React.createElement(DualIncrementer, null),
+    React.createElement(DualIncrementer, null)
+  );
+};
+
+const InnerWrapper = ({ counter }) => {
+  const [innerCounter, setInnerCounter] = React.useState(0);
+
+  return React.createElement(
+    "div",
+    {
+      id: "inner-wrapper",
+      style: "border: 1px solid gray; padding: 10px; margin: 10px;",
+    },
+    React.createElement("div", {
+      innerText: "Inner Counter: " + innerCounter,
+    }),
+    React.createElement("button", {
+      onclick: () => setInnerCounter(innerCounter + 1),
+      innerText: "Increase Inner Counter",
+    }),
+    React.createElement("div", {
+      innerText: "Outer Counter Value: " + counter,
+    }),
+    React.createElement(LeafComponent, null),
+    React.createElement(ContainerComponent, null)
+  );
+};
+
+const LeafComponent = () => {
+  return React.createElement("div", {
+    id: "leaf-component",
+    style: "padding: 5px; margin: 5px; background-color: lightgray;",
+    innerText: "Leaf Component Content",
+  });
+};
+
+const ContainerComponent = () => {
+  return React.createElement(
+    "div",
+    {
+      id: "container-component",
+      style: "padding: 5px; margin: 5px; background-color: lightblue;",
+    },
+    React.createElement(LeafComponent, null),
+    React.createElement(LeafComponent, null)
+  );
+};
+
+const DualIncrementer = () => {
+  const [value, setValue] = React.useState(0);
+
+  return React.createElement(
+    "div",
+    {
+      id: "dual-incrementer",
+      style: "padding: 5px; margin: 5px; border: 1px solid red;",
+    },
+    React.createElement("div", {
+      innerText: "Current Value: " + value,
+    }),
+    React.createElement("button", {
+      onclick: () => setValue(value + 1),
+      innerText: "Increase Value",
+    })
+  );
+};
+
+const ActionButton = () => {
+  return React.createElement(
+    "div",
+    {
+      id: "action-button",
+      style: "padding: 5px; margin: 5px; border: 1px solid green;",
+    },
+    React.createElement("button", {
+      onclick: () => alert("Action performed!"),
+      innerText: "Perform Action",
+    })
+  );
+};
+
+const MainComponent = () => {
+  const [x, setX] = React.useState(2);
+
+  return React.createElement(
+    "div",
+    {
+      id: "main-component",
+    },
+    React.createElement(LeafComponent, null),
+    React.createElement(
+      ContainerComponent,
+      null,
+      React.createElement(LeafComponent, null)
+    ),
+    React.createElement(DualIncrementer, null),
+    React.createElement(DualIncrementer, null),
+    React.createElement(ActionButton, null),
+    React.createElement(OuterWrapper, null),
+    React.createElement(
+      "div",
+      {
+        style: "color:blue",
+      },
+      React.createElement("button", {
+        onclick: () => setX(x + 1),
+        innerText: "RERENDER EVERYTHING " + x,
+        style: "color: orange",
+      })
+    )
+  );
+};
+
+// Render the main component
+// ReactDOM.render(
+//   React.createElement(MainComponent, null),
+//   document.getElementById('root')
+// );
+
 if (typeof window === "undefined") {
   const { reactViewTree, reactRenderTree } = React.buildReactTrees(
     React.createElement(Increment, null)
@@ -1259,7 +1385,7 @@ if (typeof window === "undefined") {
 } else {
   window.onload = () => {
     React.render(
-      React.createElement(NestThis, null),
+      React.createElement(MainComponent, null),
       document.getElementById("root")!
     );
   };

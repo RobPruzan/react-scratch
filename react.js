@@ -51,10 +51,6 @@ var React;
         });
         return [leftToRight, rightToLeft];
     };
-    var areViewNodesDeepEqual = function (_a) {
-        var left = _a.left, right = _a.right;
-        return deepEqual(left.metadata.props, right.metadata.props);
-    };
     var updateDom = function (_a) {
         var props = _a.props, tagComponent = _a.tagComponent, previousDomRef = _a.previousDomRef, lastParent = _a.lastParent;
         if (previousDomRef) {
@@ -610,8 +606,7 @@ var React;
             reactViewTree: currentTreeRef.viewTree,
         };
     };
-    function deepEqual(a, b, log) {
-        if (log === void 0) { log = false; }
+    function deepEqual(a, b) {
         if (a === b)
             return true;
         if (a && b && typeof a === "object" && typeof b === "object") {
@@ -620,36 +615,30 @@ var React;
                     return false;
                 for (var i = 0; i < a.length; i++) {
                     if (!deepEqual(a[i], b[i])) {
-                        console.log("1");
                         return false;
                     }
                 }
                 return true;
             }
             if (a.constructor !== b.constructor) {
-                console.log("2");
                 return false;
             }
             var keysA = Object.keys(a);
             var keysB = Object.keys(b);
             if (keysA.length !== keysB.length) {
-                console.log("3");
                 return false;
             }
             for (var _i = 0, keysA_1 = keysA; _i < keysA_1.length; _i++) {
                 var key = keysA_1[_i];
                 if (!keysB.includes(key)) {
-                    console.log("4");
                     return false;
                 }
                 if (!deepEqual(a[key], b[key])) {
-                    console.log("5", a[key], b[key], key);
                     return false;
                 }
             }
             return true;
         }
-        console.log("6");
         return false;
     }
     React.useState = function (initialValue) {
@@ -864,12 +853,94 @@ var SimpleChild = function () {
         innerText: "Im a simple child!!",
     });
 };
+var OuterWrapper = function () {
+    var _a = React.useState(0), counter = _a[0], setCounter = _a[1];
+    var _b = React.useState(true), toggleInner = _b[0], setToggleInner = _b[1];
+    return React.createElement("div", {
+        id: "outer-wrapper",
+        style: "border: 2px solid black; padding: 10px; margin: 10px;",
+    }, React.createElement("div", {
+        innerText: "Counter: " + counter,
+    }), React.createElement("button", {
+        onclick: function () { return setCounter(counter + 1); },
+        innerText: "Increase Counter",
+    }), React.createElement("button", {
+        onclick: function () { return setToggleInner(!toggleInner); },
+        innerText: toggleInner ? "Hide Inner" : "Show Inner",
+    }), toggleInner && React.createElement(InnerWrapper, { counter: counter }), React.createElement(DualIncrementer, null), React.createElement(DualIncrementer, null));
+};
+var InnerWrapper = function (_a) {
+    var counter = _a.counter;
+    var _b = React.useState(0), innerCounter = _b[0], setInnerCounter = _b[1];
+    return React.createElement("div", {
+        id: "inner-wrapper",
+        style: "border: 1px solid gray; padding: 10px; margin: 10px;",
+    }, React.createElement("div", {
+        innerText: "Inner Counter: " + innerCounter,
+    }), React.createElement("button", {
+        onclick: function () { return setInnerCounter(innerCounter + 1); },
+        innerText: "Increase Inner Counter",
+    }), React.createElement("div", {
+        innerText: "Outer Counter Value: " + counter,
+    }), React.createElement(LeafComponent, null), React.createElement(ContainerComponent, null));
+};
+var LeafComponent = function () {
+    return React.createElement("div", {
+        id: "leaf-component",
+        style: "padding: 5px; margin: 5px; background-color: lightgray;",
+        innerText: "Leaf Component Content",
+    });
+};
+var ContainerComponent = function () {
+    return React.createElement("div", {
+        id: "container-component",
+        style: "padding: 5px; margin: 5px; background-color: lightblue;",
+    }, React.createElement(LeafComponent, null), React.createElement(LeafComponent, null));
+};
+var DualIncrementer = function () {
+    var _a = React.useState(0), value = _a[0], setValue = _a[1];
+    return React.createElement("div", {
+        id: "dual-incrementer",
+        style: "padding: 5px; margin: 5px; border: 1px solid red;",
+    }, React.createElement("div", {
+        innerText: "Current Value: " + value,
+    }), React.createElement("button", {
+        onclick: function () { return setValue(value + 1); },
+        innerText: "Increase Value",
+    }));
+};
+var ActionButton = function () {
+    return React.createElement("div", {
+        id: "action-button",
+        style: "padding: 5px; margin: 5px; border: 1px solid green;",
+    }, React.createElement("button", {
+        onclick: function () { return alert("Action performed!"); },
+        innerText: "Perform Action",
+    }));
+};
+var MainComponent = function () {
+    var _a = React.useState(2), x = _a[0], setX = _a[1];
+    return React.createElement("div", {
+        id: "main-component",
+    }, React.createElement(LeafComponent, null), React.createElement(ContainerComponent, null, React.createElement(LeafComponent, null)), React.createElement(DualIncrementer, null), React.createElement(DualIncrementer, null), React.createElement(ActionButton, null), React.createElement(OuterWrapper, null), React.createElement("div", {
+        style: "color:blue",
+    }, React.createElement("button", {
+        onclick: function () { return setX(x + 1); },
+        innerText: "RERENDER EVERYTHING " + x,
+        style: "color: orange",
+    })));
+};
+// Render the main component
+// ReactDOM.render(
+//   React.createElement(MainComponent, null),
+//   document.getElementById('root')
+// );
 if (typeof window === "undefined") {
     var _a = React.buildReactTrees(React.createElement(Increment, null)), reactViewTree = _a.reactViewTree, reactRenderTree = _a.reactRenderTree;
     console.log(JSON.stringify(React.deepTraverseAndModify(reactViewTree)));
 }
 else {
     window.onload = function () {
-        React.render(React.createElement(NestThis, null), document.getElementById("root"));
+        React.render(React.createElement(MainComponent, null), document.getElementById("root"));
     };
 }
