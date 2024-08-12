@@ -49,6 +49,7 @@ namespace React {
     root: ReactViewTreeNode;
   };
   type ReactRenderTree = {
+    lastRenderChildNodes: Array<ReactRenderTreeNode>;
     currentlyRendering: ReactRenderTreeNode | null;
     localCurrentHookOrder: number;
     localComponentRenderMap: {
@@ -453,6 +454,7 @@ namespace React {
         currentlyRendering: null,
         root: rootRenderNode,
         localComponentRenderMap: {},
+        lastRenderChildNodes: [],
       };
       return rootRenderNode;
     }
@@ -465,19 +467,18 @@ namespace React {
     currentTreeRef.renderTree.localComponentRenderMap[
       getComponentName(internalMetadata)
     ] = newLocalRenderOrder;
-    const existingNode =
-      currentTreeRef.renderTree.currentlyRendering.childNodes.find(
-        (childNode) => {
-          const name = getComponentName(childNode.internalMetadata);
+    const existingNode = currentTreeRef.renderTree.lastRenderChildNodes.find(
+      (childNode) => {
+        const name = getComponentName(childNode.internalMetadata);
 
-          if (
-            name === getComponentName(internalMetadata) &&
-            childNode.localRenderOrder === newLocalRenderOrder
-          ) {
-            return true;
-          }
+        if (
+          name === getComponentName(internalMetadata) &&
+          childNode.localRenderOrder === newLocalRenderOrder
+        ) {
+          return true;
         }
-      );
+      }
+    );
 
     if (existingNode) {
       existingNode.internalMetadata = internalMetadata;
@@ -754,10 +755,10 @@ namespace React {
       throw new Error("Cannot render component outside of react tree");
     }
 
-    console.log(
-      "bytes of render tree",
-      calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree))
-    );
+    // console.log(
+    //   "bytes of render tree",
+    //   calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree))
+    // );
     const newNode: ReactViewTreeNode = {
       id: crypto.randomUUID(),
       metadata: renderTreeNode.internalMetadata,
@@ -838,7 +839,8 @@ namespace React {
             : false;
         currentTreeRef.renderTree.localCurrentHookOrder = 0;
         currentTreeRef.renderTree.localComponentRenderMap = {};
-        const previousChildren = [...renderTreeNode.childNodes];
+        currentTreeRef.renderTree.lastRenderChildNodes =
+          renderTreeNode.childNodes;
         renderTreeNode.childNodes = [];
         currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
         console.log(
@@ -858,25 +860,37 @@ namespace React {
         const newRenderNodes = renderTreeNode.childNodes
           .filter(
             (node) =>
-              !previousChildren.some(
+              !currentTreeRef.renderTree!.lastRenderChildNodes.some(
                 (prevNode) => getKey(prevNode) === getKey(node)
               )
           )
           .forEach((node) => {
-            console.log("added to render tree:", node);
+            console.log(
+              "added to render tree:",
+              node,
+              // renderTreeNode.childNodes.at(-1),
+              "new",
+              renderTreeNode.childNodes.map(getKey),
+              renderTreeNode.childNodes,
+              "old",
+              currentTreeRef.renderTree!.lastRenderChildNodes.map(getKey),
+              currentTreeRef.renderTree!.lastRenderChildNodes
+            );
             // future mounting logic;
           });
-        const removedRenderNodes = previousChildren
-          .filter(
-            (node) =>
-              !renderTreeNode.childNodes.some(
-                (newNode) => getKey(newNode) === getKey(node)
-              )
-          )
-          .forEach((node) => {
-            console.log("future unmounting logic");
-          });
+        const removedRenderNodes =
+          currentTreeRef.renderTree.lastRenderChildNodes
+            .filter(
+              (node) =>
+                !renderTreeNode.childNodes.some(
+                  (newNode) => getKey(newNode) === getKey(node)
+                )
+            )
+            .forEach((node) => {
+              console.log("removed from render tree", node);
+            });
 
+        currentTreeRef.renderTree.lastRenderChildNodes = [];
         const viewNode = generateViewTreeHelper({
           renderTreeNode: computedRenderTreeNode,
           startingFromRenderNodeId: renderTreeNode.id,
@@ -1357,7 +1371,7 @@ const OuterWrapper = () => {
     toggleInner && React.createElement(InnerWrapper, { counter }),
     React.createElement(DualIncrementer, null),
     ...items.map((i) =>
-      React.createElement("div", {
+      React.createElement("span", {
         innerText: i,
       })
     )

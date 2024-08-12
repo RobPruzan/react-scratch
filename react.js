@@ -305,12 +305,13 @@ var React;
                 currentlyRendering: null,
                 root: rootRenderNode,
                 localComponentRenderMap: {},
+                lastRenderChildNodes: [],
             };
             return rootRenderNode;
         }
         var newLocalRenderOrder = ((_b = currentTreeRef.renderTree.localComponentRenderMap[getComponentName(internalMetadata)]) !== null && _b !== void 0 ? _b : 0) + 1;
         currentTreeRef.renderTree.localComponentRenderMap[getComponentName(internalMetadata)] = newLocalRenderOrder;
-        var existingNode = currentTreeRef.renderTree.currentlyRendering.childNodes.find(function (childNode) {
+        var existingNode = currentTreeRef.renderTree.lastRenderChildNodes.find(function (childNode) {
             var name = getComponentName(childNode.internalMetadata);
             if (name === getComponentName(internalMetadata) &&
                 childNode.localRenderOrder === newLocalRenderOrder) {
@@ -508,7 +509,10 @@ var React;
         if (!currentTreeRef.renderTree) {
             throw new Error("Cannot render component outside of react tree");
         }
-        console.log("bytes of render tree", calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
+        // console.log(
+        //   "bytes of render tree",
+        //   calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree))
+        // );
         var newNode = {
             id: crypto.randomUUID(),
             metadata: renderTreeNode.internalMetadata,
@@ -568,7 +572,8 @@ var React;
                     : false;
                 currentTreeRef.renderTree.localCurrentHookOrder = 0;
                 currentTreeRef.renderTree.localComponentRenderMap = {};
-                var previousChildren_1 = __spreadArray([], renderTreeNode.childNodes, true);
+                currentTreeRef.renderTree.lastRenderChildNodes =
+                    renderTreeNode.childNodes;
                 renderTreeNode.childNodes = [];
                 currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
                 console.log("Running:", getComponentRepr(renderTreeNode.internalMetadata));
@@ -579,19 +584,22 @@ var React;
                 // NOTE: Below is untested, but should be close to working considering state correctly persists/ is taken down
                 var newRenderNodes = renderTreeNode.childNodes
                     .filter(function (node) {
-                    return !previousChildren_1.some(function (prevNode) { return getKey(prevNode) === getKey(node); });
+                    return !currentTreeRef.renderTree.lastRenderChildNodes.some(function (prevNode) { return getKey(prevNode) === getKey(node); });
                 })
                     .forEach(function (node) {
-                    console.log("added to render tree:", node);
+                    console.log("added to render tree:", node, 
+                    // renderTreeNode.childNodes.at(-1),
+                    "new", renderTreeNode.childNodes.map(getKey), renderTreeNode.childNodes, "old", currentTreeRef.renderTree.lastRenderChildNodes.map(getKey), currentTreeRef.renderTree.lastRenderChildNodes);
                     // future mounting logic;
                 });
-                var removedRenderNodes = previousChildren_1
+                var removedRenderNodes = currentTreeRef.renderTree.lastRenderChildNodes
                     .filter(function (node) {
                     return !renderTreeNode.childNodes.some(function (newNode) { return getKey(newNode) === getKey(node); });
                 })
                     .forEach(function (node) {
-                    console.log("future unmounting logic");
+                    console.log("removed from render tree", node);
                 });
+                currentTreeRef.renderTree.lastRenderChildNodes = [];
                 var viewNode = generateViewTreeHelper({
                     renderTreeNode: computedRenderTreeNode,
                     startingFromRenderNodeId: renderTreeNode.id,
@@ -942,7 +950,7 @@ var OuterWrapper = function () {
         }),
         toggleInner && React.createElement(InnerWrapper, { counter: counter }),
         React.createElement(DualIncrementer, null)], items.map(function (i) {
-        return React.createElement("div", {
+        return React.createElement("span", {
             innerText: i,
         });
     })
