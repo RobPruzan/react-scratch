@@ -42,6 +42,7 @@ namespace React {
     id: string;
     childNodes: Array<ReactViewTreeNode>;
     metadata: ReactComponentInternalMetadata;
+    key: string;
   };
 
   type ReactViewTree = {
@@ -67,25 +68,11 @@ namespace React {
     isFirstRender: boolean;
   };
 
-  const getKey = (viewNode: ReactViewTreeNode) => {
-    if (!currentTreeRef.renderTree) {
-      throw new Error(
-        "Invariant error, cannot determine view node key without a render tree"
-      );
-    }
-    // im searching for the old and new node in the same tree, that's obviously wrong
-    // do i need to track the render tree then too?
-    console.log("searching for", viewNode);
-    const associatedNode = findNode(
-      (node) => node.computedViewTreeNodeId === viewNode.id,
-      currentTreeRef.renderTree.root
-    );
-    console.log("success", associatedNode);
-
+  const getKey = (renderNode: ReactRenderTreeNode) => {
     return (
-      getComponentName(viewNode.metadata) +
+      getComponentName(renderNode.internalMetadata) +
       "-" +
-      associatedNode.localRenderOrder
+      renderNode.localRenderOrder
     );
   };
 
@@ -112,7 +99,7 @@ namespace React {
     }) => {
       a.forEach((leftNode) => {
         const associatedRightNode = b.find(
-          (rightNode) => getKey(rightNode) === getKey(leftNode)
+          (rightNode) => rightNode.key === leftNode.key
         );
 
         aMap[leftNode.id] = associatedRightNode ?? null;
@@ -753,6 +740,7 @@ namespace React {
       id: crypto.randomUUID(),
       metadata: renderTreeNode.internalMetadata,
       childNodes: [],
+      key: getKey(renderTreeNode),
     };
 
     renderTreeNode.computedViewTreeNodeId = newNode.id;

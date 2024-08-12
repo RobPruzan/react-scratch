@@ -21,18 +21,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 var React;
 (function (React) {
     var run = function (f) { return f(); };
-    var getKey = function (viewNode) {
-        if (!currentTreeRef.renderTree) {
-            throw new Error("Invariant error, cannot determine view node key without a render tree");
-        }
-        // im searching for the old and new node in the same tree, that's obviously wrong
-        // do i need to track the render tree then too?
-        console.log("searching for", viewNode);
-        var associatedNode = findNode(function (node) { return node.computedViewTreeNodeId === viewNode.id; }, currentTreeRef.renderTree.root);
-        console.log("success", associatedNode);
-        return (getComponentName(viewNode.metadata) +
+    var getKey = function (renderNode) {
+        return (getComponentName(renderNode.internalMetadata) +
             "-" +
-            associatedNode.localRenderOrder);
+            renderNode.localRenderOrder);
     };
     var mapChildNodes = function (_a) {
         var leftNodes = _a.leftNodes, rightNodes = _a.rightNodes;
@@ -43,7 +35,7 @@ var React;
         var associate = function (_a) {
             var a = _a.a, b = _a.b, aMap = _a.aMap;
             a.forEach(function (leftNode) {
-                var associatedRightNode = b.find(function (rightNode) { return getKey(rightNode) === getKey(leftNode); });
+                var associatedRightNode = b.find(function (rightNode) { return rightNode.key === leftNode.key; });
                 aMap[leftNode.id] = associatedRightNode !== null && associatedRightNode !== void 0 ? associatedRightNode : null;
             });
         };
@@ -513,6 +505,7 @@ var React;
             id: crypto.randomUUID(),
             metadata: renderTreeNode.internalMetadata,
             childNodes: [],
+            key: getKey(renderTreeNode),
         };
         renderTreeNode.computedViewTreeNodeId = newNode.id;
         // the idea is we immediately execute the children before running the parent
