@@ -298,7 +298,7 @@ var React;
                 computedViewTreeNodeId: null,
                 hooks: [],
                 localRenderOrder: 0,
-                isFirstRender: true,
+                hasRendered: false,
             };
             currentTreeRef.renderTree = {
                 localCurrentHookOrder: 0,
@@ -328,7 +328,7 @@ var React;
             internalMetadata: internalMetadata,
             hooks: [],
             localRenderOrder: newLocalRenderOrder,
-            isFirstRender: true,
+            hasRendered: false,
         };
         currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
         return newRenderTreeNode;
@@ -358,6 +358,36 @@ var React;
     var findNode = function (eq, tree) {
         try {
             return findNodeOrThrow(eq, tree);
+        }
+        catch (_a) {
+            return null;
+        }
+    };
+    var findParentNodeOrThrow = function (eq, tree) {
+        var aux = function (viewNode) {
+            for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
+                var node = _a[_i];
+                if (eq(node)) {
+                    return viewNode;
+                }
+                var res = aux(node);
+                if (res) {
+                    return res;
+                }
+            }
+        };
+        if (eq(tree)) {
+            return tree;
+        }
+        var result = aux(tree);
+        if (!result) {
+            throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
+        }
+        return result;
+    };
+    var findParentNode = function (eq, tree) {
+        try {
+            return findParentNodeOrThrow(eq, tree);
         }
         catch (_a) {
             return null;
@@ -456,6 +486,9 @@ var React;
             searchId: potentialChildId,
         });
     };
+    function calculateJsonBytes(jsonString) {
+        return new Blob([jsonString]).size;
+    }
     /**
      *
      * Outputs a new view tree based on the provided render node
@@ -473,6 +506,7 @@ var React;
         if (!currentTreeRef.renderTree) {
             throw new Error("Cannot render component outside of react tree");
         }
+        console.log("bytes of render tree", calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
         var newNode = {
             id: crypto.randomUUID(),
             metadata: renderTreeNode.internalMetadata,
@@ -535,12 +569,18 @@ var React;
                 currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
                 console.log("Running:", getComponentRepr(renderTreeNode.internalMetadata));
                 var computedRenderTreeNode = renderTreeNode.internalMetadata.component.function(__assign(__assign({}, renderTreeNode.internalMetadata.props), childrenSpreadProps));
-                renderTreeNode.isFirstRender = false;
+                renderTreeNode.hasRendered = true;
                 var viewNode = generateViewTreeHelper({
                     renderTreeNode: computedRenderTreeNode,
                     startingFromRenderNodeId: renderTreeNode.id,
                     // viewNodePool,
                 });
+                // cant we just remove this node?
+                //       const parent =  findParentNode((node) => node.id === renderTreeNode.id, currentTreeRef.renderTree.root)
+                //         if (!parent) {
+                //   throw new Error("Invariant node, cannot re-render a detached node")
+                // }
+                // parent.childNodes = parent.childNodes
                 // viewNodePool.push(viewNode);
                 newNode.childNodes.push(viewNode);
                 break;
@@ -649,7 +689,8 @@ var React;
         var currentStateOrder = currentTreeRef.renderTree.localCurrentHookOrder;
         currentTreeRef.renderTree.localCurrentHookOrder += 1;
         var capturedCurrentlyRenderingRenderNode = currentTreeRef.renderTree.currentlyRendering;
-        if (capturedCurrentlyRenderingRenderNode.isFirstRender) {
+        var hasNode = findNode(function (node) { return node.id === capturedCurrentlyRenderingRenderNode.id; }, currentTreeRef.renderTree.root);
+        if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
             capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
                 kind: "state",
                 value: initialValue,
@@ -856,18 +897,43 @@ var SimpleChild = function () {
 var OuterWrapper = function () {
     var _a = React.useState(0), counter = _a[0], setCounter = _a[1];
     var _b = React.useState(true), toggleInner = _b[0], setToggleInner = _b[1];
-    return React.createElement("div", {
-        id: "outer-wrapper",
-        style: "border: 2px solid black; padding: 10px; margin: 10px;",
-    }, React.createElement("div", {
-        innerText: "Counter: " + counter,
-    }), React.createElement("button", {
-        onclick: function () { return setCounter(counter + 1); },
-        innerText: "Increase Counter",
-    }), React.createElement("button", {
-        onclick: function () { return setToggleInner(!toggleInner); },
-        innerText: toggleInner ? "Hide Inner" : "Show Inner",
-    }), toggleInner && React.createElement(InnerWrapper, { counter: counter }), React.createElement(DualIncrementer, null), React.createElement(DualIncrementer, null));
+    var _c = React.useState([1, 2, 3, 4]), items = _c[0], setItems = _c[1];
+    return React.createElement.apply(React, __spreadArray(["div",
+        {
+            id: "outer-wrapper",
+            style: "border: 2px solid black; padding: 10px; margin: 10px;",
+        },
+        React.createElement("div", {
+            innerText: "Counter: " + counter,
+        }),
+        React.createElement("button", {
+            onclick: function () { return setCounter(counter + 1); },
+            innerText: "Increase Counter",
+        }),
+        React.createElement("button", {
+            onclick: function () { return setToggleInner(!toggleInner); },
+            innerText: toggleInner ? "Hide Inner" : "Show Inner",
+        }),
+        React.createElement("button", {
+            onclick: function () {
+                setItems(__spreadArray(__spreadArray([], items, true), [Math.random()], false));
+            },
+            innerText: "Add a random value",
+        }),
+        React.createElement("button", {
+            onclick: function () {
+                setItems(items.slice(0, -1));
+            },
+            innerText: "Remove last value",
+        }),
+        toggleInner && React.createElement(InnerWrapper, { counter: counter }),
+        React.createElement(DualIncrementer, null)], items.map(function (i) {
+        return React.createElement("div", {
+            innerText: i,
+        });
+    })
+    // React.createElement(DualIncrementer, null)
+    , false));
 };
 var InnerWrapper = function (_a) {
     var counter = _a.counter;
@@ -895,7 +961,9 @@ var ContainerComponent = function () {
     return React.createElement("div", {
         id: "container-component",
         style: "padding: 5px; margin: 5px; background-color: lightblue;",
-    }, React.createElement(LeafComponent, null), React.createElement(LeafComponent, null));
+    }, React.createElement(LeafComponent, null)
+    // React.createElement(LeafComponent, null)
+    );
 };
 var DualIncrementer = function () {
     var _a = React.useState(0), value = _a[0], setValue = _a[1];
@@ -922,7 +990,15 @@ var MainComponent = function () {
     var _a = React.useState(2), x = _a[0], setX = _a[1];
     return React.createElement("div", {
         id: "main-component",
-    }, React.createElement(LeafComponent, null), React.createElement(ContainerComponent, null, React.createElement(LeafComponent, null)), React.createElement(DualIncrementer, null), React.createElement(DualIncrementer, null), React.createElement(ActionButton, null), React.createElement(OuterWrapper, null), React.createElement("div", {
+    }, React.createElement(LeafComponent, null), 
+    // React.createElement(
+    //   ContainerComponent,
+    //   null,
+    //   React.createElement(LeafComponent, null)
+    // ),
+    React.createElement(DualIncrementer, null), 
+    // React.createElement(DualIncrementer, null),
+    React.createElement(ActionButton, null), React.createElement(OuterWrapper, null), React.createElement("div", {
         style: "color:blue",
     }, React.createElement("button", {
         onclick: function () { return setX(x + 1); },

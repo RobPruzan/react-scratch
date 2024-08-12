@@ -65,7 +65,7 @@ namespace React {
     internalMetadata: ReactComponentInternalMetadata;
     hooks: Array<ReactHookMetadata>;
     localRenderOrder: number;
-    isFirstRender: boolean;
+    hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
   };
 
   const getKey = (renderNode: ReactRenderTreeNode) => {
@@ -446,7 +446,7 @@ namespace React {
         computedViewTreeNodeId: null,
         hooks: [],
         localRenderOrder: 0,
-        isFirstRender: true,
+        hasRendered: false,
       };
       currentTreeRef.renderTree = {
         localCurrentHookOrder: 0,
@@ -492,7 +492,7 @@ namespace React {
       internalMetadata: internalMetadata,
       hooks: [],
       localRenderOrder: newLocalRenderOrder,
-      isFirstRender: true,
+      hasRendered: false,
     };
 
     currentTreeRef.renderTree.currentlyRendering.childNodes.push(
@@ -540,6 +540,51 @@ namespace React {
   ): T | null => {
     try {
       return findNodeOrThrow(eq, tree);
+    } catch {
+      return null;
+    }
+  };
+
+  const findParentNodeOrThrow = <
+    T extends { id: string; childNodes: Array<T> }
+  >(
+    eq: (node: T) => boolean,
+    tree: T
+  ): T => {
+    const aux = (viewNode: T): T | undefined => {
+      for (const node of viewNode.childNodes) {
+        if (eq(node)) {
+          return viewNode;
+        }
+
+        const res = aux(node);
+
+        if (res) {
+          return res;
+        }
+      }
+    };
+
+    if (eq(tree)) {
+      return tree;
+    }
+
+    const result = aux(tree);
+
+    if (!result) {
+      throw new Error(
+        "detached node or wrong id:" + "\n\n" + JSON.stringify(tree)
+      );
+    }
+    return result;
+  };
+
+  const findParentNode = <T extends { id: string; childNodes: Array<T> }>(
+    eq: (node: T) => boolean,
+    tree: T
+  ): T | null => {
+    try {
+      return findParentNodeOrThrow(eq, tree);
     } catch {
       return null;
     }
@@ -672,6 +717,10 @@ namespace React {
     });
   };
 
+  function calculateJsonBytes(jsonString: string): number {
+    return new Blob([jsonString]).size;
+  }
+
   /**
    *
    * Outputs a new view tree based on the provided render node
@@ -701,6 +750,10 @@ namespace React {
       throw new Error("Cannot render component outside of react tree");
     }
 
+    console.log(
+      "bytes of render tree",
+      calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree))
+    );
     const newNode: ReactViewTreeNode = {
       id: crypto.randomUUID(),
       metadata: renderTreeNode.internalMetadata,
@@ -792,13 +845,21 @@ namespace React {
             ...childrenSpreadProps,
           });
 
-        renderTreeNode.isFirstRender = false;
+        renderTreeNode.hasRendered = true;
 
         const viewNode = generateViewTreeHelper({
           renderTreeNode: computedRenderTreeNode,
           startingFromRenderNodeId: renderTreeNode.id,
           // viewNodePool,
         });
+        // cant we just remove this node?
+
+        //       const parent =  findParentNode((node) => node.id === renderTreeNode.id, currentTreeRef.renderTree.root)
+
+        //         if (!parent) {
+        //   throw new Error("Invariant node, cannot re-render a detached node")
+        // }
+        // parent.childNodes = parent.childNodes
 
         // viewNodePool.push(viewNode);
         newNode.childNodes.push(viewNode);
@@ -930,8 +991,12 @@ namespace React {
 
     const capturedCurrentlyRenderingRenderNode =
       currentTreeRef.renderTree.currentlyRendering;
+    const hasNode = findNode(
+      (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
+      currentTreeRef.renderTree.root
+    );
 
-    if (capturedCurrentlyRenderingRenderNode.isFirstRender) {
+    if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
       capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
         kind: "state",
         value: initialValue,
@@ -1238,6 +1303,7 @@ const SimpleChild = () => {
 const OuterWrapper = () => {
   const [counter, setCounter] = React.useState(0);
   const [toggleInner, setToggleInner] = React.useState(true);
+  const [items, setItems] = React.useState([1, 2, 3, 4]);
 
   return React.createElement(
     "div",
@@ -1256,9 +1322,26 @@ const OuterWrapper = () => {
       onclick: () => setToggleInner(!toggleInner),
       innerText: toggleInner ? "Hide Inner" : "Show Inner",
     }),
+    React.createElement("button", {
+      onclick: () => {
+        setItems([...items, Math.random()]);
+      },
+      innerText: "Add a random value",
+    }),
+    React.createElement("button", {
+      onclick: () => {
+        setItems(items.slice(0, -1));
+      },
+      innerText: "Remove last value",
+    }),
     toggleInner && React.createElement(InnerWrapper, { counter }),
     React.createElement(DualIncrementer, null),
-    React.createElement(DualIncrementer, null)
+    ...items.map((i) =>
+      React.createElement("div", {
+        innerText: i,
+      })
+    )
+    // React.createElement(DualIncrementer, null)
   );
 };
 
@@ -1301,8 +1384,8 @@ const ContainerComponent = () => {
       id: "container-component",
       style: "padding: 5px; margin: 5px; background-color: lightblue;",
     },
-    React.createElement(LeafComponent, null),
     React.createElement(LeafComponent, null)
+    // React.createElement(LeafComponent, null)
   );
 };
 
@@ -1348,13 +1431,13 @@ const MainComponent = () => {
       id: "main-component",
     },
     React.createElement(LeafComponent, null),
-    React.createElement(
-      ContainerComponent,
-      null,
-      React.createElement(LeafComponent, null)
-    ),
+    // React.createElement(
+    //   ContainerComponent,
+    //   null,
+    //   React.createElement(LeafComponent, null)
+    // ),
     React.createElement(DualIncrementer, null),
-    React.createElement(DualIncrementer, null),
+    // React.createElement(DualIncrementer, null),
     React.createElement(ActionButton, null),
     React.createElement(OuterWrapper, null),
     React.createElement(
