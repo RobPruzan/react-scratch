@@ -67,12 +67,13 @@ var React;
                 computedViewTreeNodeId: null,
                 hooks: [],
                 localRenderOrder: 0,
+                isFirstRender: true,
             };
             currentTreeRef.renderTree = {
                 localCurrentHookOrder: 0,
                 currentlyRendering: null,
                 root: rootRenderNode,
-                isFirstRender: true, // i don't think we actually want this
+                // isFirstRender: true, // i don't think we actually want this
                 localComponentRenderMap: {},
             };
             return rootRenderNode;
@@ -97,6 +98,7 @@ var React;
             internalMetadata: internalMetadata,
             hooks: [],
             localRenderOrder: newLocalRenderOrder,
+            isFirstRender: true,
         };
         currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
         return newRenderTreeNode;
@@ -315,6 +317,7 @@ var React;
                 currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
                 console.log("Running:", getComponentName(renderTreeNode.internalMetadata));
                 var computedRenderTreeNode = renderTreeNode.internalMetadata.component.function(__assign(__assign({}, renderTreeNode.internalMetadata.props), childrenSpreadProps));
+                renderTreeNode.isFirstRender = false;
                 var viewNode = generateViewTreeHelper({
                     renderTreeNode: computedRenderTreeNode,
                     startingFromRenderNodeId: renderTreeNode.id,
@@ -364,36 +367,21 @@ var React;
     }
     React.deepTraverseAndModify = deepTraverseAndModify;
     React.buildReactTrees = function (rootRenderTreeNode) {
-        // const rootViewNode: ReactViewTreeNode = {
-        //   id: crypto.randomUUID(),
-        //   metadata: rootRenderTreeNode.internalMetadata,
-        //   childNodes: [],
-        // };
         if (!currentTreeRef.renderTree) {
             throw new Error("Root node passed is not apart of any react render tree");
         }
         console.log("\n\nRENDER START----------------------------------------------");
-        // we ignore the output because its already appended to the root child nodes
-        // we need to keep the root alive so we know how to regenerate the tree
         var output = generateViewTree({
             renderTreeNode: rootRenderTreeNode,
             // startingFromRenderNodeId: rootRenderTreeNode.id,
         });
+        console.log("RENDER END----------------------------------------------\n\n");
         var reactViewTree = {
             root: output,
-            // viewNodePool: [],
         };
         currentTreeRef.viewTree = reactViewTree;
-        // i don't feel good about this change
-        // reactViewTree.root = output;
-        // there's a chac e
-        // reactViewTree.root = output;
-        console.log("output i think its this", output);
-        // so we remake a root and throw it away, or what?
-        // rootRenderTreeNode.computedViewTreeNodeId = output.id;
-        console.log("RENDER END----------------------------------------------\n\n");
         currentTreeRef.renderTree.currentlyRendering = null;
-        currentTreeRef.renderTree.isFirstRender = false;
+        // currentTreeRef.renderTree.isFirstRender = false;
         return {
             reactRenderTree: currentTreeRef.renderTree,
             reactViewTree: currentTreeRef.viewTree,
@@ -449,7 +437,7 @@ var React;
         var currentStateOrder = currentTreeRef.renderTree.localCurrentHookOrder;
         currentTreeRef.renderTree.localCurrentHookOrder += 1;
         var capturedCurrentlyRenderingRenderNode = currentTreeRef.renderTree.currentlyRendering;
-        if (currentTreeRef.renderTree.isFirstRender) {
+        if (capturedCurrentlyRenderingRenderNode.isFirstRender) {
             capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
                 kind: "state",
                 value: initialValue,

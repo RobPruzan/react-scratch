@@ -52,7 +52,7 @@ namespace React {
       [componentName: string]: number;
     };
     root: ReactRenderTreeNode;
-    isFirstRender: boolean; // this is very wrong and should not be stored on the tree, more like
+    // isFirstRender: boolean; // this is very wrong and should not be stored on the tree, more like
   };
 
   type ReactRenderTreeNode = {
@@ -62,6 +62,7 @@ namespace React {
     internalMetadata: ReactComponentInternalMetadata;
     hooks: Array<ReactHookMetadata>;
     localRenderOrder: number;
+    isFirstRender: boolean;
   };
 
   const mapComponentToTaggedUnion = (
@@ -117,12 +118,13 @@ namespace React {
         computedViewTreeNodeId: null,
         hooks: [],
         localRenderOrder: 0,
+        isFirstRender: true,
       };
       currentTreeRef.renderTree = {
         localCurrentHookOrder: 0,
         currentlyRendering: null,
         root: rootRenderNode,
-        isFirstRender: true, // i don't think we actually want this
+        // isFirstRender: true, // i don't think we actually want this
         localComponentRenderMap: {},
       };
       return rootRenderNode;
@@ -163,6 +165,7 @@ namespace React {
       internalMetadata: internalMetadata,
       hooks: [],
       localRenderOrder: newLocalRenderOrder,
+      isFirstRender: true,
     };
     currentTreeRef.renderTree.currentlyRendering.childNodes.push(
       newRenderTreeNode
@@ -486,6 +489,8 @@ namespace React {
             ...childrenSpreadProps,
           });
 
+        renderTreeNode.isFirstRender = false;
+
         const viewNode = generateViewTreeHelper({
           renderTreeNode: computedRenderTreeNode,
           startingFromRenderNodeId: renderTreeNode.id,
@@ -546,12 +551,6 @@ namespace React {
   }
 
   export const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
-    // const rootViewNode: ReactViewTreeNode = {
-    //   id: crypto.randomUUID(),
-    //   metadata: rootRenderTreeNode.internalMetadata,
-    //   childNodes: [],
-    // };
-
     if (!currentTreeRef.renderTree) {
       throw new Error("Root node passed is not apart of any react render tree");
     }
@@ -559,30 +558,19 @@ namespace React {
     console.log(
       "\n\nRENDER START----------------------------------------------"
     );
-    // we ignore the output because its already appended to the root child nodes
-    // we need to keep the root alive so we know how to regenerate the tree
     const output = generateViewTree({
       renderTreeNode: rootRenderTreeNode,
       // startingFromRenderNodeId: rootRenderTreeNode.id,
     });
 
+    console.log("RENDER END----------------------------------------------\n\n");
     const reactViewTree: ReactViewTree = {
       root: output,
-      // viewNodePool: [],
     };
 
     currentTreeRef.viewTree = reactViewTree;
-    // i don't feel good about this change
-    // reactViewTree.root = output;
-    // there's a chac e
-    // reactViewTree.root = output;
-    console.log("output i think its this", output);
-    // so we remake a root and throw it away, or what?
-    // rootRenderTreeNode.computedViewTreeNodeId = output.id;
-
-    console.log("RENDER END----------------------------------------------\n\n");
     currentTreeRef.renderTree.currentlyRendering = null;
-    currentTreeRef.renderTree.isFirstRender = false;
+    // currentTreeRef.renderTree.isFirstRender = false;
 
     return {
       reactRenderTree: currentTreeRef.renderTree,
@@ -644,7 +632,7 @@ namespace React {
     const capturedCurrentlyRenderingRenderNode =
       currentTreeRef.renderTree.currentlyRendering;
 
-    if (currentTreeRef.renderTree.isFirstRender) {
+    if (capturedCurrentlyRenderingRenderNode.isFirstRender) {
       capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
         kind: "state",
         value: initialValue,
