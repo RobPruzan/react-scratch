@@ -1,174 +1,3065 @@
 {
-  "root": {
-    "id": "86f50127-ef2d-4a34-856e-fe3279f2b03b",
-    "metadata": {
-      "component": { "kind": "function", "name": "Increment" },
-      "children": [],
-      "props": null,
-      "hooks": [],
-      "id": "dd27a85e-5da1-4eb8-884d-d70fd7801d69"
-    },
-    "childNodes": [
-      {
-        "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
-        "metadata": {
-          "component": { "kind": "tag", "tagName": "div" },
-          "children": [
-            {
-              "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
-              "childNodes": [],
-              "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-              "internalMetadata": {
-                "component": { "kind": "tag", "tagName": "button" },
-                "children": [],
-                "props": {
-                  "innerText": "so many counters me:2",
-                  "style": "color: orange"
-                },
-                "hooks": [],
-                "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
-              },
-              "hooks": [],
-              "localRenderOrder": 1
-            }
-          ],
-          "props": { "style": "color:blue" },
-          "hooks": [],
-          "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
-        },
-        "childNodes": [
-          {
-            "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-            "metadata": {
-              "component": { "kind": "tag", "tagName": "button" },
-              "children": [],
-              "props": {
-                "innerText": "so many counters me:2",
-                "style": "color: orange"
-              },
-              "hooks": [],
-              "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
-            },
-            "childNodes": []
-          }
-        ]
-      }
-    ]
+  "internalMetadata": {
+    "component": { "kind": "function", "name": "NestThis" },
+    "children": [],
+    "props": null,
+    "hooks": [],
+    "id": "862e0f44-936b-499f-b6b8-fda9dc4c1b8d"
   },
-  "viewNodePool": [
+  "id": "35e802b4-fbd5-4070-9d4d-3c255c8b2a41",
+  "childNodes": [
     {
-      "id": "025a490d-df63-48c1-9fd1-fcdef01b689c",
-      "metadata": {
-        "component": { "kind": "function", "name": "Increment" },
+      "id": "bc834986-482b-402f-810a-4ee05e936a59",
+      "childNodes": [
+        {
+          "id": "6b3a26a9-0505-4444-8ab9-3818d94f18e5",
+          "childNodes": [],
+          "computedViewTreeNodeId": "cb4d6697-ab24-4d95-bdcb-5d5ab859d1b9",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "h2", "domRef": {} },
+            "children": [],
+            "props": { "innerText": "Im a simple child!!" },
+            "hooks": [],
+            "id": "ede2d8fa-d6a9-45a1-b83b-e91679906b4e"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        }
+      ],
+      "computedViewTreeNodeId": "a73b4a7c-9fb5-45fb-b014-a9b7ca8d319c",
+      "internalMetadata": {
+        "component": { "kind": "function", "name": "SimpleChild" },
         "children": [],
         "props": null,
         "hooks": [],
-        "id": "dd27a85e-5da1-4eb8-884d-d70fd7801d69"
+        "id": "f3368c27-be61-411d-9331-62e544c911d9"
       },
-      "childNodes": [
-        {
-          "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
-          "metadata": {
-            "component": { "kind": "tag", "tagName": "div" },
-            "children": [
-              {
-                "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
-                "childNodes": [],
-                "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-                "internalMetadata": {
-                  "component": { "kind": "tag", "tagName": "button" },
-                  "children": [],
-                  "props": {
-                    "innerText": "so many counters me:2",
-                    "style": "color: orange"
-                  },
-                  "hooks": [],
-                  "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
-                },
-                "hooks": [],
-                "localRenderOrder": 1
-              }
-            ],
-            "props": { "style": "color:blue" },
-            "hooks": [],
-            "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
-          },
-          "childNodes": [
-            {
-              "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-              "metadata": {
-                "component": { "kind": "tag", "tagName": "button" },
-                "children": [],
-                "props": {
-                  "innerText": "so many counters me:2",
-                  "style": "color: orange"
-                },
-                "hooks": [],
-                "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
-              },
-              "childNodes": []
-            }
-          ]
-        }
-      ]
+      "hooks": [],
+      "localRenderOrder": 1,
+      "isFirstRender": false
     },
     {
-      "id": "39ba7e96-d7c3-4214-b046-ba706caad053",
-      "metadata": {
-        "component": { "kind": "tag", "tagName": "div" },
-        "children": [
-          {
-            "id": "d611de44-7a73-41c9-91cc-ddc7057e044d",
-            "childNodes": [],
-            "computedViewTreeNodeId": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-            "internalMetadata": {
-              "component": { "kind": "tag", "tagName": "button" },
-              "children": [],
-              "props": {
-                "innerText": "so many counters me:2",
-                "style": "color: orange"
-              },
-              "hooks": [],
-              "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
-            },
-            "hooks": [],
-            "localRenderOrder": 1
-          }
-        ],
-        "props": { "style": "color:blue" },
+      "id": "3055165f-8767-4a13-a2e9-344f7b2fb8ef",
+      "childNodes": [],
+      "computedViewTreeNodeId": "9797931e-1d81-4e78-ae01-a58f54f68c58",
+      "internalMetadata": {
+        "component": { "kind": "tag", "tagName": "div", "domRef": {} },
+        "children": [],
+        "props": { "innerText": "part of the simple child" },
         "hooks": [],
-        "id": "b6c16c02-96a9-4976-89fe-e6249b4a9b9c"
+        "id": "533ba774-d330-4ae8-9816-db4f157732d9"
       },
+      "hooks": [],
+      "localRenderOrder": 1,
+      "isFirstRender": true
+    },
+    {
+      "id": "2cc31ef8-d715-49f4-9126-ffaf6dfb5ee8",
       "childNodes": [
         {
-          "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-          "metadata": {
-            "component": { "kind": "tag", "tagName": "button" },
+          "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+          "childNodes": [],
+          "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "button", "domRef": {} },
+            "children": [],
+            "props": { "innerText": "so many counters me" },
+            "hooks": [],
+            "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        },
+        {
+          "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+          "childNodes": [],
+          "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "div", "domRef": {} },
             "children": [],
             "props": {
-              "innerText": "so many counters me:2",
-              "style": "color: orange"
+              "innerText": "look at this count?: 2",
+              "style": "color:white;"
             },
             "hooks": [],
-            "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+            "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
           },
-          "childNodes": []
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        },
+        {
+          "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+          "childNodes": [
+            {
+              "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+              "childNodes": [
+                {
+                  "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                  "internalMetadata": {
+                    "component": {
+                      "kind": "tag",
+                      "tagName": "article",
+                      "domRef": null
+                    },
+                    "children": [],
+                    "props": null,
+                    "hooks": [],
+                    "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1,
+                  "isFirstRender": true
+                },
+                {
+                  "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                  "internalMetadata": {
+                    "component": {
+                      "kind": "tag",
+                      "tagName": "button",
+                      "domRef": {}
+                    },
+                    "children": [],
+                    "props": {
+                      "innerText": "another counter, a little deeper: 2"
+                    },
+                    "hooks": [],
+                    "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1,
+                  "isFirstRender": true
+                },
+                {
+                  "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                  "internalMetadata": {
+                    "component": {
+                      "kind": "tag",
+                      "tagName": "div",
+                      "domRef": {}
+                    },
+                    "children": [
+                      {
+                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "article",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": null,
+                          "hooks": [],
+                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 3"
+                          },
+                          "hooks": [],
+                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      }
+                    ],
+                    "props": {},
+                    "hooks": [],
+                    "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1,
+                  "isFirstRender": true
+                },
+                {
+                  "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                  "childNodes": [],
+                  "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                  "internalMetadata": {
+                    "component": {
+                      "kind": "tag",
+                      "tagName": "button",
+                      "domRef": null
+                    },
+                    "children": [],
+                    "props": {
+                      "innerText": "another counter, a little deeper: 3"
+                    },
+                    "hooks": [],
+                    "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                  },
+                  "hooks": [],
+                  "localRenderOrder": 1,
+                  "isFirstRender": true
+                }
+              ],
+              "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+              "internalMetadata": {
+                "component": { "kind": "function", "name": "Foo" },
+                "children": [],
+                "props": null,
+                "hooks": [],
+                "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+              },
+              "hooks": [{ "kind": "state", "value": 3 }],
+              "localRenderOrder": 1,
+              "isFirstRender": false
+            },
+            {
+              "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+              "childNodes": [],
+              "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+              "internalMetadata": {
+                "component": {
+                  "kind": "tag",
+                  "tagName": "button",
+                  "domRef": {}
+                },
+                "children": [],
+                "props": { "innerText": "conditional render" },
+                "hooks": [],
+                "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+              },
+              "hooks": [],
+              "localRenderOrder": 1,
+              "isFirstRender": true
+            },
+            {
+              "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+              "childNodes": [],
+              "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+              "internalMetadata": {
+                "component": {
+                  "kind": "tag",
+                  "tagName": "button",
+                  "domRef": {}
+                },
+                "children": [],
+                "props": { "innerText": "Count: 2" },
+                "hooks": [],
+                "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+              },
+              "hooks": [],
+              "localRenderOrder": 1,
+              "isFirstRender": true
+            },
+            {
+              "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+              "childNodes": [],
+              "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+              "internalMetadata": {
+                "component": { "kind": "tag", "tagName": "area", "domRef": {} },
+                "children": [
+                  {
+                    "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                    "childNodes": [
+                      {
+                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "article",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": null,
+                          "hooks": [],
+                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": {}
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 2"
+                          },
+                          "hooks": [],
+                          "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "div",
+                            "domRef": {}
+                          },
+                          "children": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "props": {},
+                          "hooks": [],
+                          "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 3"
+                          },
+                          "hooks": [],
+                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      }
+                    ],
+                    "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                    "internalMetadata": {
+                      "component": { "kind": "function", "name": "Foo" },
+                      "children": [],
+                      "props": null,
+                      "hooks": [],
+                      "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                    },
+                    "hooks": [{ "kind": "state", "value": 3 }],
+                    "localRenderOrder": 1,
+                    "isFirstRender": false
+                  },
+                  {
+                    "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "conditional render" },
+                      "hooks": [],
+                      "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "Count: 2" },
+                      "hooks": [],
+                      "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  }
+                ],
+                "props": {},
+                "hooks": [],
+                "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+              },
+              "hooks": [],
+              "localRenderOrder": 1,
+              "isFirstRender": true
+            }
+          ],
+          "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+          "internalMetadata": {
+            "component": { "kind": "function", "name": "Bar" },
+            "children": [],
+            "props": null,
+            "hooks": [],
+            "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+          },
+          "hooks": [
+            { "kind": "state", "value": false },
+            { "kind": "state", "value": 2 }
+          ],
+          "localRenderOrder": 1,
+          "isFirstRender": false
+        },
+        {
+          "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+          "childNodes": [],
+          "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "span", "domRef": {} },
+            "children": [],
+            "props": { "innerText": "im a span!" },
+            "hooks": [],
+            "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        },
+        {
+          "id": "19bb0479-50c1-4d7e-87a3-d61b276ebee2",
+          "childNodes": [],
+          "computedViewTreeNodeId": "06e4de46-ea31-4020-b364-915c826af764",
+          "internalMetadata": {
+            "component": {
+              "kind": "tag",
+              "tagName": "div",
+              "domRef": { "lol": "ok" }
+            },
+            "children": [
+              {
+                "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+                "childNodes": [],
+                "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "button",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "so many counters me" },
+                  "hooks": [],
+                  "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+                "childNodes": [],
+                "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "div",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": {
+                    "innerText": "look at this count?: 2",
+                    "style": "color:white;"
+                  },
+                  "hooks": [],
+                  "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+                "childNodes": [
+                  {
+                    "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                    "childNodes": [
+                      {
+                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "article",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": null,
+                          "hooks": [],
+                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": {}
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 2"
+                          },
+                          "hooks": [],
+                          "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "div",
+                            "domRef": {}
+                          },
+                          "children": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "props": {},
+                          "hooks": [],
+                          "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 3"
+                          },
+                          "hooks": [],
+                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      }
+                    ],
+                    "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                    "internalMetadata": {
+                      "component": { "kind": "function", "name": "Foo" },
+                      "children": [],
+                      "props": null,
+                      "hooks": [],
+                      "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                    },
+                    "hooks": [{ "kind": "state", "value": 3 }],
+                    "localRenderOrder": 1,
+                    "isFirstRender": false
+                  },
+                  {
+                    "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "conditional render" },
+                      "hooks": [],
+                      "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "Count: 2" },
+                      "hooks": [],
+                      "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "area",
+                        "domRef": {}
+                      },
+                      "children": [
+                        {
+                          "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                          "childNodes": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 2"
+                                },
+                                "hooks": [],
+                                "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "div",
+                                  "domRef": {}
+                                },
+                                "children": [
+                                  {
+                                    "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "article",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": null,
+                                      "hooks": [],
+                                      "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "another counter, a little deeper: 3"
+                                      },
+                                      "hooks": [],
+                                      "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  }
+                                ],
+                                "props": {},
+                                "hooks": [],
+                                "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                          "internalMetadata": {
+                            "component": { "kind": "function", "name": "Foo" },
+                            "children": [],
+                            "props": null,
+                            "hooks": [],
+                            "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                          },
+                          "hooks": [{ "kind": "state", "value": 3 }],
+                          "localRenderOrder": 1,
+                          "isFirstRender": false
+                        },
+                        {
+                          "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "conditional render" },
+                            "hooks": [],
+                            "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "Count: 2" },
+                            "hooks": [],
+                            "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        }
+                      ],
+                      "props": {},
+                      "hooks": [],
+                      "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  }
+                ],
+                "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+                "internalMetadata": {
+                  "component": { "kind": "function", "name": "Bar" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+                },
+                "hooks": [
+                  { "kind": "state", "value": false },
+                  { "kind": "state", "value": 2 }
+                ],
+                "localRenderOrder": 1,
+                "isFirstRender": false
+              },
+              {
+                "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+                "childNodes": [],
+                "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "span",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "im a span!" },
+                  "hooks": [],
+                  "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              }
+            ],
+            "props": { "lol": "ok" },
+            "hooks": [],
+            "id": "e2dba9b3-ed3e-4713-8615-a05b46599b01"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
         }
-      ]
+      ],
+      "computedViewTreeNodeId": "e1e26cd8-f301-42fa-910e-f210b2f043f7",
+      "internalMetadata": {
+        "component": { "kind": "function", "name": "Component" },
+        "children": [],
+        "props": null,
+        "hooks": [],
+        "id": "73ab2ad8-acc3-4444-8926-71d1a4d1cb2b"
+      },
+      "hooks": [{ "kind": "state", "value": 2 }],
+      "localRenderOrder": 1,
+      "isFirstRender": false
     },
     {
-      "id": "34fce6e3-3948-43e9-a5a0-ae32a657cc52",
-      "metadata": {
-        "component": { "kind": "tag", "tagName": "button" },
-        "children": [],
-        "props": {
-          "innerText": "so many counters me:2",
-          "style": "color: orange"
+      "id": "8d86e2ac-964e-4b15-99af-5037b1d41d87",
+      "childNodes": [
+        {
+          "id": "25e48f31-b7d0-4d3b-99c1-e905869030b0",
+          "childNodes": [],
+          "computedViewTreeNodeId": "f2b333fd-e5a4-485f-839f-c91daf78e898",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "button", "domRef": {} },
+            "children": [],
+            "props": { "innerText": "trigger update" },
+            "hooks": [],
+            "id": "b4616b6c-8e0e-4e20-ae0b-cdf2cbaae6ab"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
         },
+        {
+          "id": "133af8d9-635e-410e-adb0-26f221f0c51a",
+          "childNodes": [],
+          "computedViewTreeNodeId": "80ca0f2f-c0ee-439a-87a4-6e220ed191e8",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "div", "domRef": {} },
+            "children": [],
+            "props": { "innerText": "parent of the simple parent" },
+            "hooks": [],
+            "id": "e1cd8665-6fba-4624-b518-3f7cc8230543"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        },
+        {
+          "id": "5cdc9b1a-c2e4-448f-92ba-d8b6eae17a3e",
+          "childNodes": [],
+          "computedViewTreeNodeId": "c503de13-a7ea-4463-ab4f-910fbc6aecd4",
+          "internalMetadata": {
+            "component": { "kind": "tag", "tagName": "div", "domRef": {} },
+            "children": [
+              {
+                "id": "25e48f31-b7d0-4d3b-99c1-e905869030b0",
+                "childNodes": [],
+                "computedViewTreeNodeId": "f2b333fd-e5a4-485f-839f-c91daf78e898",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "button",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "trigger update" },
+                  "hooks": [],
+                  "id": "b4616b6c-8e0e-4e20-ae0b-cdf2cbaae6ab"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "133af8d9-635e-410e-adb0-26f221f0c51a",
+                "childNodes": [],
+                "computedViewTreeNodeId": "80ca0f2f-c0ee-439a-87a4-6e220ed191e8",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "div",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "parent of the simple parent" },
+                  "hooks": [],
+                  "id": "e1cd8665-6fba-4624-b518-3f7cc8230543"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "bc834986-482b-402f-810a-4ee05e936a59",
+                "childNodes": [
+                  {
+                    "id": "6b3a26a9-0505-4444-8ab9-3818d94f18e5",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "cb4d6697-ab24-4d95-bdcb-5d5ab859d1b9",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "h2",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "Im a simple child!!" },
+                      "hooks": [],
+                      "id": "ede2d8fa-d6a9-45a1-b83b-e91679906b4e"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  }
+                ],
+                "computedViewTreeNodeId": "a73b4a7c-9fb5-45fb-b014-a9b7ca8d319c",
+                "internalMetadata": {
+                  "component": { "kind": "function", "name": "SimpleChild" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "f3368c27-be61-411d-9331-62e544c911d9"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": false
+              },
+              {
+                "id": "3055165f-8767-4a13-a2e9-344f7b2fb8ef",
+                "childNodes": [],
+                "computedViewTreeNodeId": "9797931e-1d81-4e78-ae01-a58f54f68c58",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "div",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "part of the simple child" },
+                  "hooks": [],
+                  "id": "533ba774-d330-4ae8-9816-db4f157732d9"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "2cc31ef8-d715-49f4-9126-ffaf6dfb5ee8",
+                "childNodes": [
+                  {
+                    "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "so many counters me" },
+                      "hooks": [],
+                      "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "div",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": {
+                        "innerText": "look at this count?: 2",
+                        "style": "color:white;"
+                      },
+                      "hooks": [],
+                      "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+                    "childNodes": [
+                      {
+                        "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                        "childNodes": [
+                          {
+                            "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                            "childNodes": [],
+                            "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                            "internalMetadata": {
+                              "component": {
+                                "kind": "tag",
+                                "tagName": "article",
+                                "domRef": null
+                              },
+                              "children": [],
+                              "props": null,
+                              "hooks": [],
+                              "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                            },
+                            "hooks": [],
+                            "localRenderOrder": 1,
+                            "isFirstRender": true
+                          },
+                          {
+                            "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                            "childNodes": [],
+                            "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                            "internalMetadata": {
+                              "component": {
+                                "kind": "tag",
+                                "tagName": "button",
+                                "domRef": {}
+                              },
+                              "children": [],
+                              "props": {
+                                "innerText": "another counter, a little deeper: 2"
+                              },
+                              "hooks": [],
+                              "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                            },
+                            "hooks": [],
+                            "localRenderOrder": 1,
+                            "isFirstRender": true
+                          },
+                          {
+                            "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                            "childNodes": [],
+                            "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                            "internalMetadata": {
+                              "component": {
+                                "kind": "tag",
+                                "tagName": "div",
+                                "domRef": {}
+                              },
+                              "children": [
+                                {
+                                  "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "article",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": null,
+                                    "hooks": [],
+                                    "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "button",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": {
+                                      "innerText": "another counter, a little deeper: 3"
+                                    },
+                                    "hooks": [],
+                                    "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                }
+                              ],
+                              "props": {},
+                              "hooks": [],
+                              "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                            },
+                            "hooks": [],
+                            "localRenderOrder": 1,
+                            "isFirstRender": true
+                          },
+                          {
+                            "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                            "childNodes": [],
+                            "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                            "internalMetadata": {
+                              "component": {
+                                "kind": "tag",
+                                "tagName": "button",
+                                "domRef": null
+                              },
+                              "children": [],
+                              "props": {
+                                "innerText": "another counter, a little deeper: 3"
+                              },
+                              "hooks": [],
+                              "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                            },
+                            "hooks": [],
+                            "localRenderOrder": 1,
+                            "isFirstRender": true
+                          }
+                        ],
+                        "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                        "internalMetadata": {
+                          "component": { "kind": "function", "name": "Foo" },
+                          "children": [],
+                          "props": null,
+                          "hooks": [],
+                          "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                        },
+                        "hooks": [{ "kind": "state", "value": 3 }],
+                        "localRenderOrder": 1,
+                        "isFirstRender": false
+                      },
+                      {
+                        "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": {}
+                          },
+                          "children": [],
+                          "props": { "innerText": "conditional render" },
+                          "hooks": [],
+                          "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": {}
+                          },
+                          "children": [],
+                          "props": { "innerText": "Count: 2" },
+                          "hooks": [],
+                          "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "area",
+                            "domRef": {}
+                          },
+                          "children": [
+                            {
+                              "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                              "childNodes": [
+                                {
+                                  "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "article",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": null,
+                                    "hooks": [],
+                                    "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "button",
+                                      "domRef": {}
+                                    },
+                                    "children": [],
+                                    "props": {
+                                      "innerText": "another counter, a little deeper: 2"
+                                    },
+                                    "hooks": [],
+                                    "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "div",
+                                      "domRef": {}
+                                    },
+                                    "children": [
+                                      {
+                                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "article",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": null,
+                                          "hooks": [],
+                                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      },
+                                      {
+                                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "button",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": {
+                                            "innerText": "another counter, a little deeper: 3"
+                                          },
+                                          "hooks": [],
+                                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      }
+                                    ],
+                                    "props": {},
+                                    "hooks": [],
+                                    "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "button",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": {
+                                      "innerText": "another counter, a little deeper: 3"
+                                    },
+                                    "hooks": [],
+                                    "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                }
+                              ],
+                              "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "function",
+                                  "name": "Foo"
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                              },
+                              "hooks": [{ "kind": "state", "value": 3 }],
+                              "localRenderOrder": 1,
+                              "isFirstRender": false
+                            },
+                            {
+                              "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": { "innerText": "conditional render" },
+                                "hooks": [],
+                                "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": { "innerText": "Count: 2" },
+                                "hooks": [],
+                                "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "props": {},
+                          "hooks": [],
+                          "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      }
+                    ],
+                    "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+                    "internalMetadata": {
+                      "component": { "kind": "function", "name": "Bar" },
+                      "children": [],
+                      "props": null,
+                      "hooks": [],
+                      "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+                    },
+                    "hooks": [
+                      { "kind": "state", "value": false },
+                      { "kind": "state", "value": 2 }
+                    ],
+                    "localRenderOrder": 1,
+                    "isFirstRender": false
+                  },
+                  {
+                    "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "span",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "im a span!" },
+                      "hooks": [],
+                      "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "19bb0479-50c1-4d7e-87a3-d61b276ebee2",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "06e4de46-ea31-4020-b364-915c826af764",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "div",
+                        "domRef": { "lol": "ok" }
+                      },
+                      "children": [
+                        {
+                          "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "so many counters me" },
+                            "hooks": [],
+                            "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "div",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": {
+                              "innerText": "look at this count?: 2",
+                              "style": "color:white;"
+                            },
+                            "hooks": [],
+                            "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+                          "childNodes": [
+                            {
+                              "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                              "childNodes": [
+                                {
+                                  "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "article",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": null,
+                                    "hooks": [],
+                                    "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "button",
+                                      "domRef": {}
+                                    },
+                                    "children": [],
+                                    "props": {
+                                      "innerText": "another counter, a little deeper: 2"
+                                    },
+                                    "hooks": [],
+                                    "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "div",
+                                      "domRef": {}
+                                    },
+                                    "children": [
+                                      {
+                                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "article",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": null,
+                                          "hooks": [],
+                                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      },
+                                      {
+                                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "button",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": {
+                                            "innerText": "another counter, a little deeper: 3"
+                                          },
+                                          "hooks": [],
+                                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      }
+                                    ],
+                                    "props": {},
+                                    "hooks": [],
+                                    "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                },
+                                {
+                                  "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                  "childNodes": [],
+                                  "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                  "internalMetadata": {
+                                    "component": {
+                                      "kind": "tag",
+                                      "tagName": "button",
+                                      "domRef": null
+                                    },
+                                    "children": [],
+                                    "props": {
+                                      "innerText": "another counter, a little deeper: 3"
+                                    },
+                                    "hooks": [],
+                                    "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                  },
+                                  "hooks": [],
+                                  "localRenderOrder": 1,
+                                  "isFirstRender": true
+                                }
+                              ],
+                              "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "function",
+                                  "name": "Foo"
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                              },
+                              "hooks": [{ "kind": "state", "value": 3 }],
+                              "localRenderOrder": 1,
+                              "isFirstRender": false
+                            },
+                            {
+                              "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": { "innerText": "conditional render" },
+                                "hooks": [],
+                                "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": { "innerText": "Count: 2" },
+                                "hooks": [],
+                                "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "area",
+                                  "domRef": {}
+                                },
+                                "children": [
+                                  {
+                                    "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                                    "childNodes": [
+                                      {
+                                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "article",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": null,
+                                          "hooks": [],
+                                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      },
+                                      {
+                                        "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "button",
+                                            "domRef": {}
+                                          },
+                                          "children": [],
+                                          "props": {
+                                            "innerText": "another counter, a little deeper: 2"
+                                          },
+                                          "hooks": [],
+                                          "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      },
+                                      {
+                                        "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "div",
+                                            "domRef": {}
+                                          },
+                                          "children": [
+                                            {
+                                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                              "childNodes": [],
+                                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                              "internalMetadata": {
+                                                "component": {
+                                                  "kind": "tag",
+                                                  "tagName": "article",
+                                                  "domRef": null
+                                                },
+                                                "children": [],
+                                                "props": null,
+                                                "hooks": [],
+                                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                              },
+                                              "hooks": [],
+                                              "localRenderOrder": 1,
+                                              "isFirstRender": true
+                                            },
+                                            {
+                                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                              "childNodes": [],
+                                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                              "internalMetadata": {
+                                                "component": {
+                                                  "kind": "tag",
+                                                  "tagName": "button",
+                                                  "domRef": null
+                                                },
+                                                "children": [],
+                                                "props": {
+                                                  "innerText": "another counter, a little deeper: 3"
+                                                },
+                                                "hooks": [],
+                                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                              },
+                                              "hooks": [],
+                                              "localRenderOrder": 1,
+                                              "isFirstRender": true
+                                            }
+                                          ],
+                                          "props": {},
+                                          "hooks": [],
+                                          "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      },
+                                      {
+                                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                        "childNodes": [],
+                                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                        "internalMetadata": {
+                                          "component": {
+                                            "kind": "tag",
+                                            "tagName": "button",
+                                            "domRef": null
+                                          },
+                                          "children": [],
+                                          "props": {
+                                            "innerText": "another counter, a little deeper: 3"
+                                          },
+                                          "hooks": [],
+                                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                        },
+                                        "hooks": [],
+                                        "localRenderOrder": 1,
+                                        "isFirstRender": true
+                                      }
+                                    ],
+                                    "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "function",
+                                        "name": "Foo"
+                                      },
+                                      "children": [],
+                                      "props": null,
+                                      "hooks": [],
+                                      "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                                    },
+                                    "hooks": [{ "kind": "state", "value": 3 }],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": false
+                                  },
+                                  {
+                                    "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": {}
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "conditional render"
+                                      },
+                                      "hooks": [],
+                                      "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": {}
+                                      },
+                                      "children": [],
+                                      "props": { "innerText": "Count: 2" },
+                                      "hooks": [],
+                                      "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  }
+                                ],
+                                "props": {},
+                                "hooks": [],
+                                "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+                          "internalMetadata": {
+                            "component": { "kind": "function", "name": "Bar" },
+                            "children": [],
+                            "props": null,
+                            "hooks": [],
+                            "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+                          },
+                          "hooks": [
+                            { "kind": "state", "value": false },
+                            { "kind": "state", "value": 2 }
+                          ],
+                          "localRenderOrder": 1,
+                          "isFirstRender": false
+                        },
+                        {
+                          "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "span",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "im a span!" },
+                            "hooks": [],
+                            "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        }
+                      ],
+                      "props": { "lol": "ok" },
+                      "hooks": [],
+                      "id": "e2dba9b3-ed3e-4713-8615-a05b46599b01"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  }
+                ],
+                "computedViewTreeNodeId": "e1e26cd8-f301-42fa-910e-f210b2f043f7",
+                "internalMetadata": {
+                  "component": { "kind": "function", "name": "Component" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "73ab2ad8-acc3-4444-8926-71d1a4d1cb2b"
+                },
+                "hooks": [{ "kind": "state", "value": 2 }],
+                "localRenderOrder": 1,
+                "isFirstRender": false
+              }
+            ],
+            "props": null,
+            "hooks": [],
+            "id": "63611495-c29f-43e4-a451-802cbbd336cf"
+          },
+          "hooks": [],
+          "localRenderOrder": 1,
+          "isFirstRender": true
+        }
+      ],
+      "computedViewTreeNodeId": "fbf8dc81-7730-48f7-96f4-0d62ff512227",
+      "internalMetadata": {
+        "component": { "kind": "function", "name": "SimpleParent" },
+        "children": [
+          {
+            "id": "bc834986-482b-402f-810a-4ee05e936a59",
+            "childNodes": [
+              {
+                "id": "6b3a26a9-0505-4444-8ab9-3818d94f18e5",
+                "childNodes": [],
+                "computedViewTreeNodeId": "cb4d6697-ab24-4d95-bdcb-5d5ab859d1b9",
+                "internalMetadata": {
+                  "component": { "kind": "tag", "tagName": "h2", "domRef": {} },
+                  "children": [],
+                  "props": { "innerText": "Im a simple child!!" },
+                  "hooks": [],
+                  "id": "ede2d8fa-d6a9-45a1-b83b-e91679906b4e"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              }
+            ],
+            "computedViewTreeNodeId": "a73b4a7c-9fb5-45fb-b014-a9b7ca8d319c",
+            "internalMetadata": {
+              "component": { "kind": "function", "name": "SimpleChild" },
+              "children": [],
+              "props": null,
+              "hooks": [],
+              "id": "f3368c27-be61-411d-9331-62e544c911d9"
+            },
+            "hooks": [],
+            "localRenderOrder": 1,
+            "isFirstRender": false
+          },
+          {
+            "id": "3055165f-8767-4a13-a2e9-344f7b2fb8ef",
+            "childNodes": [],
+            "computedViewTreeNodeId": "9797931e-1d81-4e78-ae01-a58f54f68c58",
+            "internalMetadata": {
+              "component": { "kind": "tag", "tagName": "div", "domRef": {} },
+              "children": [],
+              "props": { "innerText": "part of the simple child" },
+              "hooks": [],
+              "id": "533ba774-d330-4ae8-9816-db4f157732d9"
+            },
+            "hooks": [],
+            "localRenderOrder": 1,
+            "isFirstRender": true
+          },
+          {
+            "id": "2cc31ef8-d715-49f4-9126-ffaf6dfb5ee8",
+            "childNodes": [
+              {
+                "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+                "childNodes": [],
+                "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "button",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "so many counters me" },
+                  "hooks": [],
+                  "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+                "childNodes": [],
+                "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "div",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": {
+                    "innerText": "look at this count?: 2",
+                    "style": "color:white;"
+                  },
+                  "hooks": [],
+                  "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+                "childNodes": [
+                  {
+                    "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                    "childNodes": [
+                      {
+                        "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "article",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": null,
+                          "hooks": [],
+                          "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": {}
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 2"
+                          },
+                          "hooks": [],
+                          "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "div",
+                            "domRef": {}
+                          },
+                          "children": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "props": {},
+                          "hooks": [],
+                          "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      },
+                      {
+                        "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                        "childNodes": [],
+                        "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                        "internalMetadata": {
+                          "component": {
+                            "kind": "tag",
+                            "tagName": "button",
+                            "domRef": null
+                          },
+                          "children": [],
+                          "props": {
+                            "innerText": "another counter, a little deeper: 3"
+                          },
+                          "hooks": [],
+                          "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                        },
+                        "hooks": [],
+                        "localRenderOrder": 1,
+                        "isFirstRender": true
+                      }
+                    ],
+                    "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                    "internalMetadata": {
+                      "component": { "kind": "function", "name": "Foo" },
+                      "children": [],
+                      "props": null,
+                      "hooks": [],
+                      "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                    },
+                    "hooks": [{ "kind": "state", "value": 3 }],
+                    "localRenderOrder": 1,
+                    "isFirstRender": false
+                  },
+                  {
+                    "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "conditional render" },
+                      "hooks": [],
+                      "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "button",
+                        "domRef": {}
+                      },
+                      "children": [],
+                      "props": { "innerText": "Count: 2" },
+                      "hooks": [],
+                      "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  },
+                  {
+                    "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+                    "childNodes": [],
+                    "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+                    "internalMetadata": {
+                      "component": {
+                        "kind": "tag",
+                        "tagName": "area",
+                        "domRef": {}
+                      },
+                      "children": [
+                        {
+                          "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                          "childNodes": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 2"
+                                },
+                                "hooks": [],
+                                "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "div",
+                                  "domRef": {}
+                                },
+                                "children": [
+                                  {
+                                    "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "article",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": null,
+                                      "hooks": [],
+                                      "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "another counter, a little deeper: 3"
+                                      },
+                                      "hooks": [],
+                                      "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  }
+                                ],
+                                "props": {},
+                                "hooks": [],
+                                "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                          "internalMetadata": {
+                            "component": { "kind": "function", "name": "Foo" },
+                            "children": [],
+                            "props": null,
+                            "hooks": [],
+                            "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                          },
+                          "hooks": [{ "kind": "state", "value": 3 }],
+                          "localRenderOrder": 1,
+                          "isFirstRender": false
+                        },
+                        {
+                          "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "conditional render" },
+                            "hooks": [],
+                            "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "Count: 2" },
+                            "hooks": [],
+                            "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        }
+                      ],
+                      "props": {},
+                      "hooks": [],
+                      "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+                    },
+                    "hooks": [],
+                    "localRenderOrder": 1,
+                    "isFirstRender": true
+                  }
+                ],
+                "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+                "internalMetadata": {
+                  "component": { "kind": "function", "name": "Bar" },
+                  "children": [],
+                  "props": null,
+                  "hooks": [],
+                  "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+                },
+                "hooks": [
+                  { "kind": "state", "value": false },
+                  { "kind": "state", "value": 2 }
+                ],
+                "localRenderOrder": 1,
+                "isFirstRender": false
+              },
+              {
+                "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+                "childNodes": [],
+                "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "span",
+                    "domRef": {}
+                  },
+                  "children": [],
+                  "props": { "innerText": "im a span!" },
+                  "hooks": [],
+                  "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              },
+              {
+                "id": "19bb0479-50c1-4d7e-87a3-d61b276ebee2",
+                "childNodes": [],
+                "computedViewTreeNodeId": "06e4de46-ea31-4020-b364-915c826af764",
+                "internalMetadata": {
+                  "component": {
+                    "kind": "tag",
+                    "tagName": "div",
+                    "domRef": { "lol": "ok" }
+                  },
+                  "children": [
+                    {
+                      "id": "ad051906-30d1-4334-b403-18ce83d6416b",
+                      "childNodes": [],
+                      "computedViewTreeNodeId": "4748b739-dec2-4cb0-8e3f-7cc7d6f22423",
+                      "internalMetadata": {
+                        "component": {
+                          "kind": "tag",
+                          "tagName": "button",
+                          "domRef": {}
+                        },
+                        "children": [],
+                        "props": { "innerText": "so many counters me" },
+                        "hooks": [],
+                        "id": "0b7bfdad-f551-4a4d-b6b3-99f5f19c5772"
+                      },
+                      "hooks": [],
+                      "localRenderOrder": 1,
+                      "isFirstRender": true
+                    },
+                    {
+                      "id": "234e8a96-3c85-4564-b101-cb93403b4e3c",
+                      "childNodes": [],
+                      "computedViewTreeNodeId": "ed054972-96cb-40dd-8b48-7513a1e6223c",
+                      "internalMetadata": {
+                        "component": {
+                          "kind": "tag",
+                          "tagName": "div",
+                          "domRef": {}
+                        },
+                        "children": [],
+                        "props": {
+                          "innerText": "look at this count?: 2",
+                          "style": "color:white;"
+                        },
+                        "hooks": [],
+                        "id": "8acaf131-ca13-434a-8b55-dc492e2c0cbb"
+                      },
+                      "hooks": [],
+                      "localRenderOrder": 1,
+                      "isFirstRender": true
+                    },
+                    {
+                      "id": "4fdb29d3-49a2-4fe8-ab4a-91fc5573b1d1",
+                      "childNodes": [
+                        {
+                          "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                          "childNodes": [
+                            {
+                              "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "article",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": null,
+                                "hooks": [],
+                                "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": {}
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 2"
+                                },
+                                "hooks": [],
+                                "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "div",
+                                  "domRef": {}
+                                },
+                                "children": [
+                                  {
+                                    "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "article",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": null,
+                                      "hooks": [],
+                                      "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "another counter, a little deeper: 3"
+                                      },
+                                      "hooks": [],
+                                      "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  }
+                                ],
+                                "props": {},
+                                "hooks": [],
+                                "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            },
+                            {
+                              "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                              "childNodes": [],
+                              "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                              "internalMetadata": {
+                                "component": {
+                                  "kind": "tag",
+                                  "tagName": "button",
+                                  "domRef": null
+                                },
+                                "children": [],
+                                "props": {
+                                  "innerText": "another counter, a little deeper: 3"
+                                },
+                                "hooks": [],
+                                "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                              },
+                              "hooks": [],
+                              "localRenderOrder": 1,
+                              "isFirstRender": true
+                            }
+                          ],
+                          "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                          "internalMetadata": {
+                            "component": { "kind": "function", "name": "Foo" },
+                            "children": [],
+                            "props": null,
+                            "hooks": [],
+                            "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                          },
+                          "hooks": [{ "kind": "state", "value": 3 }],
+                          "localRenderOrder": 1,
+                          "isFirstRender": false
+                        },
+                        {
+                          "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "conditional render" },
+                            "hooks": [],
+                            "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "button",
+                              "domRef": {}
+                            },
+                            "children": [],
+                            "props": { "innerText": "Count: 2" },
+                            "hooks": [],
+                            "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        },
+                        {
+                          "id": "adc138e3-0633-4090-8b95-d6ce48a93dc4",
+                          "childNodes": [],
+                          "computedViewTreeNodeId": "f4ea8508-ec1a-4117-8402-262fd04b5ace",
+                          "internalMetadata": {
+                            "component": {
+                              "kind": "tag",
+                              "tagName": "area",
+                              "domRef": {}
+                            },
+                            "children": [
+                              {
+                                "id": "86fa14c0-c594-410f-ad3f-cdcacf5345bb",
+                                "childNodes": [
+                                  {
+                                    "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "article",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": null,
+                                      "hooks": [],
+                                      "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "cc102f0a-5265-46ef-88de-13cd7ab0436e",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "49593686-c267-4d50-9d23-df611ebe8062",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": {}
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "another counter, a little deeper: 2"
+                                      },
+                                      "hooks": [],
+                                      "id": "b2f0b4b9-fffe-4adc-987c-77c9185fd2a9"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "c1283be5-6bd0-4186-b951-8038a37f52ed",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "1f88ec07-4ada-441f-8d7c-a26c2084de2f",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "div",
+                                        "domRef": {}
+                                      },
+                                      "children": [
+                                        {
+                                          "id": "09530637-af0d-4ab2-94dd-5d6e7f70adb1",
+                                          "childNodes": [],
+                                          "computedViewTreeNodeId": "e77d0404-bb15-40db-bba8-e553c0e3cea6",
+                                          "internalMetadata": {
+                                            "component": {
+                                              "kind": "tag",
+                                              "tagName": "article",
+                                              "domRef": null
+                                            },
+                                            "children": [],
+                                            "props": null,
+                                            "hooks": [],
+                                            "id": "62075d8a-7653-463c-b7b5-67a2a8aa89c9"
+                                          },
+                                          "hooks": [],
+                                          "localRenderOrder": 1,
+                                          "isFirstRender": true
+                                        },
+                                        {
+                                          "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                          "childNodes": [],
+                                          "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                          "internalMetadata": {
+                                            "component": {
+                                              "kind": "tag",
+                                              "tagName": "button",
+                                              "domRef": null
+                                            },
+                                            "children": [],
+                                            "props": {
+                                              "innerText": "another counter, a little deeper: 3"
+                                            },
+                                            "hooks": [],
+                                            "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                          },
+                                          "hooks": [],
+                                          "localRenderOrder": 1,
+                                          "isFirstRender": true
+                                        }
+                                      ],
+                                      "props": {},
+                                      "hooks": [],
+                                      "id": "1eb957e9-e815-4702-a5cc-40006a93ca39"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  },
+                                  {
+                                    "id": "39a1e7b7-380c-49a2-bcda-75e38726aeeb",
+                                    "childNodes": [],
+                                    "computedViewTreeNodeId": "79d7494f-33db-4031-ba6c-93412b4884c6",
+                                    "internalMetadata": {
+                                      "component": {
+                                        "kind": "tag",
+                                        "tagName": "button",
+                                        "domRef": null
+                                      },
+                                      "children": [],
+                                      "props": {
+                                        "innerText": "another counter, a little deeper: 3"
+                                      },
+                                      "hooks": [],
+                                      "id": "6501bf32-f8f5-4489-bafa-37e1454cbe9d"
+                                    },
+                                    "hooks": [],
+                                    "localRenderOrder": 1,
+                                    "isFirstRender": true
+                                  }
+                                ],
+                                "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+                                "internalMetadata": {
+                                  "component": {
+                                    "kind": "function",
+                                    "name": "Foo"
+                                  },
+                                  "children": [],
+                                  "props": null,
+                                  "hooks": [],
+                                  "id": "3767b609-6d80-497b-a1c7-574e7950581c"
+                                },
+                                "hooks": [{ "kind": "state", "value": 3 }],
+                                "localRenderOrder": 1,
+                                "isFirstRender": false
+                              },
+                              {
+                                "id": "659bb7cb-c4e4-435e-a804-e6bf21693958",
+                                "childNodes": [],
+                                "computedViewTreeNodeId": "e46575dc-f7aa-463d-9656-7e6ace0bca58",
+                                "internalMetadata": {
+                                  "component": {
+                                    "kind": "tag",
+                                    "tagName": "button",
+                                    "domRef": {}
+                                  },
+                                  "children": [],
+                                  "props": {
+                                    "innerText": "conditional render"
+                                  },
+                                  "hooks": [],
+                                  "id": "8087616b-62f5-4011-bfd0-a703b7dcad7b"
+                                },
+                                "hooks": [],
+                                "localRenderOrder": 1,
+                                "isFirstRender": true
+                              },
+                              {
+                                "id": "1b185194-2335-44c5-ad41-8a61e70b5a81",
+                                "childNodes": [],
+                                "computedViewTreeNodeId": "4da80f8e-f2d9-464d-a243-da9755494dfe",
+                                "internalMetadata": {
+                                  "component": {
+                                    "kind": "tag",
+                                    "tagName": "button",
+                                    "domRef": {}
+                                  },
+                                  "children": [],
+                                  "props": { "innerText": "Count: 2" },
+                                  "hooks": [],
+                                  "id": "47ba658b-318b-406f-9b8b-9a42a897df79"
+                                },
+                                "hooks": [],
+                                "localRenderOrder": 1,
+                                "isFirstRender": true
+                              }
+                            ],
+                            "props": {},
+                            "hooks": [],
+                            "id": "2fcf3157-a653-4d9f-b104-a1c0ae296da0"
+                          },
+                          "hooks": [],
+                          "localRenderOrder": 1,
+                          "isFirstRender": true
+                        }
+                      ],
+                      "computedViewTreeNodeId": "b053c0e0-ae54-4554-ac96-1c9e210a35a5",
+                      "internalMetadata": {
+                        "component": { "kind": "function", "name": "Bar" },
+                        "children": [],
+                        "props": null,
+                        "hooks": [],
+                        "id": "e1e18e78-3fb0-4604-b5b9-202a3e7841ec"
+                      },
+                      "hooks": [
+                        { "kind": "state", "value": false },
+                        { "kind": "state", "value": 2 }
+                      ],
+                      "localRenderOrder": 1,
+                      "isFirstRender": false
+                    },
+                    {
+                      "id": "73ad624c-bb7e-482c-988d-c61610a0f7bd",
+                      "childNodes": [],
+                      "computedViewTreeNodeId": "b22957df-73e0-4b21-aaa2-942bcec51949",
+                      "internalMetadata": {
+                        "component": {
+                          "kind": "tag",
+                          "tagName": "span",
+                          "domRef": {}
+                        },
+                        "children": [],
+                        "props": { "innerText": "im a span!" },
+                        "hooks": [],
+                        "id": "374e91a1-b071-415a-84b6-da4324d6983d"
+                      },
+                      "hooks": [],
+                      "localRenderOrder": 1,
+                      "isFirstRender": true
+                    }
+                  ],
+                  "props": { "lol": "ok" },
+                  "hooks": [],
+                  "id": "e2dba9b3-ed3e-4713-8615-a05b46599b01"
+                },
+                "hooks": [],
+                "localRenderOrder": 1,
+                "isFirstRender": true
+              }
+            ],
+            "computedViewTreeNodeId": "e1e26cd8-f301-42fa-910e-f210b2f043f7",
+            "internalMetadata": {
+              "component": { "kind": "function", "name": "Component" },
+              "children": [],
+              "props": null,
+              "hooks": [],
+              "id": "73ab2ad8-acc3-4444-8926-71d1a4d1cb2b"
+            },
+            "hooks": [{ "kind": "state", "value": 2 }],
+            "localRenderOrder": 1,
+            "isFirstRender": false
+          }
+        ],
+        "props": null,
         "hooks": [],
-        "id": "0ffc42ca-2182-477c-aac1-b8c2f41dc8cf"
+        "id": "642abec4-1c73-428f-8e7d-b15ff1d094eb"
       },
-      "childNodes": []
+      "hooks": [{ "kind": "state", "value": 2 }],
+      "localRenderOrder": 1,
+      "isFirstRender": false
     }
-  ]
+  ],
+  "computedViewTreeNodeId": "b2d69aa3-3dc4-4eaa-a0bc-182ee2e04d3c",
+  "hooks": [],
+  "localRenderOrder": 0,
+  "isFirstRender": false
 }
