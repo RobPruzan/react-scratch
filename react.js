@@ -57,6 +57,7 @@ var React;
     };
     var updateDom = function (_a) {
         var props = _a.props, tagComponent = _a.tagComponent, previousDomRef = _a.previousDomRef, lastParent = _a.lastParent;
+        console.log("called updateDom");
         var newEl = document.createElement(tagComponent.tagName);
         Object.assign(newEl, props);
         if (previousDomRef) {
@@ -66,10 +67,12 @@ var React;
             // Array.from(previousDomRef.childNodes).forEach((child) =>
             //   clonedEl.appendChild(child)
             // );
+            console.log("replacing", previousDomRef, "on", parent_1);
             parent_1 === null || parent_1 === void 0 ? void 0 : parent_1.replaceChild(newEl, previousDomRef);
             // parent?.removeChild(previousDomRef);
         }
         else {
+            console.log("adding", newEl, "to", lastParent);
             lastParent.appendChild(newEl);
         }
         tagComponent.domRef = newEl;
@@ -89,6 +92,37 @@ var React;
         var newViewTree = _a.newViewTree, oldViewTree = _a.oldViewTree, startingDomNode = _a.startingDomNode;
         var aux = function (_a) {
             var localNewViewTree = _a.localNewViewTree, localOldViewTree = _a.localOldViewTree, lastParent = _a.lastParent;
+            var reconcileTags = function (_a) {
+                var newNode = _a.newNode, oldNode = _a.oldNode;
+                if (deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)) {
+                    // console.log(
+                    //   "is deep equal, passing on the dom node",
+                    //   oldNode.node,
+                    //   newNode.node
+                    // );
+                    // newNode.metadata.component.
+                    newNode.component.domRef = oldNode.component.domRef;
+                    return aux({
+                        localNewViewTree: newNode.node,
+                        localOldViewTree: oldNode.node,
+                        lastParent: lastParent,
+                    });
+                }
+                else {
+                    console.log("update on the early cond (not suprised this breaks)");
+                    var newEl = updateDom({
+                        lastParent: lastParent,
+                        previousDomRef: oldNode.component.domRef,
+                        props: newNode.node.metadata.props,
+                        tagComponent: newNode.component,
+                    });
+                    return aux({
+                        localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
+                        localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
+                        lastParent: newEl,
+                    });
+                }
+            };
             // if (localNewViewTree.)
             console.log("reconciling", localOldViewTree, localNewViewTree);
             switch (localNewViewTree.metadata.component.kind) {
@@ -106,32 +140,42 @@ var React;
                             lastParent: lastParent,
                         });
                     }
-                    if (deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)) {
-                        console.log("is deep equal, passing on the dom node", oldNode.node, newNode.node);
-                        // newNode.metadata.component.
-                        newNode.component.domRef = oldNode.component.domRef;
-                        return aux({
-                            localNewViewTree: newNode.node,
-                            localOldViewTree: oldNode.node,
-                            lastParent: lastParent,
-                        });
-                    }
-                    else {
-                        var newEl = updateDom({
-                            lastParent: lastParent,
-                            previousDomRef: oldNode.component.domRef,
-                            props: newNode.node.metadata.props,
-                            tagComponent: newNode.component,
-                        });
-                        return aux({
-                            localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
-                            localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
-                            lastParent: newEl,
-                        });
-                    }
+                    reconcileTags({ newNode: newNode, oldNode: oldNode });
+                    return;
+                    // if (
+                    //   deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)
+                    // ) {
+                    //   console.log(
+                    //     "is deep equal, passing on the dom node",
+                    //     oldNode.node,
+                    //     newNode.node
+                    //   );
+                    //   // newNode.metadata.component.
+                    //   newNode.component.domRef = oldNode.component.domRef;
+                    //   return aux({
+                    //     localNewViewTree: newNode.node,
+                    //     localOldViewTree: oldNode.node,
+                    //     lastParent,
+                    //   });
+                    // } else {
+                    //   console.log("update on the early cond (not suprised this breaks)");
+                    //   const newEl = updateDom({
+                    //     lastParent,
+                    //     previousDomRef: oldNode.component.domRef,
+                    //     props: newNode.node.metadata.props,
+                    //     tagComponent: newNode.component,
+                    //   });
+                    //   return aux({
+                    //     localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
+                    //     localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
+                    //     lastParent: newEl,
+                    //   });
+                    // }
                 }
                 case "tag": {
                     if (!localOldViewTree) {
+                        console.log("wahoo i have nothing to comp against", localNewViewTree);
+                        // but u cant do this twice on the element
                         var newEl = updateDom({
                             lastParent: lastParent,
                             tagComponent: localNewViewTree.metadata.component,
@@ -155,18 +199,20 @@ var React;
                     }), oldToNew_1 = _c[0], newToOld_1 = _c[1];
                     // to remove
                     localOldViewTree.childNodes.forEach(function (oldNode) {
-                        var _a, _b;
+                        var _a, _b, _c, _d;
                         var associatedWith = oldToNew_1[oldNode.id];
                         if (!associatedWith) {
                             switch (oldNode.metadata.component.kind) {
                                 case "function": {
                                     var firstTag = findFirstTagNode(oldNode);
-                                    (_a = firstTag.component.domRef) === null || _a === void 0 ? void 0 : _a.remove();
+                                    (_b = (_a = firstTag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(firstTag.component.domRef);
                                     return;
                                 }
                                 case "tag": {
                                     console.log("a remove for the tag", oldNode);
-                                    (_b = oldNode.metadata.component.domRef) === null || _b === void 0 ? void 0 : _b.remove();
+                                    // for some reason the parent element is returning null?
+                                    (_d = (_c = oldNode.metadata.component.domRef) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.removeChild(oldNode.metadata.component.domRef);
+                                    console.log("removed?", oldNode.metadata.component.domRef);
                                     return;
                                 }
                             }
@@ -187,21 +233,28 @@ var React;
                                     });
                                 }
                                 case "tag": {
-                                    var newEl = updateDom({
-                                        lastParent: lastParent,
-                                        tagComponent: newNode.metadata.component,
-                                        props: newNode.metadata.props,
-                                        previousDomRef: null,
-                                    });
+                                    console.log("update here");
+                                    // const newEl = updateDom({
+                                    //   lastParent,
+                                    //   tagComponent: newNode.metadata.component,
+                                    //   props: newNode.metadata.props,
+                                    //   previousDomRef: null,
+                                    // });
+                                    // okay of course it doesn't have anything associated
+                                    // it didn't exist previously
+                                    // and it has no child nodes, so it should just flop?
                                     console.log("new el for the comp", associatedWith, newNode);
+                                    // this must be wrong
+                                    // so convoluted but another case will catch it.
                                     return aux({
-                                        lastParent: newEl,
+                                        lastParent: lastParent,
                                         localNewViewTree: newNode,
                                         localOldViewTree: null,
                                     });
                                 }
                             }
                         }
+                        console.log("moved on");
                         switch (newNode.metadata.component.kind) {
                             case "function": {
                                 return aux({
@@ -227,6 +280,7 @@ var React;
                                         localOldViewTree: associatedWith,
                                     });
                                 }
+                                console.log("update uhh here");
                                 var newEl = updateDom({
                                     lastParent: lastParent,
                                     props: newNode.metadata.props,
@@ -744,6 +798,7 @@ var React;
                 //   root.removeChild(root.firstChild);
                 // }
                 console.log("view tree", JSON.stringify(currentTreeRef.viewTree));
+                // current problem definitely has to do with removing elements not being handled
                 reconcileDom({
                     newViewTree: reGeneratedViewTree,
                     oldViewTree: previousViewTree,
@@ -834,6 +889,18 @@ var Bar = function () {
         innerText: "Count: ".concat(x),
         onclick: function () {
             setX(x + 1);
+        },
+    }), isRenderingSpan &&
+        React.createElement("span", {
+            style: "display:flex; height:50px; width:50px; background-color: white;",
+        }));
+};
+var ConditionalRender = function () {
+    var _a = React.useState(false), isRenderingSpan = _a[0], setIsRenderingSpan = _a[1];
+    return React.createElement("div", null, React.createElement("button", {
+        innerText: "conditional render",
+        onclick: function () {
+            setIsRenderingSpan(!isRenderingSpan);
         },
     }), isRenderingSpan &&
         React.createElement("span", {
