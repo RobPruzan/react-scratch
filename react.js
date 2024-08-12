@@ -237,25 +237,28 @@ var React;
     };
     /**
      *
-     * Outputs a new tree executed started from the provided  view node
+     * Outputs a new view tree based on the provided render node
      *
-     *
-     * see if i can refactor so we only have to pass the metadata and it will generate the root of the view tree
-     * would need an aux function but I think i can do it
      */
-    var renderComponent = function (_a) {
-        var renderTreeNode = _a.renderTreeNode, parentViewNode = _a.parentViewNode, startingFromRenderNodeId = _a.startingFromRenderNodeId;
-        if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
+    var generateViewTree = function (_a) {
+        var renderTreeNode = _a.renderTreeNode;
+        return generateViewTreeHelper({
+            renderTreeNode: renderTreeNode,
+            startingFromRenderNodeId: renderTreeNode.id,
+            viewNodePool: [],
+        });
+    };
+    var generateViewTreeHelper = function (_a) {
+        var renderTreeNode = _a.renderTreeNode, startingFromRenderNodeId = _a.startingFromRenderNodeId, viewNodePool = _a.viewNodePool;
+        if (!currentTreeRef.renderTree) {
             throw new Error("Cannot render component outside of react tree");
         }
-        // start of the new tree we regenerate
-        // if a render node
         var newNode = {
-            id: parentViewNode.id,
+            id: crypto.randomUUID(),
             metadata: renderTreeNode.internalMetadata,
             childNodes: [],
         };
-        currentTreeRef.viewTree.viewNodePool.push(newNode);
+        // currentTreeRef.viewTree.viewNodePool.push(newNode);
         renderTreeNode.computedViewTreeNodeId = newNode.id;
         // the idea is we immediately execute the children before running the parent
         // then later when attempting to access its children it will check if its already computed
@@ -264,25 +267,19 @@ var React;
         switch (renderTreeNode.internalMetadata.component.kind) {
             case "tag": {
                 var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
-                    var _a, _b;
+                    var _a;
                     var reRenderChild = function () {
-                        // root of the new tree, we can safely ignore it
-                        var dummyParent = {
-                            id: crypto.randomUUID(),
-                            metadata: child.internalMetadata,
-                            childNodes: [],
-                        };
-                        var viewNode = renderComponent({
+                        var viewNode = generateViewTreeHelper({
                             renderTreeNode: child,
-                            parentViewNode: dummyParent,
                             startingFromRenderNodeId: startingFromRenderNodeId,
+                            viewNodePool: viewNodePool,
                         });
                         if (viewNode.childNodes.length > 1) {
                             throw new Error("Invariant error, should never have more than one child");
                         }
                         return { viewNode: viewNode, renderNode: child };
                     };
-                    var computedNode = (_a = currentTreeRef.viewTree) === null || _a === void 0 ? void 0 : _a.viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
+                    var computedNode = viewNodePool.find(function (node) { return node.id === child.computedViewTreeNodeId; });
                     if (!child.computedViewTreeNodeId) {
                         // logging only
                     }
@@ -293,7 +290,7 @@ var React;
                         potentialChildId: child.id,
                         potentialParentId: startingFromRenderNodeId,
                     });
-                    var parentRenderNode = findNode(startingFromRenderNodeId, (_b = currentTreeRef.renderTree) === null || _b === void 0 ? void 0 : _b.root);
+                    var parentRenderNode = findNode(startingFromRenderNodeId, (_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.root);
                     if (!shouldReRender) {
                         console.log("skipping re-rendering, ".concat(getComponentName(child.internalMetadata), " not a child of ").concat(getComponentName(parentRenderNode.internalMetadata)));
                         // skip re-rendering if not a child in the render tree
@@ -305,10 +302,6 @@ var React;
                     var viewNode = _a.viewNode;
                     return viewNode;
                 });
-                // why are we mutating u?
-                // this makes literally 0 sense what im doing
-                // is the
-                // parentViewNode.childNodes.push(newNode);
                 break;
             }
             case "function": {
@@ -322,18 +315,15 @@ var React;
                 currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
                 console.log("Running:", getComponentName(renderTreeNode.internalMetadata));
                 var computedRenderTreeNode = renderTreeNode.internalMetadata.component.function(__assign(__assign({}, renderTreeNode.internalMetadata.props), childrenSpreadProps));
-                var viewNode = renderComponent({
+                var viewNode = generateViewTreeHelper({
                     renderTreeNode: computedRenderTreeNode,
-                    parentViewNode: newNode,
                     startingFromRenderNodeId: renderTreeNode.id,
+                    viewNodePool: viewNodePool,
                 });
-                // console.log("psuhing this view ndode", viewNode);
                 newNode.childNodes.push(viewNode);
                 break;
             }
         }
-        // so this node just gets lost?
-        // we never push to the parent
         return newNode;
     };
     var currentTreeRef = {
@@ -374,31 +364,30 @@ var React;
     }
     React.deepTraverseAndModify = deepTraverseAndModify;
     React.buildReactTrees = function (rootRenderTreeNode) {
-        var rootViewNode = {
-            id: crypto.randomUUID(),
-            metadata: rootRenderTreeNode.internalMetadata,
-            childNodes: [],
-        };
+        // const rootViewNode: ReactViewTreeNode = {
+        //   id: crypto.randomUUID(),
+        //   metadata: rootRenderTreeNode.internalMetadata,
+        //   childNodes: [],
+        // };
         if (!currentTreeRef.renderTree) {
             throw new Error("Root node passed is not apart of any react render tree");
         }
-        var reactViewTree = {
-            root: rootViewNode,
-            viewNodePool: [],
-        };
-        currentTreeRef.viewTree = reactViewTree;
         console.log("\n\nRENDER START----------------------------------------------");
         // we ignore the output because its already appended to the root child nodes
         // we need to keep the root alive so we know how to regenerate the tree
-        var output = renderComponent({
+        var output = generateViewTree({
             renderTreeNode: rootRenderTreeNode,
-            parentViewNode: rootViewNode,
-            startingFromRenderNodeId: rootRenderTreeNode.id,
+            // startingFromRenderNodeId: rootRenderTreeNode.id,
         });
+        var reactViewTree = {
+            root: output,
+            // viewNodePool: [],
+        };
+        currentTreeRef.viewTree = reactViewTree;
         // i don't feel good about this change
         // reactViewTree.root = output;
         // there's a chac e
-        reactViewTree.root = output;
+        // reactViewTree.root = output;
         console.log("output i think its this", output);
         // so we remake a root and throw it away, or what?
         // rootRenderTreeNode.computedViewTreeNodeId = output.id;
@@ -490,10 +479,9 @@ var React;
                 // err here
                 var parentNode = findParentViewNode(captureNodeId);
                 console.log("\n\nRENDER START----------------------------------------------");
-                var reGeneratedViewTree = renderComponent({
+                var reGeneratedViewTree = generateViewTree({
                     renderTreeNode: capturedCurrentlyRenderingRenderNode,
-                    parentViewNode: detachedViewTreeNode, // this node needs to be added to the tree
-                    startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
+                    // startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
                 });
                 console.log("RENDER END----------------------------------------------\n\n");
                 // its a detached node and because of that we set it as the root

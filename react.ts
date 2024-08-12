@@ -43,7 +43,7 @@ namespace React {
 
   type ReactViewTree = {
     root: ReactViewTreeNode;
-    viewNodePool: Array<ReactViewTreeNode>;
+    // viewNodePool: Array<ReactViewTreeNode>;
   };
   type ReactRenderTree = {
     currentlyRendering: ReactRenderTreeNode | null;
@@ -52,7 +52,7 @@ namespace React {
       [componentName: string]: number;
     };
     root: ReactRenderTreeNode;
-    isFirstRender: boolean;
+    isFirstRender: boolean; // this is very wrong and should not be stored on the tree, more like
   };
 
   type ReactRenderTreeNode = {
@@ -359,37 +359,44 @@ namespace React {
       searchId: potentialChildId,
     });
   };
+
   /**
    *
-   * Outputs a new tree executed started from the provided  view node
+   * Outputs a new view tree based on the provided render node
    *
-   *
-   * see if i can refactor so we only have to pass the metadata and it will generate the root of the view tree
-   * would need an aux function but I think i can do it
    */
-  const renderComponent = ({
+  const generateViewTree = ({
     renderTreeNode,
-    parentViewNode,
-    startingFromRenderNodeId,
   }: {
-    parentViewNode: ReactViewTreeNode;
+    renderTreeNode: ReactRenderTreeNode;
+  }) => {
+    return generateViewTreeHelper({
+      renderTreeNode,
+      startingFromRenderNodeId: renderTreeNode.id,
+      viewNodePool: [],
+    });
+  };
 
+  const generateViewTreeHelper = ({
+    renderTreeNode,
+    startingFromRenderNodeId,
+    viewNodePool,
+  }: {
     renderTreeNode: ReactRenderTreeNode;
     startingFromRenderNodeId: string;
+    viewNodePool: Array<ReactViewTreeNode>;
   }): ReactViewTreeNode => {
-    if (!currentTreeRef.renderTree || !currentTreeRef.viewTree) {
+    if (!currentTreeRef.renderTree) {
       throw new Error("Cannot render component outside of react tree");
     }
 
-    // start of the new tree we regenerate
-    // if a render node
     const newNode: ReactViewTreeNode = {
-      id: parentViewNode.id,
+      id: crypto.randomUUID(),
       metadata: renderTreeNode.internalMetadata,
       childNodes: [],
     };
 
-    currentTreeRef.viewTree.viewNodePool.push(newNode);
+    // currentTreeRef.viewTree.viewNodePool.push(newNode);
 
     renderTreeNode.computedViewTreeNodeId = newNode.id;
     // the idea is we immediately execute the children before running the parent
@@ -408,17 +415,10 @@ namespace React {
               renderNode: ReactRenderTreeNode;
             } => {
               const reRenderChild = () => {
-                // root of the new tree, we can safely ignore it
-                const dummyParent: ReactViewTreeNode = {
-                  id: crypto.randomUUID(),
-                  metadata: child.internalMetadata,
-                  childNodes: [],
-                };
-
-                const viewNode = renderComponent({
+                const viewNode = generateViewTreeHelper({
                   renderTreeNode: child,
-                  parentViewNode: dummyParent,
                   startingFromRenderNodeId,
+                  viewNodePool,
                 });
                 if (viewNode.childNodes.length > 1) {
                   throw new Error(
@@ -427,7 +427,7 @@ namespace React {
                 }
                 return { viewNode, renderNode: child };
               };
-              const computedNode = currentTreeRef.viewTree?.viewNodePool.find(
+              const computedNode = viewNodePool.find(
                 (node) => node.id === child.computedViewTreeNodeId
               );
               if (!child.computedViewTreeNodeId) {
@@ -464,10 +464,6 @@ namespace React {
         newNode.childNodes = fullyComputedChildren.map(
           ({ viewNode }) => viewNode
         );
-        // why are we mutating u?
-        // this makes literally 0 sense what im doing
-        // is the
-        // parentViewNode.childNodes.push(newNode);
         break;
       }
       case "function": {
@@ -490,19 +486,17 @@ namespace React {
             ...childrenSpreadProps,
           });
 
-        const viewNode = renderComponent({
+        const viewNode = generateViewTreeHelper({
           renderTreeNode: computedRenderTreeNode,
-          parentViewNode: newNode,
           startingFromRenderNodeId: renderTreeNode.id,
+          viewNodePool,
         });
 
-        // console.log("psuhing this view ndode", viewNode);
         newNode.childNodes.push(viewNode);
         break;
       }
     }
-    // so this node just gets lost?
-    // we never push to the parent
+
     return newNode;
   };
   const currentTreeRef: {
@@ -552,36 +546,36 @@ namespace React {
   }
 
   export const buildReactTrees = (rootRenderTreeNode: ReactRenderTreeNode) => {
-    const rootViewNode: ReactViewTreeNode = {
-      id: crypto.randomUUID(),
-      metadata: rootRenderTreeNode.internalMetadata,
-      childNodes: [],
-    };
+    // const rootViewNode: ReactViewTreeNode = {
+    //   id: crypto.randomUUID(),
+    //   metadata: rootRenderTreeNode.internalMetadata,
+    //   childNodes: [],
+    // };
 
     if (!currentTreeRef.renderTree) {
       throw new Error("Root node passed is not apart of any react render tree");
     }
-    const reactViewTree: ReactViewTree = {
-      root: rootViewNode,
-      viewNodePool: [],
-    };
-
-    currentTreeRef.viewTree = reactViewTree;
 
     console.log(
       "\n\nRENDER START----------------------------------------------"
     );
     // we ignore the output because its already appended to the root child nodes
     // we need to keep the root alive so we know how to regenerate the tree
-    const output = renderComponent({
+    const output = generateViewTree({
       renderTreeNode: rootRenderTreeNode,
-      parentViewNode: rootViewNode,
-      startingFromRenderNodeId: rootRenderTreeNode.id,
+      // startingFromRenderNodeId: rootRenderTreeNode.id,
     });
+
+    const reactViewTree: ReactViewTree = {
+      root: output,
+      // viewNodePool: [],
+    };
+
+    currentTreeRef.viewTree = reactViewTree;
     // i don't feel good about this change
     // reactViewTree.root = output;
     // there's a chac e
-    reactViewTree.root = output;
+    // reactViewTree.root = output;
     console.log("output i think its this", output);
     // so we remake a root and throw it away, or what?
     // rootRenderTreeNode.computedViewTreeNodeId = output.id;
@@ -692,10 +686,9 @@ namespace React {
         console.log(
           "\n\nRENDER START----------------------------------------------"
         );
-        const reGeneratedViewTree = renderComponent({
+        const reGeneratedViewTree = generateViewTree({
           renderTreeNode: capturedCurrentlyRenderingRenderNode,
-          parentViewNode: detachedViewTreeNode, // this node needs to be added to the tree
-          startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
+          // startingFromRenderNodeId: capturedCurrentlyRenderingRenderNode.id,
         });
 
         console.log(
