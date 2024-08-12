@@ -141,15 +141,14 @@ namespace React {
     props: AnyProps;
     lastParent: HTMLElement;
   }) => {
+    if (previousDomRef) {
+      Object.assign(previousDomRef, props);
+      tagComponent.domRef = previousDomRef;
+      return previousDomRef;
+    }
     const newEl = document.createElement(tagComponent.tagName);
     Object.assign(newEl, props);
-
-    if (previousDomRef) {
-      const parent = previousDomRef.parentNode;
-      parent?.replaceChild(newEl, previousDomRef);
-    } else {
-      lastParent.appendChild(newEl);
-    }
+    lastParent.appendChild(newEl);
 
     tagComponent.domRef = newEl;
 
@@ -260,6 +259,11 @@ namespace React {
             rightNodes: localNewViewTree.childNodes,
           });
 
+          const isDebugNode = lastParent.id === "nest-this";
+          if (isDebugNode) {
+            console.log(oldToNew, newToOld);
+          }
+
           // to remove
           localOldViewTree.childNodes.forEach((oldNode) => {
             const associatedWith = oldToNew[oldNode.id];
@@ -339,6 +343,18 @@ namespace React {
                 if (!existingDomRef) {
                   throw new Error(
                     "Invariant error, never should have an old view tree that doesn't have a created dom node"
+                  );
+                }
+                if (isDebugNode) {
+                  console.log(
+                    "doing a deep equal",
+                    deepEqual(
+                      newNode.metadata.props,
+                      associatedWith.metadata.props
+                    ),
+                    getComponentRepr(associatedWith.metadata),
+                    "AND",
+                    getComponentRepr(newNode.metadata)
                   );
                 }
                 if (
@@ -875,33 +891,49 @@ namespace React {
       reactViewTree: currentTreeRef.viewTree,
     };
   };
-  function deepEqual(a: any, b: any): boolean {
+  function deepEqual(a: any, b: any, log = false): boolean {
     if (a === b) return true;
 
     if (a && b && typeof a === "object" && typeof b === "object") {
       if (Array.isArray(a) && Array.isArray(b)) {
         if (a.length !== b.length) return false;
         for (let i = 0; i < a.length; i++) {
-          if (!deepEqual(a[i], b[i])) return false;
+          if (!deepEqual(a[i], b[i])) {
+            console.log("1");
+
+            return false;
+          }
         }
         return true;
       }
 
-      if (a.constructor !== b.constructor) return false;
+      if (a.constructor !== b.constructor) {
+        console.log("2");
+        return false;
+      }
 
       const keysA = Object.keys(a);
       const keysB = Object.keys(b);
 
-      if (keysA.length !== keysB.length) return false;
+      if (keysA.length !== keysB.length) {
+        console.log("3");
+        return false;
+      }
 
       for (const key of keysA) {
-        if (!keysB.includes(key)) return false;
-        if (!deepEqual(a[key], b[key])) return false;
+        if (!keysB.includes(key)) {
+          console.log("4");
+          return false;
+        }
+        if (!deepEqual(a[key], b[key])) {
+          console.log("5", a[key], b[key], key);
+          return false;
+        }
       }
 
       return true;
     }
-
+    console.log("6");
     return false;
   }
 
@@ -1096,6 +1128,8 @@ const PropsTest = (props: any) => {
     React.createElement("button", {
       innerText: "trigger update",
       onclick: () => {
+        // console.log('el', );
+
         setUpdate(!update);
       },
     }),
@@ -1138,6 +1172,10 @@ const SimpleParent = (props: any) => {
     null,
     React.createElement("button", {
       onclick: () => {
+        setTimeout(() => {
+          console.log("doing it!!");
+          document.getElementById("nest-this")!.id = "test";
+        }, 1500);
         setX(x + 1);
       },
       innerText: "trigger update",
@@ -1149,9 +1187,12 @@ const SimpleParent = (props: any) => {
   );
 };
 const NestThis = () => {
+  const [x, setX] = React.useState(2);
   return React.createElement(
     "div",
-    null,
+    {
+      id: "nest-this",
+    },
     React.createElement(SimpleChild, null),
     React.createElement(
       SimpleParent,
@@ -1164,7 +1205,20 @@ const NestThis = () => {
     // this breaks current reconciliation, it obviously can't correctly map
     React.createElement(Increment, null),
     React.createElement(Increment, null),
-    React.createElement(Component, null)
+    React.createElement(Component, null),
+    React.createElement(
+      "div",
+      {
+        style: "color:blue",
+      },
+      React.createElement("button", {
+        innerText: "RERENDER IT ALLL" + x,
+        onclick: () => {
+          setX(x + 1);
+        },
+        style: "color: orange",
+      })
+    )
   );
 };
 const AnotherLevel = () => {

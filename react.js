@@ -57,15 +57,14 @@ var React;
     };
     var updateDom = function (_a) {
         var props = _a.props, tagComponent = _a.tagComponent, previousDomRef = _a.previousDomRef, lastParent = _a.lastParent;
+        if (previousDomRef) {
+            Object.assign(previousDomRef, props);
+            tagComponent.domRef = previousDomRef;
+            return previousDomRef;
+        }
         var newEl = document.createElement(tagComponent.tagName);
         Object.assign(newEl, props);
-        if (previousDomRef) {
-            var parent_1 = previousDomRef.parentNode;
-            parent_1 === null || parent_1 === void 0 ? void 0 : parent_1.replaceChild(newEl, previousDomRef);
-        }
-        else {
-            lastParent.appendChild(newEl);
-        }
+        lastParent.appendChild(newEl);
         tagComponent.domRef = newEl;
         return newEl;
     };
@@ -147,6 +146,10 @@ var React;
                         leftNodes: localOldViewTree.childNodes,
                         rightNodes: localNewViewTree.childNodes,
                     }), oldToNew_1 = _c[0], newToOld_1 = _c[1];
+                    var isDebugNode_1 = lastParent.id === "nest-this";
+                    if (isDebugNode_1) {
+                        console.log(oldToNew_1, newToOld_1);
+                    }
                     // to remove
                     localOldViewTree.childNodes.forEach(function (oldNode) {
                         var _a, _b, _c, _d;
@@ -213,6 +216,9 @@ var React;
                                 var existingDomRef = associatedWith.metadata.component.domRef;
                                 if (!existingDomRef) {
                                     throw new Error("Invariant error, never should have an old view tree that doesn't have a created dom node");
+                                }
+                                if (isDebugNode_1) {
+                                    console.log("doing a deep equal", deepEqual(newNode.metadata.props, associatedWith.metadata.props), getComponentRepr(associatedWith.metadata), "AND", getComponentRepr(newNode.metadata));
                                 }
                                 if (deepEqual(newNode.metadata.props, associatedWith.metadata.props)) {
                                     newNode.metadata.component.domRef = existingDomRef;
@@ -604,7 +610,8 @@ var React;
             reactViewTree: currentTreeRef.viewTree,
         };
     };
-    function deepEqual(a, b) {
+    function deepEqual(a, b, log) {
+        if (log === void 0) { log = false; }
         if (a === b)
             return true;
         if (a && b && typeof a === "object" && typeof b === "object") {
@@ -612,26 +619,37 @@ var React;
                 if (a.length !== b.length)
                     return false;
                 for (var i = 0; i < a.length; i++) {
-                    if (!deepEqual(a[i], b[i]))
+                    if (!deepEqual(a[i], b[i])) {
+                        console.log("1");
                         return false;
+                    }
                 }
                 return true;
             }
-            if (a.constructor !== b.constructor)
+            if (a.constructor !== b.constructor) {
+                console.log("2");
                 return false;
+            }
             var keysA = Object.keys(a);
             var keysB = Object.keys(b);
-            if (keysA.length !== keysB.length)
+            if (keysA.length !== keysB.length) {
+                console.log("3");
                 return false;
+            }
             for (var _i = 0, keysA_1 = keysA; _i < keysA_1.length; _i++) {
                 var key = keysA_1[_i];
-                if (!keysB.includes(key))
+                if (!keysB.includes(key)) {
+                    console.log("4");
                     return false;
-                if (!deepEqual(a[key], b[key]))
+                }
+                if (!deepEqual(a[key], b[key])) {
+                    console.log("5", a[key], b[key], key);
                     return false;
+                }
             }
             return true;
         }
+        console.log("6");
         return false;
     }
     React.useState = function (initialValue) {
@@ -765,6 +783,7 @@ var PropsTest = function (props) {
         React.createElement("button", {
             innerText: "trigger update",
             onclick: function () {
+                // console.log('el', );
                 setUpdate(!update);
             },
         })], props.children, false));
@@ -794,6 +813,10 @@ var SimpleParent = function (props) {
         null,
         React.createElement("button", {
             onclick: function () {
+                setTimeout(function () {
+                    console.log("doing it!!");
+                    document.getElementById("nest-this").id = "test";
+                }, 1500);
                 setX(x + 1);
             },
             innerText: "trigger update",
@@ -803,12 +826,23 @@ var SimpleParent = function (props) {
         })], props.children, false));
 };
 var NestThis = function () {
-    return React.createElement("div", null, React.createElement(SimpleChild, null), React.createElement(SimpleParent, null, React.createElement(SimpleChild, null)), 
+    var _a = React.useState(2), x = _a[0], setX = _a[1];
+    return React.createElement("div", {
+        id: "nest-this",
+    }, React.createElement(SimpleChild, null), React.createElement(SimpleParent, null, React.createElement(SimpleChild, null)), 
     // React.createElement("div", {
     //   innerText: "part of the simple child",
     // }),
     // this breaks current reconciliation, it obviously can't correctly map
-    React.createElement(Increment, null), React.createElement(Increment, null), React.createElement(Component, null));
+    React.createElement(Increment, null), React.createElement(Increment, null), React.createElement(Component, null), React.createElement("div", {
+        style: "color:blue",
+    }, React.createElement("button", {
+        innerText: "RERENDER IT ALLL" + x,
+        onclick: function () {
+            setX(x + 1);
+        },
+        style: "color: orange",
+    })));
 };
 var AnotherLevel = function () {
     return React.createElement("div", null, React.createElement(Increment, null), React.createElement(Increment, null));
