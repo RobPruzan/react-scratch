@@ -18,6 +18,122 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var Utils;
+(function (Utils) {
+    Utils.deepEqual = function (a, b) {
+        if (a === b)
+            return true;
+        if (a && b && typeof a === "object" && typeof b === "object") {
+            if (Array.isArray(a) && Array.isArray(b)) {
+                if (a.length !== b.length)
+                    return false;
+                for (var i = 0; i < a.length; i++) {
+                    if (!Utils.deepEqual(a[i], b[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            if (a.constructor !== b.constructor) {
+                return false;
+            }
+            var keysA = Object.keys(a);
+            var keysB = Object.keys(b);
+            if (keysA.length !== keysB.length) {
+                return false;
+            }
+            for (var _i = 0, keysA_1 = keysA; _i < keysA_1.length; _i++) {
+                var key = keysA_1[_i];
+                if (!keysB.includes(key)) {
+                    return false;
+                }
+                if (!Utils.deepEqual(a[key], b[key])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    };
+    Utils.deepCloneTree = function (obj) {
+        if (obj === null || typeof obj !== "object") {
+            return obj;
+        }
+        if (obj instanceof HTMLElement) {
+            return obj;
+        }
+        if (typeof obj === "function") {
+            return obj.bind({});
+        }
+        var copy = Array.isArray(obj) ? [] : {};
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                copy[key] = obj[key];
+            }
+        }
+        return copy;
+    };
+    Utils.findNodeOrThrow = function (eq, tree) {
+        var aux = function (viewNode) {
+            for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
+                var node = _a[_i];
+                if (eq(node)) {
+                    return node;
+                }
+                var res = aux(node);
+                if (res) {
+                    return res;
+                }
+            }
+        };
+        if (eq(tree)) {
+            return tree;
+        }
+        var result = aux(tree);
+        if (!result) {
+            throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
+        }
+        return result;
+    };
+    Utils.findNode = function (eq, tree) {
+        try {
+            return Utils.findNodeOrThrow(eq, tree);
+        }
+        catch (_a) {
+            return null;
+        }
+    };
+    Utils.findParentNodeOrThrow = function (eq, tree) {
+        var aux = function (viewNode) {
+            for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
+                var node = _a[_i];
+                if (eq(node)) {
+                    return viewNode;
+                }
+                var res = aux(node);
+                if (res) {
+                    return res;
+                }
+            }
+        };
+        if (eq(tree)) {
+            return tree;
+        }
+        var result = aux(tree);
+        if (!result) {
+            throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
+        }
+        return result;
+    };
+    Utils.findParentNode = function (eq, tree) {
+        try {
+            return Utils.findParentNodeOrThrow(eq, tree);
+        }
+        catch (_a) {
+            return null;
+        }
+    };
+})(Utils || (Utils = {}));
 var React;
 (function (React) {
     var run = function (f) { return f(); };
@@ -87,7 +203,7 @@ var React;
             // reconciles the parent then moves to children
             var reconcileTags = function (_a) {
                 var newNode = _a.newNode, oldNode = _a.oldNode;
-                if (deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)) {
+                if (Utils.deepEqual(oldNode.node.metadata.props, newNode.node.metadata.props)) {
                     if (!oldNode.component.domRef) {
                         throw new Error("Invariant error, already rendered tree must have dom nodes for every view node");
                     }
@@ -223,7 +339,7 @@ var React;
                                 if (!existingDomRef) {
                                     throw new Error("Invariant error, never should have an old view tree that doesn't have a created dom node");
                                 }
-                                if (deepEqual(newNode.metadata.props, associatedWith.metadata.props)) {
+                                if (Utils.deepEqual(newNode.metadata.props, associatedWith.metadata.props)) {
                                     newNode.metadata.component.domRef = existingDomRef;
                                     var output = aux({
                                         lastParent: existingDomRef,
@@ -311,7 +427,6 @@ var React;
             "-" +
             JSON.stringify(internalMetadata.props);
     };
-    // this must be returnign the wrong node
     React.createElement = function (component, props) {
         var _a, _b;
         var children = [];
@@ -325,9 +440,6 @@ var React;
                 props: props,
             },
         });
-        // we have the children why cant we just inspect that to determin order
-        // should always be appended prior to the first child
-        // wait should it just be preprended?
         //
         if (!((_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.currentlyRendering)) {
             var rootRenderNode = {
@@ -385,66 +497,6 @@ var React;
         currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
         return newRenderTreeNode;
     };
-    var findNodeOrThrow = function (eq, tree) {
-        var aux = function (viewNode) {
-            for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
-                var node = _a[_i];
-                if (eq(node)) {
-                    return node;
-                }
-                var res = aux(node);
-                if (res) {
-                    return res;
-                }
-            }
-        };
-        if (eq(tree)) {
-            return tree;
-        }
-        var result = aux(tree);
-        if (!result) {
-            throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
-        }
-        return result;
-    };
-    var findNode = function (eq, tree) {
-        try {
-            return findNodeOrThrow(eq, tree);
-        }
-        catch (_a) {
-            return null;
-        }
-    };
-    var findParentNodeOrThrow = function (eq, tree) {
-        var aux = function (viewNode) {
-            for (var _i = 0, _a = viewNode.childNodes; _i < _a.length; _i++) {
-                var node = _a[_i];
-                if (eq(node)) {
-                    return viewNode;
-                }
-                var res = aux(node);
-                if (res) {
-                    return res;
-                }
-            }
-        };
-        if (eq(tree)) {
-            return tree;
-        }
-        var result = aux(tree);
-        if (!result) {
-            throw new Error("detached node or wrong id:" + "\n\n" + JSON.stringify(tree));
-        }
-        return result;
-    };
-    var findParentNode = function (eq, tree) {
-        try {
-            return findParentNodeOrThrow(eq, tree);
-        }
-        catch (_a) {
-            return null;
-        }
-    };
     var findParentViewNode = function (id) {
         var _a, _b;
         var aux = function (viewNode) {
@@ -487,24 +539,6 @@ var React;
         }
         return result;
     };
-    function deepCloneTree(obj) {
-        if (obj === null || typeof obj !== "object") {
-            return obj;
-        }
-        if (obj instanceof HTMLElement) {
-            return obj;
-        }
-        if (typeof obj === "function") {
-            return obj.bind({});
-        }
-        var copy = Array.isArray(obj) ? [] : {};
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                copy[key] = obj[key];
-            }
-        }
-        return copy;
-    }
     var isChildOf = function (_a) {
         var potentialChildId = _a.potentialChildId, potentialParentId = _a.potentialParentId;
         var aux = function (_a) {
@@ -572,7 +606,6 @@ var React;
         switch (renderTreeNode.internalMetadata.component.kind) {
             case "tag": {
                 var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
-                    var _a;
                     var reRenderChild = function () {
                         var viewNode = generateViewTreeHelper({
                             renderTreeNode: child,
@@ -588,7 +621,7 @@ var React;
                     if (!currentTreeRef.viewTree) {
                         return reRenderChild();
                     }
-                    var computedNode = findNode(function (node) { return node.id === child.computedViewTreeNodeId; }, currentTreeRef.viewTree.root);
+                    var computedNode = Utils.findNode(function (node) { return node.id === child.computedViewTreeNodeId; }, currentTreeRef.viewTree.root);
                     if (!computedNode) {
                         return reRenderChild();
                     }
@@ -596,7 +629,10 @@ var React;
                         potentialChildId: child.id,
                         potentialParentId: startingFromRenderNodeId,
                     });
-                    var parentRenderNode = findNodeOrThrow(function (node) { return node.id === startingFromRenderNodeId; }, (_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.root);
+                    // const parentRenderNode = findNodeOrThrow(
+                    //   (node) => node.id === startingFromRenderNodeId,
+                    //   currentTreeRef.renderTree?.root!
+                    // );
                     if (!shouldReRender) {
                         // skip re-rendering if not a child in the render tree
                         return { viewNode: computedNode, renderNode: child };
@@ -719,41 +755,6 @@ var React;
             reactViewTree: currentTreeRef.viewTree,
         };
     };
-    function deepEqual(a, b) {
-        if (a === b)
-            return true;
-        if (a && b && typeof a === "object" && typeof b === "object") {
-            if (Array.isArray(a) && Array.isArray(b)) {
-                if (a.length !== b.length)
-                    return false;
-                for (var i = 0; i < a.length; i++) {
-                    if (!deepEqual(a[i], b[i])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            if (a.constructor !== b.constructor) {
-                return false;
-            }
-            var keysA = Object.keys(a);
-            var keysB = Object.keys(b);
-            if (keysA.length !== keysB.length) {
-                return false;
-            }
-            for (var _i = 0, keysA_1 = keysA; _i < keysA_1.length; _i++) {
-                var key = keysA_1[_i];
-                if (!keysB.includes(key)) {
-                    return false;
-                }
-                if (!deepEqual(a[key], b[key])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
     React.useState = function (initialValue) {
         var _a;
         if (!((_a = currentTreeRef.renderTree) === null || _a === void 0 ? void 0 : _a.currentlyRendering)) {
@@ -785,7 +786,7 @@ var React;
                 hookMetadata.value = value;
                 var parentNode = findParentViewNode(capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId);
                 console.log("\n\nRENDER START----------------------------------------------");
-                var previousViewTree = deepCloneTree(findNodeOrThrow(function (node) {
+                var previousViewTree = Utils.deepCloneTree(Utils.findNodeOrThrow(function (node) {
                     return node.id ===
                         capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId;
                 }, currentTreeRef.viewTree.root));
@@ -843,273 +844,271 @@ var React;
         });
     };
 })(React || (React = {}));
-var Bar = function () {
-    var _a = React.useState(false), isRenderingSpan = _a[0], setIsRenderingSpan = _a[1];
-    var _b = React.useState(2), x = _b[0], setX = _b[1];
-    return React.createElement("area", {}, React.createElement(Foo, null), React.createElement("button", {
-        innerText: "conditional render",
-        onclick: function () {
-            setIsRenderingSpan(!isRenderingSpan);
-        },
-    }), React.createElement("button", {
-        innerText: "Count: ".concat(x),
-        onclick: function () {
-            setX(x + 1);
-        },
-    }), isRenderingSpan &&
-        React.createElement("span", {
-            style: "display:flex; height:50px; width:50px; background-color: white;",
-        }));
-};
-var ConditionalRender = function () {
-    var _a = React.useState(false), isRenderingSpan = _a[0], setIsRenderingSpan = _a[1];
-    return React.createElement("div", null, React.createElement("button", {
-        innerText: "conditional render",
-        onclick: function () {
-            setIsRenderingSpan(!isRenderingSpan);
-        },
-    }), isRenderingSpan &&
-        React.createElement("span", {
-            style: "display:flex; height:50px; width:50px; background-color: white;",
-        }));
-};
-var Foo = function () {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    var foo = React.createElement("div", {}, React.createElement("article", null), React.createElement("button", {
-        innerText: "another counter, a little deeper: ".concat(x),
-        onclick: function () {
-            setX(x + 1);
-        },
-    }));
-    return foo;
-};
-var PropsTest = function (props) {
-    var _a = React.useState(false), update = _a[0], setUpdate = _a[1];
-    return React.createElement.apply(React, __spreadArray(["div",
-        { innerText: "hi" },
-        React.createElement("button", {
-            innerText: "trigger update",
+var Debug;
+(function (Debug) {
+    Debug.Bar = function () {
+        var _a = React.useState(false), isRenderingSpan = _a[0], setIsRenderingSpan = _a[1];
+        var _b = React.useState(2), x = _b[0], setX = _b[1];
+        return React.createElement("area", {}, React.createElement(Debug.Foo, null), React.createElement("button", {
+            innerText: "conditional render",
             onclick: function () {
-                // console.log('el', );
-                setUpdate(!update);
+                setIsRenderingSpan(!isRenderingSpan);
             },
-        })], props.children, false));
-};
-var IsAChild = function () {
-    return React.createElement("div", { innerText: "im a child!" });
-};
-var Component = function (props) {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    return React.createElement("div", {
-        lol: "ok",
-    }, React.createElement("button", {
-        innerText: "so many counters me",
-        onclick: function () {
-            setX(x + 1);
-        },
-    }), React.createElement("div", {
-        innerText: "look at this count?: ".concat(x),
-        style: "color:white;",
-    }), React.createElement(Bar, null), React.createElement("span", {
-        innerText: "im a span!",
-    }));
-};
-var SimpleParent = function (props) {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    return React.createElement.apply(React, __spreadArray(["div",
-        null,
-        React.createElement("button", {
+        }), React.createElement("button", {
+            innerText: "Count: ".concat(x),
             onclick: function () {
-                setTimeout(function () {
-                    console.log("doing it!!");
-                    document.getElementById("nest-this").id = "test";
-                }, 1500);
                 setX(x + 1);
             },
-            innerText: "trigger update",
-        }),
-        React.createElement("div", {
-            innerText: "parent of the simple parent",
-        })], props.children, false));
-};
-var NestThis = function () {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    return React.createElement("div", {
-        id: "nest-this",
-    }, React.createElement(SimpleChild, null), React.createElement(SimpleParent, null, React.createElement(SimpleChild, null)), 
-    // React.createElement("div", {
-    //   innerText: "part of the simple child",
-    // }),
-    // this breaks current reconciliation, it obviously can't correctly map
-    React.createElement(Increment, null), React.createElement(Increment, null), React.createElement(Component, null), React.createElement("div", {
-        style: "color:blue",
-    }, React.createElement("button", {
-        innerText: "RERENDER IT ALLL" + x,
-        onclick: function () {
-            setX(x + 1);
-        },
-        style: "color: orange",
-    })));
-};
-var AnotherLevel = function () {
-    return React.createElement("div", null, React.createElement(Increment, null), React.createElement(Increment, null));
-};
-var Increment = function () {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    return React.createElement("div", {
-        style: "color:blue",
-    }, React.createElement("button", {
-        innerText: "so many counters me:" + x,
-        onclick: function () {
-            setX(x + 1);
-        },
-        style: "color: orange",
-    }));
-};
-var SimpleChild = function () {
-    return React.createElement("h2", {
-        innerText: "Im a simple child!!",
-    });
-};
-var OuterWrapper = function () {
-    var _a = React.useState(0), counter = _a[0], setCounter = _a[1];
-    var _b = React.useState(true), toggleInner = _b[0], setToggleInner = _b[1];
-    var _c = React.useState([1, 2, 3, 4]), items = _c[0], setItems = _c[1];
-    return React.createElement.apply(React, __spreadArray(["div",
-        {
-            id: "outer-wrapper",
-            style: "border: 2px solid black; padding: 10px; margin: 10px;",
-        },
-        React.createElement("div", {
-            innerText: "Counter: " + counter,
-        }),
-        React.createElement("button", {
-            onclick: function () { return setCounter(counter + 1); },
-            innerText: "Increase Counter",
-        }),
-        React.createElement("button", {
-            onclick: function () { return setToggleInner(!toggleInner); },
-            innerText: toggleInner ? "Hide Inner" : "Show Inner",
-        }),
-        React.createElement("button", {
+        }), isRenderingSpan &&
+            React.createElement("span", {
+                style: "display:flex; height:50px; width:50px; background-color: white;",
+            }));
+    };
+    Debug.ConditionalRender = function () {
+        var _a = React.useState(false), isRenderingSpan = _a[0], setIsRenderingSpan = _a[1];
+        return React.createElement("div", null, React.createElement("button", {
+            innerText: "conditional render",
             onclick: function () {
-                setItems(__spreadArray(__spreadArray([], items, true), [Math.random()], false));
+                setIsRenderingSpan(!isRenderingSpan);
             },
-            innerText: "Add a random value",
-        }),
-        React.createElement("button", {
+        }), isRenderingSpan &&
+            React.createElement("span", {
+                style: "display:flex; height:50px; width:50px; background-color: white;",
+            }));
+    };
+    Debug.Foo = function () {
+        var _a = React.useState(2), x = _a[0], setX = _a[1];
+        var foo = React.createElement("div", {}, React.createElement("article", null), React.createElement("button", {
+            innerText: "another counter, a little deeper: ".concat(x),
             onclick: function () {
-                setItems(items.slice(0, -1));
+                setX(x + 1);
             },
-            innerText: "Remove last value",
-        }),
-        toggleInner && React.createElement(InnerWrapper, { counter: counter }),
-        React.createElement(DualIncrementer, null)], items.map(function (i) {
+        }));
+        return foo;
+    };
+    Debug.PropsTest = function (props) {
+        var _a = React.useState(false), update = _a[0], setUpdate = _a[1];
+        return React.createElement.apply(React, __spreadArray(["div",
+            { innerText: "hi" },
+            React.createElement("button", {
+                innerText: "trigger update",
+                onclick: function () {
+                    // console.log('el', );
+                    setUpdate(!update);
+                },
+            })], props.children, false));
+    };
+    Debug.IsAChild = function () {
+        return React.createElement("div", { innerText: "im a child!" });
+    };
+    Debug.Component = function (props) {
+        var _a = React.useState(2), x = _a[0], setX = _a[1];
         return React.createElement("div", {
-            innerText: i,
-        });
-    })
-    // React.createElement(DualIncrementer, null)
-    , false));
-};
-var InnerWrapper = function (_a) {
-    var counter = _a.counter;
-    var _b = React.useState(0), innerCounter = _b[0], setInnerCounter = _b[1];
-    // this evaluates in the wrong order for our logic to work
-    // it will push it last
-    // but why does that matter ,we initially had the sassumption all that wuld matter was the view tree
-    // because we traverse the lrender node to generate the view tree, so of course that order would matter
-    // we may need a temp ds to keep track of this tree so we can properly reconstruct it
-    // the children could be useful? Using the return values instead of over complicating it
-    return React.createElement("div", {
-        id: "IM AN INNER",
-        style: "border: 1px solid gray; padding: 10px; margin: 10px;",
-    }, React.createElement("div", {
-        innerText: "Inner Counter: " + innerCounter,
-    }), React.createElement("button", {
-        onclick: function () { return setInnerCounter(innerCounter + 1); },
-        innerText: "Increase Inner Counter",
-    }), React.createElement("div", {
-        innerText: "Outer Counter Value: " + counter,
-    }), React.createElement(LeafComponent, null), React.createElement(ContainerComponent, null));
-};
-var LeafComponent = function () {
-    return React.createElement("div", {
-        id: "leaf-component",
-        style: "padding: 5px; margin: 5px; background-color: lightgray;",
-        innerText: "Leaf Component Content",
-    });
-};
-var ContainerComponent = function () {
-    return React.createElement("div", {
-        id: "container-component",
-        style: "padding: 5px; margin: 5px; background-color: lightblue;",
-    }, React.createElement(LeafComponent, null)
-    // React.createElement(LeafComponent, null)
-    );
-};
-var DualIncrementer = function () {
-    var _a = React.useState(0), value = _a[0], setValue = _a[1];
-    return React.createElement("div", {
-        id: "dual-incrementer",
-        style: "padding: 5px; margin: 5px; border: 1px solid red;",
-    }, React.createElement("div", {
-        innerText: "Current Value: " + value,
-    }), React.createElement("button", {
-        onclick: function () { return setValue(value + 1); },
-        innerText: "Increase Value",
-    }));
-};
-var ActionButton = function () {
-    return React.createElement("div", {
-        id: "action-button",
-        style: "padding: 5px; margin: 5px; border: 1px solid green;",
-    }, React.createElement("button", {
-        onclick: function () { return alert("Action performed!"); },
-        innerText: "Perform Action",
-    }));
-};
-var MainComponent = function (_a) {
-    var children = _a.children;
-    var _b = React.useState(2), x = _b[0], setX = _b[1];
-    return React.createElement.apply(React, __spreadArray(["div",
-        {
-            id: "main-component",
-        },
-        React.createElement(LeafComponent, null),
-        // React.createElement(
-        //   ContainerComponent,
-        //   null,
-        //   React.createElement(LeafComponent, null)
-        // ),
-        React.createElement(DualIncrementer, null),
-        // React.createElement(DualIncrementer, null),
-        React.createElement(ActionButton, null),
-        React.createElement(OuterWrapper, null),
-        React.createElement("div", {
+            lol: "ok",
+        }, React.createElement("button", {
+            innerText: "so many counters me",
+            onclick: function () {
+                setX(x + 1);
+            },
+        }), React.createElement("div", {
+            innerText: "look at this count?: ".concat(x),
+            style: "color:white;",
+        }), React.createElement(Debug.Bar, null), React.createElement("span", {
+            innerText: "im a span!",
+        }));
+    };
+    Debug.SimpleParent = function (props) {
+        var _a = React.useState(2), x = _a[0], setX = _a[1];
+        return React.createElement.apply(React, __spreadArray(["div",
+            null,
+            React.createElement("button", {
+                onclick: function () {
+                    setTimeout(function () {
+                        console.log("doing it!!");
+                        document.getElementById("nest-this").id = "test";
+                    }, 1500);
+                    setX(x + 1);
+                },
+                innerText: "trigger update",
+            }),
+            React.createElement("div", {
+                innerText: "parent of the simple parent",
+            })], props.children, false));
+    };
+    Debug.NestThis = function () {
+        var _a = React.useState(2), x = _a[0], setX = _a[1];
+        return React.createElement("div", {
+            id: "nest-this",
+        }, React.createElement(Debug.SimpleChild, null), React.createElement(Debug.SimpleParent, null, React.createElement(Debug.SimpleChild, null)), 
+        // React.createElement("div", {
+        //   innerText: "part of the simple child",
+        // }),
+        // this breaks current reconciliation, it obviously can't correctly map
+        React.createElement(Debug.Increment, null), React.createElement(Debug.Increment, null), React.createElement(Debug.Component, null), React.createElement("div", {
             style: "color:blue",
         }, React.createElement("button", {
-            onclick: function () { return setX(x + 1); },
-            innerText: "RERENDER EVERYTHING " + x,
+            innerText: "RERENDER IT ALLL" + x,
+            onclick: function () {
+                setX(x + 1);
+            },
             style: "color: orange",
-        }))], children, false));
-};
-// Render the main component
-// ReactDOM.render(
-//   React.createElement(MainComponent, null),
-//   document.getElementById('root')
-// );
-var MegaChild = function () {
-    return React.createElement("div", {
-        innerText: "ima mega child",
-    });
-};
+        })));
+    };
+    Debug.AnotherLevel = function () {
+        return React.createElement("div", null, React.createElement(Debug.Increment, null), React.createElement(Debug.Increment, null));
+    };
+    Debug.Increment = function () {
+        var _a = React.useState(2), x = _a[0], setX = _a[1];
+        return React.createElement("div", {
+            style: "color:blue",
+        }, React.createElement("button", {
+            innerText: "so many counters me:" + x,
+            onclick: function () {
+                setX(x + 1);
+            },
+            style: "color: orange",
+        }));
+    };
+    Debug.SimpleChild = function () {
+        return React.createElement("h2", {
+            innerText: "Im a simple child!!",
+        });
+    };
+    Debug.OuterWrapper = function () {
+        var _a = React.useState(0), counter = _a[0], setCounter = _a[1];
+        var _b = React.useState(true), toggleInner = _b[0], setToggleInner = _b[1];
+        var _c = React.useState([1, 2, 3, 4]), items = _c[0], setItems = _c[1];
+        return React.createElement.apply(React, __spreadArray(["div",
+            {
+                id: "outer-wrapper",
+                style: "border: 2px solid black; padding: 10px; margin: 10px;",
+            },
+            React.createElement("div", {
+                innerText: "Counter: " + counter,
+            }),
+            React.createElement("button", {
+                onclick: function () { return setCounter(counter + 1); },
+                innerText: "Increase Counter",
+            }),
+            React.createElement("button", {
+                onclick: function () { return setToggleInner(!toggleInner); },
+                innerText: toggleInner ? "Hide Inner" : "Show Inner",
+            }),
+            React.createElement("button", {
+                onclick: function () {
+                    setItems(__spreadArray(__spreadArray([], items, true), [Math.random()], false));
+                },
+                innerText: "Add a random value",
+            }),
+            React.createElement("button", {
+                onclick: function () {
+                    setItems(items.slice(0, -1));
+                },
+                innerText: "Remove last value",
+            }),
+            toggleInner && React.createElement(Debug.InnerWrapper, { counter: counter }),
+            React.createElement(Debug.DualIncrementer, null)], items.map(function (i) {
+            return React.createElement("div", {
+                innerText: i,
+            });
+        })
+        // React.createElement(DualIncrementer, null)
+        , false));
+    };
+    Debug.InnerWrapper = function (_a) {
+        var counter = _a.counter;
+        var _b = React.useState(0), innerCounter = _b[0], setInnerCounter = _b[1];
+        // this evaluates in the wrong order for our logic to work
+        // it will push it last
+        // but why does that matter ,we initially had the sassumption all that wuld matter was the view tree
+        // because we traverse the lrender node to generate the view tree, so of course that order would matter
+        // we may need a temp ds to keep track of this tree so we can properly reconstruct it
+        // the children could be useful? Using the return values instead of over complicating it
+        return React.createElement("div", {
+            id: "IM AN INNER",
+            style: "border: 1px solid gray; padding: 10px; margin: 10px;",
+        }, React.createElement("div", {
+            innerText: "Inner Counter: " + innerCounter,
+        }), React.createElement("button", {
+            onclick: function () { return setInnerCounter(innerCounter + 1); },
+            innerText: "Increase Inner Counter",
+        }), React.createElement("div", {
+            innerText: "Outer Counter Value: " + counter,
+        }), React.createElement(Debug.LeafComponent, null), React.createElement(Debug.ContainerComponent, null));
+    };
+    Debug.LeafComponent = function () {
+        return React.createElement("div", {
+            id: "leaf-component",
+            style: "padding: 5px; margin: 5px; background-color: lightgray;",
+            innerText: "Leaf Component Content",
+        });
+    };
+    Debug.ContainerComponent = function () {
+        return React.createElement("div", {
+            id: "container-component",
+            style: "padding: 5px; margin: 5px; background-color: lightblue;",
+        }, React.createElement(Debug.LeafComponent, null)
+        // React.createElement(LeafComponent, null)
+        );
+    };
+    Debug.DualIncrementer = function () {
+        var _a = React.useState(0), value = _a[0], setValue = _a[1];
+        return React.createElement("div", {
+            id: "dual-incrementer",
+            style: "padding: 5px; margin: 5px; border: 1px solid red;",
+        }, React.createElement("div", {
+            innerText: "Current Value: " + value,
+        }), React.createElement("button", {
+            onclick: function () { return setValue(value + 1); },
+            innerText: "Increase Value",
+        }));
+    };
+    var ActionButton = function () {
+        return React.createElement("div", {
+            id: "action-button",
+            style: "padding: 5px; margin: 5px; border: 1px solid green;",
+        }, React.createElement("button", {
+            onclick: function () { return alert("Action performed!"); },
+            innerText: "Perform Action",
+        }));
+    };
+    Debug.MainComponent = function (_a) {
+        var children = _a.children;
+        var _b = React.useState(2), x = _b[0], setX = _b[1];
+        return React.createElement.apply(React, __spreadArray(["div",
+            {
+                id: "main-component",
+            },
+            React.createElement(Debug.LeafComponent, null),
+            // React.createElement(
+            //   ContainerComponent,
+            //   null,
+            //   React.createElement(LeafComponent, null)
+            // ),
+            React.createElement(Debug.DualIncrementer, null),
+            // React.createElement(DualIncrementer, null),
+            React.createElement(ActionButton, null),
+            React.createElement(Debug.OuterWrapper, null),
+            React.createElement("div", {
+                style: "color:blue",
+            }, React.createElement("button", {
+                onclick: function () { return setX(x + 1); },
+                innerText: "RERENDER EVERYTHING " + x,
+                style: "color: orange",
+            }))], children, false));
+    };
+    Debug.MegaChild = function () {
+        return React.createElement("div", {
+            innerText: "ima mega child",
+        });
+    };
+})(Debug || (Debug = {}));
 if (typeof window === "undefined") {
-    var _a = React.buildReactTrees(React.createElement(Increment, null)), reactViewTree = _a.reactViewTree, reactRenderTree = _a.reactRenderTree;
+    var _a = React.buildReactTrees(React.createElement(Debug.Increment, null)), reactViewTree = _a.reactViewTree, reactRenderTree = _a.reactRenderTree;
     console.log(JSON.stringify(React.deepTraverseAndModify(reactViewTree)));
 }
 else {
     window.onload = function () {
-        React.render(React.createElement(MainComponent, null, React.createElement(MegaChild, null)), document.getElementById("root"));
+        React.render(React.createElement(Debug.MainComponent, null, React.createElement(Debug.MegaChild, null)), document.getElementById("root"));
     };
 }
