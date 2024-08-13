@@ -480,7 +480,7 @@ namespace React {
   // this must be returnign the wrong node
   export const createElement = <T extends AnyProps>(
     component: ReactComponentExternalMetadata<T>["component"],
-    props: ReactComponentExternalMetadata<T>["props"],
+    props: T,
     ...children: Array<null | false | ReactRenderTreeNode>
   ): ReactRenderTreeNode => {
     const internalMetadata = mapExternalMetadataToInternalMetadata({
@@ -1445,7 +1445,7 @@ const OuterWrapper = () => {
   );
 };
 
-const InnerWrapper = ({ counter }) => {
+const InnerWrapper = ({ counter }: any) => {
   const [innerCounter, setInnerCounter] = React.useState(0);
 
   // this evaluates in the wrong order for our logic to work
@@ -1528,7 +1528,7 @@ const ActionButton = () => {
   );
 };
 
-const MainComponent = ({ children }) => {
+const MainComponent = ({ children }: any) => {
   const [x, setX] = React.useState(2);
 
   return React.createElement(
