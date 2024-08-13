@@ -1,7 +1,7 @@
 Reimplements:
-- the internal render tree (fiber tree)
-- internal view hierarchy (virtual dom)
-- application of view hierarchy to dom (reconciliation)
+- the internal render tree
+- internal view hierarchy 
+- application of view hierarchy to dom 
 - a subset of hooks
 
 
