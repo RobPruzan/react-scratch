@@ -53,13 +53,6 @@ var React;
     };
     var updateDom = function (_a) {
         var props = _a.props, tagComponent = _a.tagComponent, previousDomRef = _a.previousDomRef, lastParent = _a.lastParent, insertedBefore = _a.insertedBefore;
-        console.log("update dom passed", {
-            props: props,
-            tagComponent: tagComponent,
-            previousDomRef: previousDomRef,
-            lastParent: lastParent,
-            insertedBefore: insertedBefore,
-        });
         if (previousDomRef) {
             Object.assign(previousDomRef, props);
             tagComponent.domRef = previousDomRef;
@@ -90,15 +83,7 @@ var React;
     var reconcileDom = function (_a) {
         var newViewTree = _a.newViewTree, oldViewTree = _a.oldViewTree, startingDomNode = _a.startingDomNode;
         var aux = function (_a) {
-            var _b;
             var localNewViewTree = _a.localNewViewTree, localOldViewTree = _a.localOldViewTree, lastParent = _a.lastParent, localInsertedBefore = _a.localInsertedBefore;
-            console.log("calling aux");
-            if (((_b = localNewViewTree.metadata.props) === null || _b === void 0 ? void 0 : _b.id) === "IM AN INNER") {
-                console.log("DEBUG!!", localOldViewTree, localNewViewTree, lastParent, localInsertedBefore);
-            }
-            else {
-                console.log("call marker", localOldViewTree, localNewViewTree, lastParent, localInsertedBefore);
-            }
             // reconciles the parent then moves to children
             var reconcileTags = function (_a) {
                 var newNode = _a.newNode, oldNode = _a.oldNode;
@@ -107,41 +92,57 @@ var React;
                         throw new Error("Invariant error, already rendered tree must have dom nodes for every view node");
                     }
                     newNode.component.domRef = oldNode.component.domRef;
-                    return aux({
+                    // i think its a flaw in the logic we handle this takedown twice
+                    // but what can u do this has to handle this base case or it will reconcile forever
+                    // just because how aux is structured...
+                    if (newNode.node.childNodes.length === 0) {
+                        oldNode.node.childNodes.forEach(function (childNode) {
+                            var _a, _b;
+                            var tag = findFirstTagNode(childNode);
+                            (_b = (_a = tag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(tag.component.domRef);
+                            return newNode.component.domRef;
+                        });
+                    }
+                    aux({
                         localNewViewTree: newNode.node,
                         localOldViewTree: oldNode.node,
                         lastParent: newNode.component.domRef, // maybe this breaks stuff?
                         localInsertedBefore: localInsertedBefore,
                     });
+                    return { updatedOrAppendedDomElement: newNode.component.domRef };
                 }
                 else {
-                    console.log("3");
-                    var newEl = updateDom({
+                    var newEl_1 = updateDom({
                         lastParent: lastParent,
                         previousDomRef: oldNode.component.domRef,
                         props: newNode.node.metadata.props,
                         tagComponent: newNode.component,
                         insertedBefore: localInsertedBefore,
                     });
-                    return aux({
+                    if (newNode.node.childNodes.length === 0) {
+                        oldNode.node.childNodes.forEach(function (childNode) {
+                            var _a, _b;
+                            var tag = findFirstTagNode(childNode);
+                            (_b = (_a = tag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(tag.component.domRef);
+                            return newEl_1;
+                        });
+                    }
+                    aux({
                         localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
                         localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
-                        lastParent: newEl,
+                        lastParent: newEl_1,
                         localInsertedBefore: localInsertedBefore, // how do u know??
                     });
+                    return { updatedOrAppendedDomElement: newEl_1 };
                 }
             };
             switch (localNewViewTree.metadata.component.kind) {
                 case "function": {
-                    // we should be doing a comp here because we will never do it again for this...
                     var oldNode = localOldViewTree
                         ? findFirstTagNode(localOldViewTree)
                         : null;
                     var newNode = findFirstTagNode(localNewViewTree);
-                    console.log("sending this parent and insert before down", lastParent, localInsertedBefore);
                     if (!oldNode) {
-                        // its this call to trigger the important render
-                        // insert before should be??
                         return aux({
                             localNewViewTree: newNode.node,
                             localOldViewTree: null,
@@ -149,16 +150,10 @@ var React;
                             localInsertedBefore: localInsertedBefore,
                         });
                     }
-                    // the inner is literally before??
-                    console.log("reconcling tags", { newNode: newNode, oldNode: oldNode });
                     return reconcileTags({ newNode: newNode, oldNode: oldNode });
-                    // return;
                 }
                 case "tag": {
                     if (!localOldViewTree) {
-                        // but u cant do this twice on the element
-                        // if instead we had some way to pass down the index of the element that would be good
-                        console.log("1");
                         var newEl = updateDom({
                             lastParent: lastParent,
                             tagComponent: localNewViewTree.metadata.component,
@@ -170,7 +165,6 @@ var React;
                         for (var index = 0; index < localNewViewTree.childNodes.length; index++) {
                             var childNode = localNewViewTree.childNodes[index];
                             var insertBeforeViewNode = localNewViewTree.childNodes.at(index - 1);
-                            console.log("sending before down wahoo it must be getting lost", insertBeforeViewNode);
                             lastInserted_1 = aux({
                                 localNewViewTree: childNode,
                                 localOldViewTree: null,
@@ -182,45 +176,41 @@ var React;
                         }
                         return { updatedOrAppendedDomElement: lastInserted_1 };
                     }
-                    var _c = mapChildNodes({
+                    var _b = mapChildNodes({
                         leftNodes: localOldViewTree.childNodes,
                         rightNodes: localNewViewTree.childNodes,
-                    }), oldToNew_1 = _c[0], newToOld_1 = _c[1];
-                    var isDebugNode_1 = lastParent.id === "IM AN INNER";
-                    if (isDebugNode_1) {
-                        console.log(oldToNew_1, newToOld_1);
-                    }
+                    }), oldToNew_1 = _b[0], newToOld_1 = _b[1];
                     // to remove
                     localOldViewTree.childNodes.forEach(function (oldNode) {
-                        var _a, _b, _c, _d;
+                        var _a, _b;
                         var associatedWith = oldToNew_1[oldNode.id];
                         if (!associatedWith) {
-                            switch (oldNode.metadata.component.kind) {
-                                case "function": {
-                                    var firstTag = findFirstTagNode(oldNode);
-                                    (_b = (_a = firstTag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(firstTag.component.domRef);
-                                    return;
-                                }
-                                case "tag": {
-                                    // for some reason the parent element is returning null?
-                                    (_d = (_c = oldNode.metadata.component.domRef) === null || _c === void 0 ? void 0 : _c.parentElement) === null || _d === void 0 ? void 0 : _d.removeChild(oldNode.metadata.component.domRef);
-                                    return;
-                                }
-                            }
+                            var tag = findFirstTagNode(oldNode);
+                            (_b = (_a = tag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(tag.component.domRef);
+                            return;
+                            // switch (oldNode.metadata.component.kind) {
+                            //   case "function": {
+                            //     const firstTag = findFirstTagNode(oldNode);
+                            // firstTag.component.domRef?.parentElement?.removeChild(
+                            //   firstTag.component.domRef
+                            // );
+                            //     return;
+                            //   }
+                            //   case "tag": {
+                            //     // for some reason the parent element is returning null?
+                            //     oldNode.metadata.component.domRef?.parentElement?.removeChild(
+                            //       oldNode.metadata.component.domRef
+                            //     );
+                            //     return;
+                            //   }
+                            // }
                         }
                     });
                     var lastInserted_2;
                     // to add
-                    localNewViewTree.childNodes.forEach(function (newNode, index) {
+                    localNewViewTree.childNodes.forEach(function (newNode) {
                         var associatedWith = newToOld_1[newNode.id];
-                        // const insertBeforeViewNode = localNewViewTree.childNodes.at(index);
-                        // const insertBeforeAddNode = insertBeforeViewNode
-                        //   ? findFirstTagNode(insertBeforeViewNode).component.domRef
-                        //   : null;
-                        // console.log("sending this insert beofre down", insertBeforeAddNode);
                         if (!associatedWith) {
-                            // switch (newNode.metadata.component.kind) {
-                            //   case "function": {
                             var output = aux({
                                 lastParent: lastParent,
                                 localNewViewTree: newNode,
@@ -228,27 +218,7 @@ var React;
                                 localInsertedBefore: lastInserted_2,
                             });
                             lastInserted_2 = output.updatedOrAppendedDomElement;
-                            return output;
-                            //   }
-                            //   case "tag": {
-                            //     // const newEl = updateDom({
-                            //     //   lastParent,
-                            //     //   tagComponent: newNode.metadata.component,
-                            //     //   props: newNode.metadata.props,
-                            //     //   previousDomRef: null,
-                            //     // });
-                            //     // okay of course it doesn't have anything associated
-                            //     // it didn't exist previously
-                            //     // and it has no child nodes, so it should just flop?
-                            //     // this must be wrong
-                            //     // so convoluted but another case will catch it.
-                            //     return aux({
-                            //       lastParent,
-                            //       localNewViewTree: newNode,
-                            //       localOldViewTree: null,
-                            //     });
-                            //   }
-                            // }
+                            return;
                         }
                         switch (newNode.metadata.component.kind) {
                             case "function": {
@@ -269,9 +239,6 @@ var React;
                                 if (!existingDomRef) {
                                     throw new Error("Invariant error, never should have an old view tree that doesn't have a created dom node");
                                 }
-                                if (isDebugNode_1) {
-                                    console.log("doing a deep equal", deepEqual(newNode.metadata.props, associatedWith.metadata.props), getComponentRepr(associatedWith.metadata), "AND", getComponentRepr(newNode.metadata));
-                                }
                                 if (deepEqual(newNode.metadata.props, associatedWith.metadata.props)) {
                                     newNode.metadata.component.domRef = existingDomRef;
                                     var output = aux({
@@ -283,7 +250,6 @@ var React;
                                     lastInserted_2 = output.updatedOrAppendedDomElement;
                                     return;
                                 }
-                                console.log("2");
                                 var newEl = updateDom({
                                     lastParent: lastParent,
                                     props: newNode.metadata.props,
@@ -302,33 +268,27 @@ var React;
                             }
                         }
                     });
-                    // throw new Error("Impossible state all paths should be handled")
+                    var ref = findFirstTagNode(localNewViewTree).component.domRef;
+                    if (ref) {
+                        return {
+                            updatedOrAppendedDomElement: ref,
+                        };
+                    }
                     /**
                      * Case has no child nodes
                      * Has an old node to comp against
-                     * just deep equal handle them
+                     * Should deep equal them + update dom accordingly
+                     *
+                     * Note: not tested
                      */
-                    var ref = findFirstTagNode(localNewViewTree).component.domRef;
-                    if (!ref) {
-                        throw new Error("Cannot end reconciliation without fully building subtree");
-                    }
-                    return {
-                        updatedOrAppendedDomElement: ref,
-                    };
-                    // return reconcileTags({
-                    //   newNode: {
-                    //     node: localNewViewTree,
-                    //     component: localNewViewTree.metadata.component,
-                    //   },
-                    //   oldNode: findFirstTagNode(localOldViewTree),
-                    // });
-                    // return {
-                    //   /**
-                    //    * Has no nodes
-                    //    */
-                    //   updatedOrAppendedDomElement: updateDom({
-                    //   })
-                    // }
+                    var firstOldTag = findFirstTagNode(localOldViewTree);
+                    return reconcileTags({
+                        newNode: {
+                            component: localNewViewTree.metadata.component,
+                            node: localNewViewTree,
+                        },
+                        oldNode: firstOldTag,
+                    });
                 }
             }
         };
@@ -413,18 +373,15 @@ var React;
                 return true;
             }
         });
+        // order doesn't matter, but doesn't hurt to maintain it for the future incase we do care
         // this doesn't make sense because its not executed yet
         if (existingNode) {
             existingNode.internalMetadata = internalMetadata;
-            // this pushing needs to consider order which it seems not to?
-            // assume the children need to be re-generated every time
-            // console.log("pushing", getComponentRepr(existingNode.internalMetadata));
             if (children.length === 0) {
                 // if its a leaf node append to the end (guaranteed order is right)
                 currentTreeRef.renderTree.currentlyRendering.childNodes.push(existingNode);
                 return existingNode;
             }
-            console.log("unshifting", getComponentRepr(existingNode.internalMetadata), "onto", JSON.stringify(currentTreeRef.renderTree.currentlyRendering.childNodes));
             // else prepend since this is the new root for all the children just appended (must execute before since they are arguments)
             currentTreeRef.renderTree.currentlyRendering.childNodes.push(existingNode);
             return existingNode;
@@ -438,22 +395,11 @@ var React;
             localRenderOrder: newLocalRenderOrder,
             hasRendered: false,
         };
-        // it appears this order doesn't matter, but doesn't hurt to maintain it
-        // i see it doesn't consider order it just pushes which it shouldn't...
-        // it should insert at total order
-        // console.log(
-        //   "pushing (2nd)",
-        //   getComponentRepr(newRenderTreeNode.internalMetadata)
-        // );
-        // what?? it should be this children
         if (children.length === 0) {
             currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
-            console.log("pushing", getComponentRepr(newRenderTreeNode.internalMetadata), currentTreeRef.renderTree.currentlyRendering.internalMetadata, children);
             return newRenderTreeNode;
         }
-        console.log("unshifting", getComponentRepr(newRenderTreeNode.internalMetadata), "onto", JSON.stringify(currentTreeRef.renderTree.currentlyRendering.childNodes));
         currentTreeRef.renderTree.currentlyRendering.childNodes.push(newRenderTreeNode);
-        console.log("whic gets us", currentTreeRef.renderTree.currentlyRendering.childNodes);
         return newRenderTreeNode;
     };
     var findNodeOrThrow = function (eq, tree) {
@@ -707,9 +653,17 @@ var React;
                     return !currentTreeRef.renderTree.lastRenderChildNodes.some(function (prevNode) { return getKey(prevNode) === getKey(node); });
                 })
                     .forEach(function (node) {
-                    console.log("added to render tree:", node, 
-                    // renderTreeNode.childNodes.at(-1),
-                    "new", renderTreeNode.childNodes.map(getKey), renderTreeNode.childNodes, "old", currentTreeRef.renderTree.lastRenderChildNodes.map(getKey), currentTreeRef.renderTree.lastRenderChildNodes);
+                    // console.log(
+                    //   "added to render tree:",
+                    //   node,
+                    //   // renderTreeNode.childNodes.at(-1),
+                    //   "new",
+                    //   renderTreeNode.childNodes.map(getKey),
+                    //   renderTreeNode.childNodes,
+                    //   "old",
+                    //   currentTreeRef.renderTree!.lastRenderChildNodes.map(getKey),
+                    //   currentTreeRef.renderTree!.lastRenderChildNodes
+                    // );
                     // future mounting logic;
                 });
                 var removedRenderNodes = currentTreeRef.renderTree.lastRenderChildNodes
@@ -717,7 +671,7 @@ var React;
                     return !renderTreeNode.childNodes.some(function (newNode) { return getKey(newNode) === getKey(node); });
                 })
                     .forEach(function (node) {
-                    console.log("removed from render tree", node);
+                    // console.log("removed from render tree", node);
                 });
                 currentTreeRef.renderTree.lastRenderChildNodes = [];
                 var viewNode = generateViewTreeHelper({
@@ -858,7 +812,7 @@ var React;
                 var reGeneratedViewTree = generateViewTree({
                     renderTreeNode: capturedCurrentlyRenderingRenderNode,
                 });
-                console.log("the regenerated view tree", reGeneratedViewTree);
+                // console.log("the regenerated view tree", reGeneratedViewTree);
                 console.log("RENDER END----------------------------------------------\n\n");
                 // its a detached node and because of that we set it as the root
                 var index = parentNode === null || parentNode === void 0 ? void 0 : parentNode.childNodes.findIndex(function (node) { return getKey(capturedCurrentlyRenderingRenderNode) === node.key; });
@@ -1135,37 +1089,47 @@ var ActionButton = function () {
         innerText: "Perform Action",
     }));
 };
-var MainComponent = function () {
-    var _a = React.useState(2), x = _a[0], setX = _a[1];
-    return React.createElement("div", {
-        id: "main-component",
-    }, React.createElement(LeafComponent, null), 
-    // React.createElement(
-    //   ContainerComponent,
-    //   null,
-    //   React.createElement(LeafComponent, null)
-    // ),
-    React.createElement(DualIncrementer, null), 
-    // React.createElement(DualIncrementer, null),
-    React.createElement(ActionButton, null), React.createElement(OuterWrapper, null), React.createElement("div", {
-        style: "color:blue",
-    }, React.createElement("button", {
-        onclick: function () { return setX(x + 1); },
-        innerText: "RERENDER EVERYTHING " + x,
-        style: "color: orange",
-    })));
+var MainComponent = function (_a) {
+    var children = _a.children;
+    var _b = React.useState(2), x = _b[0], setX = _b[1];
+    return React.createElement.apply(React, __spreadArray(["div",
+        {
+            id: "main-component",
+        },
+        React.createElement(LeafComponent, null),
+        // React.createElement(
+        //   ContainerComponent,
+        //   null,
+        //   React.createElement(LeafComponent, null)
+        // ),
+        React.createElement(DualIncrementer, null),
+        // React.createElement(DualIncrementer, null),
+        React.createElement(ActionButton, null),
+        React.createElement(OuterWrapper, null),
+        React.createElement("div", {
+            style: "color:blue",
+        }, React.createElement("button", {
+            onclick: function () { return setX(x + 1); },
+            innerText: "RERENDER EVERYTHING " + x,
+            style: "color: orange",
+        }))], children, false));
 };
 // Render the main component
 // ReactDOM.render(
 //   React.createElement(MainComponent, null),
 //   document.getElementById('root')
 // );
+var MegaChild = function () {
+    return React.createElement("div", {
+        innerText: "ima mega child",
+    });
+};
 if (typeof window === "undefined") {
     var _a = React.buildReactTrees(React.createElement(Increment, null)), reactViewTree = _a.reactViewTree, reactRenderTree = _a.reactRenderTree;
     console.log(JSON.stringify(React.deepTraverseAndModify(reactViewTree)));
 }
 else {
     window.onload = function () {
-        React.render(React.createElement(MainComponent, null), document.getElementById("root"));
+        React.render(React.createElement(MainComponent, null, React.createElement(MegaChild, null)), document.getElementById("root"));
     };
 }
