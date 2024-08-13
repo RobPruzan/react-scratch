@@ -166,7 +166,7 @@ var React;
                             var childNode = localNewViewTree.childNodes[index];
                             var insertBeforeViewNode = localNewViewTree.childNodes.at(index - 1);
                             lastInserted_1 = aux({
-                                localNewViewTree: childNode,
+                                localNewViewTree: findFirstTagNode(childNode).node,
                                 localOldViewTree: null,
                                 lastParent: newEl,
                                 localInsertedBefore: insertBeforeViewNode
@@ -188,22 +188,6 @@ var React;
                             var tag = findFirstTagNode(oldNode);
                             (_b = (_a = tag.component.domRef) === null || _a === void 0 ? void 0 : _a.parentElement) === null || _b === void 0 ? void 0 : _b.removeChild(tag.component.domRef);
                             return;
-                            // switch (oldNode.metadata.component.kind) {
-                            //   case "function": {
-                            //     const firstTag = findFirstTagNode(oldNode);
-                            // firstTag.component.domRef?.parentElement?.removeChild(
-                            //   firstTag.component.domRef
-                            // );
-                            //     return;
-                            //   }
-                            //   case "tag": {
-                            //     // for some reason the parent element is returning null?
-                            //     oldNode.metadata.component.domRef?.parentElement?.removeChild(
-                            //       oldNode.metadata.component.domRef
-                            //     );
-                            //     return;
-                            //   }
-                            // }
                         }
                     });
                     var lastInserted_2;
@@ -213,7 +197,7 @@ var React;
                         if (!associatedWith) {
                             var output = aux({
                                 lastParent: lastParent,
-                                localNewViewTree: newNode,
+                                localNewViewTree: findFirstTagNode(newNode).node,
                                 localOldViewTree: null,
                                 localInsertedBefore: lastInserted_2,
                             });
@@ -224,8 +208,8 @@ var React;
                             case "function": {
                                 var output = aux({
                                     lastParent: lastParent,
-                                    localNewViewTree: newNode,
-                                    localOldViewTree: associatedWith,
+                                    localNewViewTree: findFirstTagNode(newNode).node,
+                                    localOldViewTree: findFirstTagNode(associatedWith).node,
                                     localInsertedBefore: lastInserted_2,
                                 });
                                 lastInserted_2 = output.updatedOrAppendedDomElement;
@@ -374,7 +358,6 @@ var React;
             }
         });
         // order doesn't matter, but doesn't hurt to maintain it for the future incase we do care
-        // this doesn't make sense because its not executed yet
         if (existingNode) {
             existingNode.internalMetadata = internalMetadata;
             if (children.length === 0) {
@@ -586,10 +569,6 @@ var React;
             key: getKey(renderTreeNode),
         };
         renderTreeNode.computedViewTreeNodeId = newNode.id;
-        // the idea is we immediately execute the children before running the parent
-        // then later when attempting to access its children it will check if its already computed
-        // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
-        // so we should make a pool of view nodes that we can access during render
         switch (renderTreeNode.internalMetadata.component.kind) {
             case "tag": {
                 var fullyComputedChildren = renderTreeNode.internalMetadata.children.map(function (child) {
@@ -728,7 +707,6 @@ var React;
         console.log("\n\nRENDER START----------------------------------------------");
         var output = generateViewTree({
             renderTreeNode: rootRenderTreeNode,
-            // startingFromRenderNodeId: rootRenderTreeNode.id,
         });
         console.log("RENDER END----------------------------------------------\n\n");
         var reactViewTree = {
@@ -736,7 +714,6 @@ var React;
         };
         currentTreeRef.viewTree = reactViewTree;
         currentTreeRef.renderTree.currentlyRendering = null;
-        // currentTreeRef.renderTree.isFirstRender = false;
         return {
             reactRenderTree: currentTreeRef.renderTree,
             reactViewTree: currentTreeRef.viewTree,
@@ -785,7 +762,10 @@ var React;
         var currentStateOrder = currentTreeRef.renderTree.localCurrentHookOrder;
         currentTreeRef.renderTree.localCurrentHookOrder += 1;
         var capturedCurrentlyRenderingRenderNode = currentTreeRef.renderTree.currentlyRendering;
-        var hasNode = findNode(function (node) { return node.id === capturedCurrentlyRenderingRenderNode.id; }, currentTreeRef.renderTree.root);
+        // const hasNode = findNode(
+        //   (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
+        //   currentTreeRef.renderTree.root
+        // );
         if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
             capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
                 kind: "state",

@@ -290,7 +290,7 @@ namespace React {
                 index - 1
               );
               lastInserted = aux({
-                localNewViewTree: childNode,
+                localNewViewTree: findFirstTagNode(childNode).node,
                 localOldViewTree: null,
                 lastParent: newEl,
                 localInsertedBefore: insertBeforeViewNode
@@ -316,22 +316,6 @@ namespace React {
                 tag.component.domRef
               );
               return;
-              // switch (oldNode.metadata.component.kind) {
-              //   case "function": {
-              //     const firstTag = findFirstTagNode(oldNode);
-              // firstTag.component.domRef?.parentElement?.removeChild(
-              //   firstTag.component.domRef
-              // );
-              //     return;
-              //   }
-              //   case "tag": {
-              //     // for some reason the parent element is returning null?
-              //     oldNode.metadata.component.domRef?.parentElement?.removeChild(
-              //       oldNode.metadata.component.domRef
-              //     );
-              //     return;
-              //   }
-              // }
             }
           });
           let lastInserted: HTMLElement;
@@ -341,7 +325,7 @@ namespace React {
             if (!associatedWith) {
               const output = aux({
                 lastParent,
-                localNewViewTree: newNode,
+                localNewViewTree: findFirstTagNode(newNode).node,
                 localOldViewTree: null,
                 localInsertedBefore: lastInserted,
               });
@@ -352,8 +336,8 @@ namespace React {
               case "function": {
                 const output = aux({
                   lastParent,
-                  localNewViewTree: newNode,
-                  localOldViewTree: associatedWith,
+                  localNewViewTree: findFirstTagNode(newNode).node,
+                  localOldViewTree: findFirstTagNode(associatedWith).node,
                   localInsertedBefore: lastInserted,
                 });
                 lastInserted = output.updatedOrAppendedDomElement;
@@ -536,7 +520,6 @@ namespace React {
     );
 
     // order doesn't matter, but doesn't hurt to maintain it for the future incase we do care
-    // this doesn't make sense because its not executed yet
     if (existingNode) {
       existingNode.internalMetadata = internalMetadata;
       if (children.length === 0) {
@@ -832,10 +815,6 @@ namespace React {
     };
 
     renderTreeNode.computedViewTreeNodeId = newNode.id;
-    // the idea is we immediately execute the children before running the parent
-    // then later when attempting to access its children it will check if its already computed
-    // but the current problem is it seems the computed view node is not on the tree before we attempt to access it
-    // so we should make a pool of view nodes that we can access during render
 
     switch (renderTreeNode.internalMetadata.component.kind) {
       case "tag": {
@@ -1024,7 +1003,6 @@ namespace React {
     );
     const output = generateViewTree({
       renderTreeNode: rootRenderTreeNode,
-      // startingFromRenderNodeId: rootRenderTreeNode.id,
     });
 
     console.log("RENDER END----------------------------------------------\n\n");
@@ -1034,7 +1012,6 @@ namespace React {
 
     currentTreeRef.viewTree = reactViewTree;
     currentTreeRef.renderTree.currentlyRendering = null;
-    // currentTreeRef.renderTree.isFirstRender = false;
 
     return {
       reactRenderTree: currentTreeRef.renderTree,
@@ -1090,10 +1067,10 @@ namespace React {
 
     const capturedCurrentlyRenderingRenderNode =
       currentTreeRef.renderTree.currentlyRendering;
-    const hasNode = findNode(
-      (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
-      currentTreeRef.renderTree.root
-    );
+    // const hasNode = findNode(
+    //   (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
+    //   currentTreeRef.renderTree.root
+    // );
 
     if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
       capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
