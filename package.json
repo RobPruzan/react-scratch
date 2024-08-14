@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot index.ts"
+    "dev": "bun run --hot index.ts",
+    "react": "tsc script.ts --module ESNext --target ESNext --moduleResolution node --watch --skipLibCheck --outDir dist"
   },
   "devDependencies": {
     "@types/bun": "latest"
