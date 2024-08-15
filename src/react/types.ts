@@ -32,7 +32,7 @@ export type ReactComponentInternalMetadata = {
 
   props: AnyProps;
   children: Array<ReactRenderTreeNode>;
-  hooks: Array<ReactHookMetadata>;
+  // hooks: Array<ReactHookMetadata>;
   id: string;
 };
 
@@ -44,28 +44,41 @@ export type ReactViewTreeNode = {
 };
 
 export type ReactViewTree = {
-  root: ReactViewTreeNode;
+  root: ReactViewTreeNode | null;
+};
+
+export type CreateElementCallTreeNode = {
+  order: number;
+  childNodes: Array<CreateElementCallTreeNode>;
 };
 export type ReactRenderTree = {
-  lastRenderChildNodes: Array<ReactRenderTreeNode>;
+  currentLastRenderChildNodes: Array<ReactRenderTreeNode>;
   currentlyRendering: ReactRenderTreeNode | null;
-  localCurrentHookOrder: number;
+  currentLocalCurrentHookOrder: number;
   // i think this needs to be a tree, not a flat map
   // our logic doesn't work amazing for dynamic items
   // it works but is rough with lists in bigger components determining how to assign ordering keys
-  localComponentRenderMap: {
-    [componentName: string]: number;
-  };
+  // localComponentRenderMap: {
+  //   [componentName: string]: number;
+  // };
+  currentLocalComponentCreateElementCallTree: CreateElementCallTreeNode;
+  currentLocalRenderNodeStack: Array<ReactRenderTreeNode>;
+  currentLocalBranchCount: number;
   root: ReactRenderTreeNode;
 };
-
-// render tree node has a direct link to view tree node
-export type ReactRenderTreeNode = {
+export type RealElement = {
+  kind: "real-element";
   id: string;
   childNodes: Array<ReactRenderTreeNode>;
   computedViewTreeNodeId: string | null;
   internalMetadata: ReactComponentInternalMetadata;
   hooks: Array<ReactHookMetadata>;
   localRenderOrder: number;
+  localBranchCount: number;
   hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
 };
+export type EmptySlot = {
+  kind: "empty-slot";
+};
+// render tree node has a direct link to view tree node
+export type ReactRenderTreeNode = RealElement | EmptySlot;

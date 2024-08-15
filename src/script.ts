@@ -192,7 +192,13 @@ export const SimpleChild = () => {
     innerText: "Im a simple child!!",
   });
 };
+export const RandomElement = () => {
+  const [random] = React.useState(Math.random());
 
+  return React.createElement("div", {
+    innerText: random,
+  });
+};
 export const OuterWrapper = () => {
   const [counter, setCounter] = React.useState(0);
   const [toggleInner, setToggleInner] = React.useState(true);
@@ -230,9 +236,7 @@ export const OuterWrapper = () => {
     toggleInner && React.createElement(InnerWrapper, { counter }),
     React.createElement(DualIncrementer, null),
     ...items.map((i) =>
-      React.createElement("div", {
-        innerText: i,
-      })
+      React.createElement("div", null, React.createElement(RandomElement, null))
     )
     // React.createElement(DualIncrementer, null)
   );
@@ -360,6 +364,30 @@ export const MegaChild = () => {
   });
 };
 
+const ListTest = () => {
+  const [prev, trigger] = React.useState(false);
+  const x = Array.from({ length: 10 }).map(() =>
+    React.createElement(RandomElement, null)
+  );
+  console.log("what is this", x);
+  return React.createElement(
+    "span",
+    { root: "me" },
+    React.createElement("button", {
+      innerText: "re-render",
+      onclick: () => {
+        trigger(!prev);
+      },
+    }),
+    React.createElement("div", { innerText: "what" }),
+    ...x
+  );
+};
+
+const Wrapper = () => {
+  return React.createElement(ListTest, {});
+};
+
 if (typeof window === "undefined") {
   const { reactViewTree, reactRenderTree } = React.buildReactTrees(
     React.createElement(Increment, null)
@@ -368,11 +396,12 @@ if (typeof window === "undefined") {
 } else {
   window.onload = () => {
     React.render(
-      React.createElement(
-        MainComponent,
-        null,
-        React.createElement(MegaChild, null)
-      ),
+      // React.createElement(
+      //   MainComponent,
+      //   null,
+      //   React.createElement(MegaChild, null)
+      // ),
+      React.createElement(Wrapper, null),
       document.getElementById("root")!
     );
   };
