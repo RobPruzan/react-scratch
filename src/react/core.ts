@@ -32,7 +32,7 @@ const mapChildNodes = ({
   // one determines if we immediately add nodes
   const leftToRight: Record<string, ReactViewTreeNode | null> = {};
   const rightToLeft: Record<string, ReactViewTreeNode | null> = {};
-
+  console.log({ leftNodes, rightNodes });
   const associate = ({
     a,
     b,
@@ -493,6 +493,7 @@ const reconcileDom = (args: {
         //   );
         //   return { lastUpdated: null };
         // }
+        //
         case "function": {
           // some fuck up
           const auxResult = aux({
@@ -596,20 +597,47 @@ const reconcileDom = (args: {
             }
 
             case "tag": {
-              // then there's an associated existing dom node and we just update its props
-              const lastUpdated = updateDom({
-                insertedBefore: lastUpdatedSibling,
-                lastParent: parentDomNode,
-                previousDomRef: oldViewTree.metadata.component.domRef,
-                props: newViewTree.metadata.props,
-                tagComponent: newViewTree.metadata.component,
+              const lastUpdated = Utils.run(() => {
+                if (
+                  !(oldViewTree.metadata.component.kind === "tag") ||
+                  !(newViewTree.metadata.component.kind === "tag")
+                ) {
+                  throw new Error("No longer a non-escaping closure");
+                }
+                if (
+                  !Utils.deepEqual(
+                    oldViewTree.metadata.props,
+                    newViewTree.metadata.props
+                  )
+                ) {
+                  return updateDom({
+                    insertedBefore: lastUpdatedSibling,
+                    lastParent: parentDomNode,
+                    previousDomRef: oldViewTree.metadata.component.domRef,
+                    props: newViewTree.metadata.props,
+                    tagComponent: newViewTree.metadata.component,
+                  });
+                }
+                newViewTree.metadata.component.domRef =
+                  oldViewTree.metadata.component.domRef;
+                return oldViewTree.metadata.component.domRef!;
               });
+              // then there's an associated existing dom node and we just update its props
+              // const lastUpdated = updateDom({
+              //   insertedBefore: lastUpdatedSibling,
+              //   lastParent: parentDomNode,
+              //   previousDomRef: oldViewTree.metadata.component.domRef,
+              //   props: newViewTree.metadata.props,
+              //   tagComponent: newViewTree.metadata.component,
+              // });
 
               // now we recursively apply aux to the children nodes
               const [oldToNew, newToOld, definedAssociation] = mapChildNodes({
                 leftNodes: oldViewTree.childNodes,
                 rightNodes: newViewTree.childNodes,
               });
+
+              console.log({ oldToNew, newToOld, definedAssociation });
 
               let trackedLastUpdatedSibling: HTMLElement | null = null;
 
@@ -810,8 +838,35 @@ export const createElement = <T extends AnyProps>(
   if (currentTreeRef.renderTree?.currentlyRendering?.kind === "empty-slot") {
     throw new Error("Invariant Error: Cannot render an empty slot node");
   }
-  const childrenWithoutFalsy = children.map((child) =>
-    !child ? { kind: "empty-slot" as const } : child
+
+  const updateCount = (
+    toIncrement: typeof children,
+    shouldIncrementAt: (index: number) => boolean
+  ) => {
+    for (let i = 1; i < toIncrement.length; i++) {
+      if (shouldIncrementAt(i)) {
+        continue;
+      }
+      const child = toIncrement[i];
+      if (!child || child.kind === "empty-slot") {
+        continue;
+      }
+      child.localRenderOrder += 1;
+    }
+  };
+
+  const childrenWithoutFalsy = children.map((child, index) =>
+    // !child ? { kind: "empty-slot" as const } : child
+    {
+      // if (!child) {
+      //   updateCount(children, (i) => i > index + 1);
+      // }
+
+      const newSlot = { kind: "empty-slot" as const };
+      // currentTreeRef.renderTree!.currentLocalRenderNodeStack.push(newSlot);
+      // we need to update the ordering of the children
+      return !child ? newSlot : child;
+    }
   );
   const internalMetadata = mapExternalMetadataToInternalMetadata({
     internalMetadata: {
@@ -820,7 +875,11 @@ export const createElement = <T extends AnyProps>(
       props,
     },
   });
-
+  console.log(
+    "stats at start",
+    currentTreeRef.renderTree?.currentLocalBranchCount,
+    currentTreeRef.renderTree?.currentLocalRenderNodeStack
+  );
   //
   if (!currentTreeRef.renderTree?.currentlyRendering) {
     const rootRenderNode: ReactRenderTreeNode = {
@@ -848,30 +907,47 @@ export const createElement = <T extends AnyProps>(
     };
     return rootRenderNode;
   }
-  currentTreeRef.renderTree.currentLocalBranchCount += 1;
 
-  const areStackChildrenCurrentElementChildren = Utils.run(() => {
-    for (const stackNode of currentTreeRef.renderTree!
-      .currentLocalRenderNodeStack) {
-      for (const child of childrenWithoutFalsy) {
-        if (stackNode.kind === "empty-slot") {
-          continue;
-        }
+  // maybe needs a case for only slots/falsy?
+  // this logic must be wrong
+  const areStackChildrenCurrentElementChildren =
+    Utils.run(() => {
+      for (const stackNode of currentTreeRef.renderTree!
+        .currentLocalRenderNodeStack) {
+        for (const child of childrenWithoutFalsy) {
+          if (stackNode.kind === "empty-slot") {
+            continue;
+          }
 
-        if (child.kind === "empty-slot") {
-          continue;
-        }
+          if (child.kind === "empty-slot") {
+            continue;
+          }
 
-        if (stackNode.id === child.id) {
-          return true;
+          if (stackNode.id === child.id) {
+            return true;
+          }
         }
       }
-    }
-    return false;
-  });
+      return false;
+    }) ||
+    (currentTreeRef.renderTree.currentLocalRenderNodeStack.length === 0 &&
+      children.length === 0);
+  console.log(
+    "comping",
+    childrenWithoutFalsy,
+    currentTreeRef.renderTree!.currentLocalRenderNodeStack
+  );
   if (areStackChildrenCurrentElementChildren) {
+    currentTreeRef.renderTree.currentLocalBranchCount += 1;
+    console.log("NEW BRANCH FOR", internalMetadata);
     // then we re-start the accumulation because this element is the parent
     currentTreeRef.renderTree.currentLocalRenderNodeStack = [];
+  } else if (
+    currentTreeRef.renderTree.currentLocalRenderNodeStack.length === 0
+  ) {
+    currentTreeRef.renderTree.currentLocalBranchCount += 1;
+  } else {
+    console.log("NOPE");
   }
 
   const existingNode =
@@ -891,6 +967,14 @@ export const createElement = <T extends AnyProps>(
         }
       }
     );
+  // yes we double up one of the nodes. Looks like nothing changed?
+  if (existingNode) {
+    console.log(
+      "found existing node, maybe incorrectly?",
+      existingNode,
+      internalMetadata
+    );
+  }
   if (existingNode?.kind === "empty-slot") {
     throw new Error(
       "Invariant Error: the find cb will never return an empty slot"
@@ -1225,6 +1309,7 @@ const generateViewTreeHelper = ({
         renderTreeNode.childNodes;
       renderTreeNode.childNodes = [];
       currentTreeRef.renderTree.currentlyRendering = renderTreeNode;
+      currentTreeRef.renderTree.currentLocalBranchCount = 0;
 
       // this output is the root "render node" generated by createElement of the fn
       // the render tree is built out internally every time createElement is called
@@ -1436,7 +1521,7 @@ export const useState = <T>(initialValue: T) => {
 
       console.log(JSON.stringify(previousViewTree));
       console.log("\n\n\n");
-      console.log(JSON.stringify(clonedParentNode));
+      console.log("cloneddd", JSON.stringify(clonedParentNode));
       if (!previousViewTree) {
         console.log(parentNode);
         throw new Error(
@@ -1449,6 +1534,7 @@ export const useState = <T>(initialValue: T) => {
       const reGeneratedViewTree = generateViewTree({
         renderTreeNode: capturedCurrentlyRenderingRenderNode,
       });
+
       // console.log("the regenerated view tree", reGeneratedViewTree);
 
       console.log(
@@ -1484,6 +1570,8 @@ export const useState = <T>(initialValue: T) => {
           parentNode.childNodes[index] = reGeneratedViewTree;
         }
       }
+
+      console.log("are you different?", JSON.stringify(clonedParentNode));
       // const parentOfPreviousViewTree = Utils.findParentNode(
       //   (node) => node.id === previousViewTree.id,
       //   currentTreeRef.viewTree.root

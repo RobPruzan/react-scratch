@@ -55,7 +55,7 @@ export const deepCloneTree = <T>(obj: T): T => {
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      copy[key] = obj[key];
+      copy[key] = deepCloneTree(obj[key]);
     }
   }
 

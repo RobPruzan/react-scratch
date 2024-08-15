@@ -396,12 +396,12 @@ if (typeof window === "undefined") {
 } else {
   window.onload = () => {
     React.render(
-      // React.createElement(
-      //   MainComponent,
-      //   null,
-      //   React.createElement(MegaChild, null)
-      // ),
-      React.createElement(Wrapper, null),
+      React.createElement(
+        MainComponent,
+        null,
+        React.createElement(MegaChild, null)
+      ),
+      // React.createElement(Wrapper, null),
       document.getElementById("root")!
     );
   };
