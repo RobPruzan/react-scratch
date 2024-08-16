@@ -2,12 +2,12 @@ export type AnyProps = Record<string, unknown> | null;
 
 export type ReactComponentFunction<T extends AnyProps> = (
   props: AnyProps
-) => ReactRenderTreeNode;
+) => ReactComponentInternalMetadata;
 
 export type ReactComponentExternalMetadata<T extends AnyProps> = {
   component: keyof HTMLElementTagNameMap | ReactComponentFunction<T>;
   props: T;
-  children: Array<ReactRenderTreeNode>;
+  children: Array<ReactComponentInternalMetadata | null | false | undefined>;
 };
 
 export type ReactHookMetadata = {
@@ -27,14 +27,22 @@ export type FunctionalComponent = {
   function: ReactComponentFunction<AnyProps>;
 };
 
-export type ReactComponentInternalMetadata = {
+export type RealElementReactComponentInternalMetadata = {
+  kind: "real-element";
   component: TagComponent | FunctionalComponent;
 
   props: AnyProps;
-  children: Array<ReactRenderTreeNode>;
+  children: Array<ReactComponentInternalMetadata>;
   // hooks: Array<ReactHookMetadata>;
   id: string;
 };
+
+export type EmptySlotReactComponentInternalMetadata = {
+  kind: "empty-slot";
+};
+export type ReactComponentInternalMetadata =
+  | RealElementReactComponentInternalMetadata
+  | EmptySlotReactComponentInternalMetadata;
 
 export type ReactViewTreeNode = {
   id: string;
@@ -73,8 +81,7 @@ export type RealElement = {
   computedViewTreeNodeId: string | null;
   internalMetadata: ReactComponentInternalMetadata;
   hooks: Array<ReactHookMetadata>;
-  localRenderOrder: number;
-  localBranchCount: number;
+  indexPath: Array<number>;
   hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
 };
 export type EmptySlot = {
@@ -82,3 +89,14 @@ export type EmptySlot = {
 };
 // render tree node has a direct link to view tree node
 export type ReactRenderTreeNode = RealElement | EmptySlot;
+
+// export type CreateElementMetadataNode = {
+//   id: string;
+//   childNodes: Array<CreateElementMetadataNode>;
+//   metadata:
+//     | {
+//         kind: "real-element";
+//         componentInternalMetadata: ReactComponentInternalMetadata;
+//       }
+//     | { kind: "empty-slot" };
+// };
