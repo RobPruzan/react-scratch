@@ -48,7 +48,8 @@ export type ReactViewTreeNode = {
   id: string;
   childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
-  key: string;
+  // key: string;
+  indexPath: Array<number>; // allows for optimized diffs to know what to map with
 };
 
 export type ReactViewTree = {
@@ -69,9 +70,6 @@ export type ReactRenderTree = {
   // localComponentRenderMap: {
   //   [componentName: string]: number;
   // };
-  currentLocalComponentCreateElementCallTree: CreateElementCallTreeNode;
-  currentLocalRenderNodeStack: Array<ReactRenderTreeNode>;
-  currentLocalBranchCount: number;
   root: ReactRenderTreeNode;
 };
 export type RealElement = {

@@ -12,14 +12,21 @@ import type {
   RealElementReactComponentInternalMetadata,
 } from "./types";
 
-const getKey = (renderNode: RealElement) => {
-  return (
-    getComponentName(renderNode.internalMetadata) +
-    "-" +
-    renderNode.indexPath +
-    "-" +
-    renderNode.localRenderOrder
-  );
+// const getKey = (renderNode: RealElement) => {
+//   return (
+//     getComponentName(renderNode.internalMetadata) +
+//     "-" +
+//     renderNode.indexPath +
+//     "-" +
+//     renderNode.localRenderOrder
+//   );
+// };
+
+const getComponentProps = (meta: ReactComponentInternalMetadata) => {
+  if (meta.kind === "empty-slot") {
+    return null;
+  }
+  return meta.props;
 };
 
 const mapChildNodes = ({
@@ -43,10 +50,15 @@ const mapChildNodes = ({
     b: Array<ReactViewTreeNode>;
     aMap: Record<string, ReactViewTreeNode | null>;
   }) => {
-    a.forEach((leftNode) => {
-      const associatedRightNode = b.find(
-        (rightNode) => rightNode.key === leftNode.key
-      );
+    a.forEach((leftNode, index) => {
+      // const associatedRightNode = b.find((rightNode) =>
+      //   Utils.deepEqual(
+      //     getComponentProps(leftNode.metadata),
+      //     getComponentProps(rightNode.metadata)
+      //   )
+      // );
+
+      const associatedRightNode = b.at(index);
 
       aMap[leftNode.id] = associatedRightNode ?? null;
     });
@@ -470,7 +482,7 @@ const reconcileDom = (args: {
   }): { lastUpdated: HTMLElement | null } => {
     // console.log("running");
     let x = 2;
-    if (!newViewTree) {
+    if (!newViewTree || newViewTree.metadata.kind === "empty-slot") {
       if (!oldViewTree) {
         // then there's nothing to do
         console.log("then theres nothing to do");
@@ -489,7 +501,7 @@ const reconcileDom = (args: {
       console.log("removed something, didnt make anything");
       return { lastUpdated: null };
     }
-    if (!oldViewTree) {
+    if (!oldViewTree || oldViewTree.metadata.kind === "empty-slot") {
       // add case
       switch (newViewTree.metadata.component.kind) {
         // case "empty-slot": {
@@ -605,6 +617,12 @@ const reconcileDom = (args: {
             case "tag": {
               const lastUpdated = Utils.run(() => {
                 if (
+                  !(oldViewTree.metadata.kind === "real-element") ||
+                  !(newViewTree.metadata.kind === "real-element")
+                ) {
+                  throw new Error("No longer a non escaping function");
+                }
+                if (
                   !(oldViewTree.metadata.component.kind === "tag") ||
                   !(newViewTree.metadata.component.kind === "tag")
                 ) {
@@ -705,6 +723,7 @@ const reconcileDom = (args: {
 
   switch (args.insertInfo.kind) {
     case "root": {
+      console.log(args.newViewTree);
       console.log("running on root");
       aux({
         lastUpdatedSibling: null,
@@ -1089,6 +1108,11 @@ const generateRenderNodeChildNodes = ({
     });
   };
 
+  aux({
+    indexPath: [],
+    internalMetadata,
+  });
+
   return accumulatedSiblings;
 };
 
@@ -1125,6 +1149,7 @@ const generateViewTreeHelper = ({
   }
   // if the node itself represents nothing, don't traverse
   if (renderNode.kind === "empty-slot") {
+    console.log("anota empty slot");
     return null;
   }
 
@@ -1134,6 +1159,7 @@ const generateViewTreeHelper = ({
   // );
   // if the component directly outputs an empty slot, nothing to generate so don't traverse
   if (renderNode.internalMetadata.kind === "empty-slot") {
+    console.log("empty slot i return notin");
     return null;
   }
 
@@ -1141,10 +1167,11 @@ const generateViewTreeHelper = ({
     id: crypto.randomUUID(),
     metadata: renderNode.internalMetadata,
     childNodes: [],
-    key: getKey(renderNode), // i probably don't want this...
+    indexPath: renderNode.indexPath,
+    // key: getKey(renderNode), // i probably don't want this...
   };
 
-  // internalMetadata.computedViewTreeNodeId = newNode.id;
+  renderNode.computedViewTreeNodeId = newNode.id;
 
   switch (renderNode.internalMetadata.component.kind) {
     case "tag": {
@@ -1319,16 +1346,41 @@ const generateViewTreeHelper = ({
           ...renderNode.internalMetadata.props,
           ...childrenSpreadProps,
         });
+      // do we want the root output by the internal metadata?
+
+      //       const outputAssociatedRenderNode: ReactRenderTreeNode = renderNode.childNodes.find((prevChildNode) => {
+      //         if (prevChildNode.kind === 'empty-slot') {
+      //           return false
+      //         }
+      //         if (outputInternalMetadata.kind === 'empty-slot') {
+      //   return false
+      // }
+
+      // return compareIndexPaths(prevChildNode, outputInternalMetadata)
+      // })
 
       const generatedRenderChildNodes = generateRenderNodeChildNodes({
         internalMetadata: outputInternalMetadata,
       });
 
       const reconciledRenderChildNodes = reconcileRenderNodeChildNodes({
-        newRenderTreeNodes: renderNode.childNodes,
-        oldRenderTreeNodes: generatedRenderChildNodes,
+        newRenderTreeNodes: generatedRenderChildNodes,
+        oldRenderTreeNodes: renderNode.childNodes,
       });
-
+      console.log({
+        reconciledRenderChildNodes,
+        generatedRenderChildNodes,
+        renderNode,
+        outputInternalMetadata,
+      });
+      const nextNodeToProcess = reconciledRenderChildNodes.find((node) => {
+        if (node.kind === "empty-slot") {
+          return false;
+        }
+        return node.indexPath.length === 0;
+        // console.log(node);
+      }) ?? { kind: "empty-slot" };
+      console.log({ nextNodeToProcess, reconciledRenderChildNodes });
       renderNode.childNodes = reconciledRenderChildNodes;
 
       renderNode.hasRendered = true;
@@ -1367,14 +1419,18 @@ const generateViewTreeHelper = ({
       //     });
 
       // currentTreeRef.renderTree.currentLastRenderChildNodes = [];
+
+      // why did i think passing the same render node every time would work?
       const viewNode = generateViewTreeHelper({
-        renderNode,
+        renderNode: nextNodeToProcess,
         startingFromRenderNodeId: renderNode.id,
       });
       if (!viewNode) {
+        console.log("breaking");
         break;
       }
 
+      console.log("pushing", viewNode);
       newNode.childNodes.push(viewNode);
       break;
     }
@@ -1431,9 +1487,9 @@ export function deepTraverseAndModify(obj: any): any {
 export const buildReactTrees = (
   rootComponentInternalMetadata: ReactComponentInternalMetadata
 ) => {
-  if (!currentTreeRef.renderTree) {
-    throw new Error("Root node passed is not apart of any react render tree");
-  }
+  // if (!currentTreeRef.renderTree) {
+  //   throw new Error("Root node passed is not apart of any react render tree");
+  // }
 
   const rootRenderTreeNode: ReactRenderTreeNode =
     rootComponentInternalMetadata.kind === "empty-slot"
@@ -1451,10 +1507,18 @@ export const buildReactTrees = (
           internalMetadata: rootComponentInternalMetadata,
         };
 
+  currentTreeRef.renderTree = {
+    root: rootRenderTreeNode,
+    currentLastRenderChildNodes: [],
+    currentLocalCurrentHookOrder: 0,
+    currentlyRendering: null,
+  };
+
   console.log("\n\nRENDER START----------------------------------------------");
   const output = generateViewTree({
     renderNode: rootRenderTreeNode,
   });
+  console.log({ outputgg: output });
 
   console.log("RENDER END----------------------------------------------\n\n");
   const reactViewTree: ReactViewTree = {
@@ -1573,7 +1637,7 @@ export const useState = <T>(initialValue: T) => {
       );
       // its a detached node and because of that we set it as the root
       const index = parentNode?.childNodes.findIndex(
-        (node) => getKey(capturedCurrentlyRenderingRenderNode) === node.key
+        (node) => capturedCurrentlyRenderingRenderNode.id === node.id // changes this might be dangerous, but no idea why we used the key before
       );
       // this will always be in the parent nodes children (or is root)
       // because we re-rendered at capturedCurrentlyRenderingRenderNode,
@@ -1622,7 +1686,7 @@ export const useState = <T>(initialValue: T) => {
       //   );
       reconcileDom({
         newViewTree: reGeneratedViewTree,
-        oldViewTree: previousViewTree,
+        oldViewTree: null,
         insertInfo: {
           kind: "child",
           previousViewTreeParent: clonedParentNode, // the root has no parent, so this is the only valid case, but may cause weird bugs if something was calculated weirdly
@@ -1638,7 +1702,7 @@ export const render = (
 ) => {
   console.log("last v");
   const { reactViewTree } = buildReactTrees(rootElement);
-
+  console.log({ umWart: reactViewTree });
   reconcileDom({
     oldViewTree: null,
     newViewTree: reactViewTree.root,
