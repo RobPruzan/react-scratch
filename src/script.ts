@@ -173,6 +173,7 @@ export const AnotherLevel = () => {
 };
 export const Increment = () => {
   const [x, setX] = React.useState(2);
+  console.log("re-running and reading", x);
   return React.createElement(
     "div",
     {
@@ -364,12 +365,57 @@ export const MegaChild = () => {
   });
 };
 
+const ConditionalTest = () => {
+  const [cond, setCond] = React.useState(false);
+
+  return React.createElement(
+    "div",
+    null,
+    React.createElement("button", {
+      innerText: "toggle",
+      onclick: () => {
+        setCond(!cond);
+      },
+    }),
+    cond &&
+      React.createElement("div", {
+        innerText: "look at me!!",
+      })
+  );
+};
+
+const AddItemsTest = () => {
+  const [items, setItems] = React.useState([3]);
+
+  return React.createElement(
+    "div",
+    null,
+    React.createElement("button", {
+      innerText: "Add random num",
+      onclick: () => {
+        setItems([...items, Math.random()]);
+      },
+    }),
+    React.createElement("button", {
+      innerText: "Remove random num",
+      onclick: () => {
+        setItems(items.slice(0, -1));
+      },
+    }),
+    React.createElement(ConditionalTest, null),
+    ...items.map((item) =>
+      React.createElement("div", {
+        innerText: item,
+      })
+    )
+  );
+};
+
 const ListTest = () => {
   const [prev, trigger] = React.useState(false);
   const x = Array.from({ length: 10 }).map(() =>
     React.createElement(RandomElement, null)
   );
-  console.log("what is this", x);
   return React.createElement(
     "span",
     { root: "me" },
@@ -396,12 +442,14 @@ if (typeof window === "undefined") {
 } else {
   window.onload = () => {
     React.render(
-      React.createElement(
-        MainComponent,
-        null,
-        React.createElement(MegaChild, null)
-      ),
+      // React.createElement(
+      //   MainComponent,
+      //   null,
+      //   React.createElement(MegaChild, null)
+      // ),
       // React.createElement(Wrapper, null),
+      React.createElement(AddItemsTest, null),
+      // React.createElement(Increment, null),
       document.getElementById("root")!
     );
   };

@@ -40,7 +40,6 @@ const mapChildNodes = ({
   // one determines if we immediately add nodes
   const leftToRight: Record<string, ReactViewTreeNode | null> = {};
   const rightToLeft: Record<string, ReactViewTreeNode | null> = {};
-  console.log({ leftNodes, rightNodes });
   const associate = ({
     a,
     b,
@@ -141,7 +140,6 @@ const updateDom = ({
   }
   const newEl = document.createElement(tagComponent.tagName);
   // tagComponent.domRef = newEl;
-  console.log("asdf", props, tagComponent);
   Object.assign(newEl, props);
 
   if (insertedBefore && !lastParent.contains(insertedBefore)) {
@@ -480,25 +478,21 @@ const reconcileDom = (args: {
     parentDomNode: HTMLElement;
     lastUpdatedSibling: HTMLElement | null;
   }): { lastUpdated: HTMLElement | null } => {
-    // console.log("running");
     let x = 2;
     if (!newViewTree || newViewTree.metadata.kind === "empty-slot") {
       if (!oldViewTree) {
         // then there's nothing to do
-        console.log("then theres nothing to do");
         return { lastUpdated: null };
       }
       // then we have to delete the old view tree node
       const tagNode = findFirstTagNode(oldViewTree);
       if (!tagNode) {
         // nothing to delete, its an empty slot
-        console.log("nothing to delete, its an empty slot");
         return { lastUpdated: null };
       }
       tagNode.component.domRef?.parentElement?.removeChild(
         tagNode.component.domRef
       );
-      console.log("removed something, didnt make anything");
       return { lastUpdated: null };
     }
     if (!oldViewTree || oldViewTree.metadata.kind === "empty-slot") {
@@ -522,9 +516,6 @@ const reconcileDom = (args: {
           });
           // take the aux result as it represents the dom node to be placed before the next sibling
           // the caller has to be responsible for not losing the original lastUpdated ref
-          console.log(
-            "pass forward on empty old view tree but functional new view tree"
-          );
           return { lastUpdated: auxResult.lastUpdated };
         }
 
@@ -554,7 +545,6 @@ const reconcileDom = (args: {
           // aux({
 
           // })
-          console.log("trivially add");
           return { lastUpdated: updatedElement };
         }
       }
@@ -571,7 +561,6 @@ const reconcileDom = (args: {
           parentDomNode: parentDomNode,
         });
         // because we pass through, this result is important and we should forward it
-        console.log("another forward");
         return {
           lastUpdated: auxResult.lastUpdated,
         };
@@ -610,7 +599,6 @@ const reconcileDom = (args: {
                 oldViewTree: oldViewTree.childNodes[0], // will always have one child
                 parentDomNode: parentDomNode,
               });
-              console.log("re-apply time");
               return { lastUpdated: auxResult.lastUpdated };
             }
 
@@ -661,8 +649,6 @@ const reconcileDom = (args: {
                 rightNodes: newViewTree.childNodes,
               });
 
-              console.log({ oldToNew, newToOld, definedAssociation });
-
               let trackedLastUpdatedSibling: HTMLElement | null = null;
 
               // handles deleting any extra nodes from the previous tree not associated with a new view tree node
@@ -711,7 +697,6 @@ const reconcileDom = (args: {
                     auxResult.lastUpdated ?? trackedLastUpdatedSibling;
                 }
               );
-              console.log("a lot of work finally done");
               return { lastUpdated: lastUpdated };
             }
           }
@@ -723,8 +708,6 @@ const reconcileDom = (args: {
 
   switch (args.insertInfo.kind) {
     case "root": {
-      console.log(args.newViewTree);
-      console.log("running on root");
       aux({
         lastUpdatedSibling: null,
         newViewTree: args.newViewTree,
@@ -775,17 +758,12 @@ const reconcileDom = (args: {
         const parentTagNode = findFirstTagNode(
           args.insertInfo.previousViewTreeParent
         );
-        console.log(
-          "my tag node",
-          args.insertInfo.previousViewTreeParent,
-          parentTagNode
-        );
+
         if (!parentTagNode) {
           throw new Error(
             "Invariant Error: A parent node could not have been an empty slot since we know it has view node children"
           );
         }
-        console.log(parentTagNode);
         if (!parentTagNode.component.domRef) {
           console.log(JSON.stringify(args.insertInfo.previousViewTreeParent));
           throw new Error(
@@ -1046,11 +1024,12 @@ const reconcileRenderNodeChildNodes = ({
   newRenderTreeNodes: Array<ReactRenderTreeNode>;
 }) => {
   const reconciledChildNodes: Array<ReactRenderTreeNode> = [];
-
+  console.log("old and new nodes", oldRenderTreeNodes, newRenderTreeNodes);
   newRenderTreeNodes.forEach((newChildNode, index) => {
     const oldChildNode = oldRenderTreeNodes.at(index);
+    console.log("got", oldChildNode, "at", index, "for", oldRenderTreeNodes);
     if (!oldChildNode) {
-      reconciledChildNodes.push(newChildNode);
+      reconciledChildNodes.push({ ...newChildNode, coldD: false });
       return;
     }
     // we want the newer node in both cases since we don't track empty slot equality
@@ -1058,15 +1037,16 @@ const reconcileRenderNodeChildNodes = ({
       oldChildNode.kind === "empty-slot" ||
       newChildNode.kind === "empty-slot"
     ) {
-      reconciledChildNodes.push(newChildNode);
+      reconciledChildNodes.push({ ...newChildNode, oldA: false });
       return;
     }
 
     if (!compareIndexPaths(oldChildNode.indexPath, newChildNode.indexPath)) {
-      reconciledChildNodes.push(newChildNode);
+      reconciledChildNodes.push({ ...newChildNode, oldB: false });
       return;
     }
-    reconciledChildNodes.push(oldChildNode);
+    oldChildNode.internalMetadata = newChildNode.internalMetadata;
+    reconciledChildNodes.push({ ...oldChildNode, oldC: true });
   });
   return reconciledChildNodes;
 };
@@ -1130,7 +1110,6 @@ const generateViewTree = ({
     return null;
   }
 
-  console.log(JSON.stringify(currentTreeRef.renderTree));
   return generateViewTreeHelper({
     renderNode: renderNode,
     startingFromRenderNodeId: renderNode.id,
@@ -1149,7 +1128,6 @@ const generateViewTreeHelper = ({
   }
   // if the node itself represents nothing, don't traverse
   if (renderNode.kind === "empty-slot") {
-    console.log("anota empty slot");
     return null;
   }
 
@@ -1159,7 +1137,6 @@ const generateViewTreeHelper = ({
   // );
   // if the component directly outputs an empty slot, nothing to generate so don't traverse
   if (renderNode.internalMetadata.kind === "empty-slot") {
-    console.log("empty slot i return notin");
     return null;
   }
 
@@ -1246,12 +1223,14 @@ const generateViewTreeHelper = ({
             // need to find the generated render node for that child
             // may need to call the child and then generate a render node for it here...
             // i think create if not exists is probably the right strategy...
-
+            console.log("wadu", child, currentTreeRef.renderTree);
             const viewNode = generateViewTreeHelper({
               renderNode: existingRenderTreeNode,
               startingFromRenderNodeId: startingFromRenderNodeId,
             });
+            console.log("genned view node re-rendering child node", viewNode);
             if (!viewNode) {
+              console.log("no view node");
               return {
                 viewNode: null,
                 renderNode: existingRenderTreeNode,
@@ -1298,13 +1277,14 @@ const generateViewTreeHelper = ({
           //   currentTreeRef.renderTree?.root!
           // );
 
-          if (!shouldReRender) {
-            // skip re-rendering if not a child in the render tree
-            return {
-              viewNode: computedNode,
-              renderNode: existingRenderTreeNode,
-            };
-          }
+          // if (!shouldReRender) { // rahh why does it skip
+          //   console.log("skipping re-render");
+          //   // skip re-rendering if not a child in the render tree
+          //   return {
+          //     viewNode: computedNode,
+          //     renderNode: existingRenderTreeNode,
+          //   };
+          // }
           return reRenderChild();
         }
       );
@@ -1315,6 +1295,7 @@ const generateViewTreeHelper = ({
       break;
     }
     case "function": {
+      console.log("function, got", Utils.deepCloneTree(renderNode));
       const childrenSpreadProps =
         renderNode.internalMetadata.children.length > 0
           ? {
@@ -1333,7 +1314,7 @@ const generateViewTreeHelper = ({
       // };
       // currentTreeRef.renderTree.currentLastRenderChildNodes =
       //   internalMetadata.childNodes;
-      renderNode.childNodes = [];
+      // renderNode.childNodes = [];
       currentTreeRef.renderTree.currentlyRendering = renderNode;
       // currentTreeRef.renderTree.currentLocalBranchCount = 0;
 
@@ -1367,12 +1348,7 @@ const generateViewTreeHelper = ({
         newRenderTreeNodes: generatedRenderChildNodes,
         oldRenderTreeNodes: renderNode.childNodes,
       });
-      console.log({
-        reconciledRenderChildNodes,
-        generatedRenderChildNodes,
-        renderNode,
-        outputInternalMetadata,
-      });
+
       const nextNodeToProcess = reconciledRenderChildNodes.find((node) => {
         if (node.kind === "empty-slot") {
           return false;
@@ -1380,7 +1356,14 @@ const generateViewTreeHelper = ({
         return node.indexPath.length === 0;
         // console.log(node);
       }) ?? { kind: "empty-slot" };
-      console.log({ nextNodeToProcess, reconciledRenderChildNodes });
+
+      console.log({
+        newRenderTreeNodes: generatedRenderChildNodes,
+        oldRenderTreeNodes: Utils.deepCloneTree(renderNode.childNodes),
+        // generatedRenderChildNodes,
+        renderNode: Utils.deepCloneTree(renderNode),
+        reconciledRenderChildNodes,
+      });
       renderNode.childNodes = reconciledRenderChildNodes;
 
       renderNode.hasRendered = true;
@@ -1421,16 +1404,19 @@ const generateViewTreeHelper = ({
       // currentTreeRef.renderTree.currentLastRenderChildNodes = [];
 
       // why did i think passing the same render node every time would work?
+      console.log(
+        "next to process",
+        nextNodeToProcess,
+        reconciledRenderChildNodes
+      );
       const viewNode = generateViewTreeHelper({
         renderNode: nextNodeToProcess,
         startingFromRenderNodeId: renderNode.id,
       });
       if (!viewNode) {
-        console.log("breaking");
         break;
       }
 
-      console.log("pushing", viewNode);
       newNode.childNodes.push(viewNode);
       break;
     }
@@ -1518,7 +1504,6 @@ export const buildReactTrees = (
   const output = generateViewTree({
     renderNode: rootRenderTreeNode,
   });
-  console.log({ outputgg: output });
 
   console.log("RENDER END----------------------------------------------\n\n");
   const reactViewTree: ReactViewTree = {
@@ -1527,7 +1512,10 @@ export const buildReactTrees = (
 
   currentTreeRef.viewTree = reactViewTree;
   currentTreeRef.renderTree.currentlyRendering = null;
-
+  console.log({
+    view: reactViewTree,
+    render: currentTreeRef.renderTree,
+  });
   return {
     reactRenderTree: currentTreeRef.renderTree,
     reactViewTree: currentTreeRef.viewTree,
@@ -1586,6 +1574,7 @@ export const useState = <T>(initialValue: T) => {
       );
 
       const clonedParentNode = Utils.deepCloneTree(parentNode);
+      console.log("twee", Utils.deepCloneTree(currentTreeRef.renderTree));
       console.log(
         "\n\nRENDER START----------------------------------------------"
       );
@@ -1608,23 +1597,25 @@ export const useState = <T>(initialValue: T) => {
       //   )
       // );
 
-      const previousViewTree = clonedParentNode?.childNodes.find(
-        (node) =>
-          node.id ===
-          capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
-      );
+      const previousViewTree =
+        clonedParentNode?.childNodes.find(
+          (node) =>
+            node.id ===
+            capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
+        ) ?? currentTreeRef.viewTree.root;
 
-      console.log(JSON.stringify(previousViewTree));
-      console.log("\n\n\n");
-      console.log("cloneddd", JSON.stringify(clonedParentNode));
-      if (!previousViewTree) {
-        console.log(parentNode);
-        throw new Error(
-          "Invariant: Parent was found using child, so must be a child of parent"
-        );
-      }
+      // if (!previousViewTree) {
+      //   console.log(parentNode);
+      //   throw new Error(
+      //     "Invariant: Parent was found using child, so must be a child of parent"
+      //   );
+      // }
 
       // const previousEntireViewTree =
+      console.log(
+        "cpatured currently rendering",
+        Utils.deepCloneTree(capturedCurrentlyRenderingRenderNode)
+      );
 
       const reGeneratedViewTree = generateViewTree({
         renderNode: capturedCurrentlyRenderingRenderNode,
@@ -1665,8 +1656,11 @@ export const useState = <T>(initialValue: T) => {
           parentNode.childNodes[index] = reGeneratedViewTree;
         }
       }
-
-      console.log("are you different?", JSON.stringify(clonedParentNode));
+      console.log(
+        "the trees",
+        currentTreeRef.viewTree,
+        currentTreeRef.renderTree
+      );
       // const parentOfPreviousViewTree = Utils.findParentNode(
       //   (node) => node.id === previousViewTree.id,
       //   currentTreeRef.viewTree.root
@@ -1686,7 +1680,7 @@ export const useState = <T>(initialValue: T) => {
       //   );
       reconcileDom({
         newViewTree: reGeneratedViewTree,
-        oldViewTree: null,
+        oldViewTree: previousViewTree,
         insertInfo: {
           kind: "child",
           previousViewTreeParent: clonedParentNode, // the root has no parent, so this is the only valid case, but may cause weird bugs if something was calculated weirdly
@@ -1700,9 +1694,7 @@ export const render = (
   rootElement: ReturnType<typeof createElement>,
   domEl: HTMLElement
 ) => {
-  console.log("last v");
   const { reactViewTree } = buildReactTrees(rootElement);
-  console.log({ umWart: reactViewTree });
   reconcileDom({
     oldViewTree: null,
     newViewTree: reactViewTree.root,
