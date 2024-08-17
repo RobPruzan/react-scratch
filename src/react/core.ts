@@ -12,23 +12,13 @@ import type {
   RealElementReactComponentInternalMetadata,
 } from "./types";
 
-// const getKey = (renderNode: RealElement) => {
-//   return (
-//     getComponentName(renderNode.internalMetadata) +
-//     "-" +
-//     renderNode.indexPath +
-//     "-" +
-//     renderNode.localRenderOrder
-//   );
-// };
-
 const getComponentProps = (meta: ReactComponentInternalMetadata) => {
   if (meta.kind === "empty-slot") {
     return null;
   }
   return meta.props;
 };
-
+// this function is pretty useless since we only compare on order now
 const mapChildNodes = ({
   leftNodes,
   rightNodes,
@@ -50,15 +40,7 @@ const mapChildNodes = ({
     aMap: Record<string, ReactViewTreeNode | null>;
   }) => {
     a.forEach((leftNode, index) => {
-      // const associatedRightNode = b.find((rightNode) =>
-      //   Utils.deepEqual(
-      //     getComponentProps(leftNode.metadata),
-      //     getComponentProps(rightNode.metadata)
-      //   )
-      // );
-
       const associatedRightNode = b.at(index);
-
       aMap[leftNode.id] = associatedRightNode ?? null;
     });
   };
@@ -84,41 +66,6 @@ const mapChildNodes = ({
 
   return [leftToRight, rightToLeft, definedAssociation] as const;
 };
-
-// const updateDom = ({
-//   props,
-//   tagComponent,
-//   previousDomRef,
-//   lastParent,
-//   insertedBefore,
-// }: {
-//   tagComponent: TagComponent;
-//   previousDomRef: HTMLElement | null;
-//   props: AnyProps;
-//   lastParent: HTMLElement;
-//   insertedBefore: HTMLElement | null;
-// }) => {
-//   if (previousDomRef) {
-//     Object.assign(previousDomRef, props);
-//     tagComponent.domRef = previousDomRef;
-//     return previousDomRef;
-//   }
-//   const newEl = document.createElement(tagComponent.tagName);
-//   Object.assign(newEl, props);
-
-//   if (insertedBefore) {
-//     // will append if 2nd arg is null
-//     lastParent.insertBefore(newEl, insertedBefore.nextSibling);
-//     tagComponent.domRef = newEl;
-
-//     return newEl;
-//   }
-//   lastParent.appendChild(newEl);
-
-//   tagComponent.domRef = newEl;
-
-//   return newEl;
-// };
 
 const updateDom = ({
   props,
@@ -170,9 +117,6 @@ const findFirstTagNode = (viewNode: ReactViewTreeNode) => {
     return null;
   }
   switch (viewNode.metadata.component.kind) {
-    // case "empty-slot": {
-    //   return null;
-    // }
     case "function": {
       return findFirstTagNode(viewNode.childNodes[0]); // will only ever have one child
     }
@@ -184,276 +128,7 @@ const findFirstTagNode = (viewNode: ReactViewTreeNode) => {
     }
   }
   viewNode.metadata.component satisfies never;
-  // if (viewNode.metadata.component.kind === "tag") {
-  //   return {
-  //     component: viewNode.metadata.component,
-  //     node: viewNode,
-  //   };
-  // }
-  // if (viewNode.metadata.component.kind === 'empty-slot') {
-
-  // }
-  // // either returns or the program crashes (:shrug)
-  // return findFirstTagNode(viewNode.childNodes[0]); // traverse directly down since a functional component will only have one child, should discriminately union this...
 };
-
-// const reconcileDom = ({
-//   newViewTree,
-//   oldViewTree,
-//   startingDomNode,
-// }: {
-//   oldViewTree: ReactViewTreeNode | null;
-//   newViewTree: ReactViewTreeNode;
-//   startingDomNode: HTMLElement;
-// }) => {
-//   const aux = ({
-//     localNewViewTree,
-//     localOldViewTree,
-//     lastParent,
-//     localInsertedBefore,
-//   }: {
-//     localOldViewTree: ReactViewTreeNode | null;
-//     localNewViewTree: ReactViewTreeNode;
-//     lastParent: HTMLElement;
-//     localInsertedBefore: HTMLElement | null;
-//   }): { updatedOrAppendedDomElement: HTMLElement } => {
-//     // reconciles the parent then moves to children
-//     const reconcileTags = ({
-//       newNode,
-//       oldNode,
-//     }: {
-//       oldNode: ReturnType<typeof findFirstTagNode>;
-//       newNode: ReturnType<typeof findFirstTagNode>;
-//     }): { updatedOrAppendedDomElement: HTMLElement } => {
-//       if (
-//         Utils.deepEqual(
-//           oldNode.node.metadata.props,
-//           newNode.node.metadata.props
-//         )
-//       ) {
-//         if (!oldNode.component.domRef) {
-//           throw new Error(
-//             "Invariant error, already rendered tree must have dom nodes for every view node"
-//           );
-//         }
-//         newNode.component.domRef = oldNode.component.domRef;
-//         // i think its a flaw in the logic we handle this takedown twice
-//         // but what can u do this has to handle this base case or it will reconcile forever
-//         // just because how aux is structured...
-//         if (newNode.node.childNodes.length === 0) {
-//           oldNode.node.childNodes.forEach((childNode) => {
-//             const tag = findFirstTagNode(childNode);
-//             tag.component.domRef?.parentElement?.removeChild(
-//               tag.component.domRef
-//             );
-//             return newNode.component.domRef;
-//           });
-//         }
-//         aux({
-//           localNewViewTree: newNode.node,
-//           localOldViewTree: oldNode.node,
-//           lastParent: newNode.component.domRef!, // maybe this breaks stuff?
-//           localInsertedBefore: localInsertedBefore,
-//         });
-//         return { updatedOrAppendedDomElement: newNode.component.domRef };
-//       } else {
-//         const newEl = updateDom({
-//           lastParent,
-//           previousDomRef: oldNode.component.domRef,
-//           props: newNode.node.metadata.props,
-//           tagComponent: newNode.component,
-//           insertedBefore: localInsertedBefore,
-//         });
-//         if (newNode.node.childNodes.length === 0) {
-//           oldNode.node.childNodes.forEach((childNode) => {
-//             const tag = findFirstTagNode(childNode);
-//             tag.component.domRef?.parentElement?.removeChild(
-//               tag.component.domRef
-//             );
-//             return newEl;
-//           });
-//         }
-//         aux({
-//           localNewViewTree: newNode.node, // a function should only ever one child. If it returns a null it should never be rendered in the first place
-//           localOldViewTree: oldNode.node, // very naive check, but it will fail quickly once they start comparing tags
-//           lastParent: newEl,
-//           localInsertedBefore: localInsertedBefore, // how do u know??
-//         });
-//         return { updatedOrAppendedDomElement: newEl };
-//       }
-//     };
-//     switch (localNewViewTree.metadata.component.kind) {
-//       case "function": {
-//         const oldNode = localOldViewTree
-//           ? findFirstTagNode(localOldViewTree)
-//           : null;
-//         const newNode = findFirstTagNode(localNewViewTree);
-//         if (!oldNode) {
-//           return aux({
-//             localNewViewTree: newNode.node,
-//             localOldViewTree: null,
-//             lastParent,
-//             localInsertedBefore: localInsertedBefore,
-//           });
-//         }
-
-//         return reconcileTags({ newNode, oldNode });
-//       }
-
-//       case "tag": {
-//         if (!localOldViewTree) {
-//           const newEl = updateDom({
-//             lastParent,
-//             tagComponent: localNewViewTree.metadata.component,
-//             previousDomRef: null,
-//             props: localNewViewTree.metadata.props,
-//             insertedBefore: localInsertedBefore,
-//           });
-//           let lastInserted: HTMLElement = newEl;
-//           for (
-//             let index = 0;
-//             index < localNewViewTree.childNodes.length;
-//             index++
-//           ) {
-//             const childNode = localNewViewTree.childNodes[index];
-//             const insertBeforeViewNode = localNewViewTree.childNodes.at(
-//               index - 1
-//             );
-//             lastInserted = aux({
-//               localNewViewTree: findFirstTagNode(childNode).node,
-//               localOldViewTree: null,
-//               lastParent: newEl,
-//               localInsertedBefore: insertBeforeViewNode
-//                 ? findFirstTagNode(insertBeforeViewNode).component.domRef
-//                 : null,
-//             }).updatedOrAppendedDomElement;
-//           }
-
-//           return { updatedOrAppendedDomElement: lastInserted };
-//         }
-//         const [oldToNew, newToOld] = mapChildNodes({
-//           leftNodes: localOldViewTree.childNodes,
-//           rightNodes: localNewViewTree.childNodes,
-//         });
-
-//         // to remove
-// localOldViewTree.childNodes.forEach((oldNode) => {
-//   const associatedWith = oldToNew[oldNode.id];
-
-//   if (!associatedWith) {
-//     const tag = findFirstTagNode(oldNode);
-//     tag.component.domRef?.parentElement?.removeChild(
-//       tag.component.domRef
-//     );
-//     return;
-//   }
-// });
-//         let lastInserted: HTMLElement;
-//         // to add
-//         localNewViewTree.childNodes.forEach((newNode) => {
-//           const associatedWith = newToOld[newNode.id];
-//           if (!associatedWith) {
-//             const output = aux({
-//               lastParent,
-//               localNewViewTree: findFirstTagNode(newNode).node,
-//               localOldViewTree: null,
-//               localInsertedBefore: lastInserted,
-//             });
-//             lastInserted = output.updatedOrAppendedDomElement;
-//             return;
-//           }
-//           switch (newNode.metadata.component.kind) {
-//             case "function": {
-//               const output = aux({
-//                 lastParent,
-//                 localNewViewTree: findFirstTagNode(newNode).node,
-//                 localOldViewTree: findFirstTagNode(associatedWith).node,
-//                 localInsertedBefore: lastInserted,
-//               });
-//               lastInserted = output.updatedOrAppendedDomElement;
-//               return;
-//             }
-
-//             case "tag": {
-//               if (!(associatedWith.metadata.component.kind === "tag")) {
-//                 throw new Error(
-//                   "Invariant error, this comparison should never happen"
-//                 );
-//               }
-
-//               const existingDomRef = associatedWith.metadata.component.domRef;
-//               if (!existingDomRef) {
-//                 throw new Error(
-//                   "Invariant error, never should have an old view tree that doesn't have a created dom node"
-//                 );
-//               }
-//               if (
-//                 Utils.deepEqual(
-//                   newNode.metadata.props,
-//                   associatedWith.metadata.props
-//                 )
-//               ) {
-//                 newNode.metadata.component.domRef = existingDomRef;
-//                 const output = aux({
-//                   lastParent: existingDomRef,
-//                   localNewViewTree: newNode,
-//                   localOldViewTree: associatedWith,
-//                   localInsertedBefore: lastInserted,
-//                 });
-//                 lastInserted = output.updatedOrAppendedDomElement;
-//                 return;
-//               }
-//               const newEl = updateDom({
-//                 lastParent,
-//                 props: newNode.metadata.props,
-//                 tagComponent: newNode.metadata.component,
-//                 previousDomRef: existingDomRef,
-//                 insertedBefore: lastInserted,
-//               });
-
-//               aux({
-//                 lastParent: newEl,
-//                 localNewViewTree: newNode,
-//                 localOldViewTree: associatedWith,
-//                 localInsertedBefore: lastInserted, // no way to know yet
-//               });
-//               lastInserted = newEl;
-//               return;
-//             }
-//           }
-//         });
-//         let ref = findFirstTagNode(localNewViewTree).component.domRef;
-//         if (ref) {
-//           return {
-//             updatedOrAppendedDomElement: ref,
-//           };
-//         }
-//         /**
-//          * Case has no child nodes
-//          * Has an old node to comp against
-//          * Should deep equal them + update dom accordingly
-//          *
-//          * Note: not tested
-//          */
-//         const firstOldTag = findFirstTagNode(localOldViewTree);
-//         return reconcileTags({
-//           newNode: {
-//             component: localNewViewTree.metadata.component,
-//             node: localNewViewTree,
-//           },
-//           oldNode: firstOldTag,
-//         });
-//       }
-//     }
-//   };
-
-//   return aux({
-//     lastParent: startingDomNode,
-//     localNewViewTree: newViewTree,
-//     localOldViewTree: oldViewTree,
-//     localInsertedBefore: null,
-//   });
-// };
 
 const reconcileDom = (args: {
   oldViewTree: ReactViewTreeNode | null;
@@ -468,8 +143,6 @@ const reconcileDom = (args: {
         previousViewTreeParent: ReactViewTreeNode;
       };
 }) => {
-  // current status is i need to handle internal metadata maybe being an empty slot and just skipping
-  // should be simple but I'm too tired for this
   const aux = ({
     lastUpdatedSibling,
     newViewTree,
@@ -509,16 +182,7 @@ const reconcileDom = (args: {
     ) {
       // add case
       switch (newViewTree.metadata.component.kind) {
-        // case "empty-slot": {
-        //   // then nothing needs to be done, they both represent nothing
-        //   console.log(
-        //     "then nothing needs to be done, they both represent nothing"
-        //   );
-        //   return { lastUpdated: null };
-        // }
-        //
         case "function": {
-          // some fuck up
           const auxResult = aux({
             lastUpdatedSibling: lastUpdatedSibling,
             newViewTree: findFirstTagNode(newViewTree)?.viewNode ?? null,
@@ -553,9 +217,6 @@ const reconcileDom = (args: {
             });
           });
 
-          // aux({
-
-          // })
           return { lastUpdated: updatedElement };
         }
       }
@@ -576,32 +237,10 @@ const reconcileDom = (args: {
           lastUpdated: auxResult.lastUpdated,
         };
       }
-      // case "empty-slot": {
-      //   // then we let the recursive call handle the delete
-      //   aux({
-      //     lastUpdatedSibling: lastUpdatedSibling,
-      //     newViewTree: null,
-      //     oldViewTree: findFirstTagNode(oldViewTree)?.viewNode ?? null,
-      //     parentDomNode,
-      //   });
-      //   console.log("trivial empty slot delete");
-      //   return { lastUpdated: null };
-      // }
+
       case "tag":
         {
           switch (oldViewTree.metadata.component.kind) {
-            // case "empty-slot": {
-            //   // then we can add this safely before the previous sibling
-            //   const lastUpdated = updateDom({
-            //     insertedBefore: lastUpdatedSibling,
-            //     lastParent: parentDomNode,
-            //     previousDomRef: null,
-            //     props: newViewTree.metadata.props,
-            //     tagComponent: newViewTree.metadata.component,
-            //   });
-            //   console.log("safely add this before previous");
-            //   return { lastUpdated };
-            // }
             case "function": {
               // re-apply the function with the next child of the function
               const auxResult = aux({
@@ -817,7 +456,6 @@ const mapExternalMetadataToInternalMetadata = ({
   children: externalMetadata.children.map(
     (child): ReactComponentInternalMetadata => {
       const slotNode: ReactComponentInternalMetadata = {
-        // kind: "empty-slot" as const,
         kind: "empty-slot",
       };
       if (!child) {
@@ -827,13 +465,7 @@ const mapExternalMetadataToInternalMetadata = ({
       if (child.kind === "empty-slot") {
         return slotNode;
       }
-      // what do we put as child nodes?
-      // does that make sense? need to reason about this at a high level, im sure i will make a mistake though
-      // not a big deal
 
-      // heres the idea, the child nodes here is what we actually map over to render
-      // and we know once its turned into internal metadata the children are transformed to element nodes
-      // a little weird, but it should be sound logic
       return child;
     }
   ),
@@ -848,10 +480,6 @@ const toChild = (
     | false
 ): child is ReactComponentExternalMetadata<AnyProps>["children"][number] =>
   Boolean(child);
-// const getComponentName = (internalMetadata: ReactComponentInternalMetadata) =>
-//   internalMetadata.component.kind === "function"
-//     ? internalMetadata.component.function.name
-//     : internalMetadata.component.tagName;
 
 const getComponentName = (internalMetadata: ReactComponentInternalMetadata) =>
   Utils.run(() => {
@@ -859,9 +487,6 @@ const getComponentName = (internalMetadata: ReactComponentInternalMetadata) =>
       return "empty-slot";
     }
     switch (internalMetadata.component.kind) {
-      // case "empty-slot": {
-      //   return "empty-slot";
-      // }
       case "function": {
         return internalMetadata.component.function.name;
       }
@@ -891,7 +516,6 @@ export const createElement = <T extends AnyProps>(
       props,
     },
   });
-  // internalMetadata.
 
   return internalMetadata;
 };
@@ -1029,7 +653,7 @@ const compareIndexPaths = (
   }
   for (let i = 0; i < leftIndexPath.length; i++) {
     const leftIndex = leftIndexPath[i];
-    const rightIndex = leftIndexPath[i];
+    const rightIndex = rightIndexPath[i];
 
     if (leftIndex !== rightIndex) {
       return false;
@@ -1178,11 +802,9 @@ const generateRenderNodeChildNodes = ({
         ? null
         : findRenderNode((node) => {
             if (node.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
             if (node.internalMetadata.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
 
@@ -1348,82 +970,14 @@ const generateViewTreeHelper = ({
           ) {
             throw new Error("Invariant Error: Parent cannot be an empty slot");
           }
-          // const existingRenderTreeNode = Utils.run(() => {
-          //   const aux = (
-          //     viewNode: ReactRenderTreeNode
-          //   ): ReactRenderTreeNode | undefined => {
-          //     if (viewNode.kind === "empty-slot") {
-          //       throw new Error(
-          //         "Invariant Error: a root that is an empty slot can never have children in its tree"
-          //       );
-          //     }
 
-          //     for (const node of viewNode.childNodes) {
-          // if (node.kind === "empty-slot") {
-          //   // console.log("early return");
-          //   continue;
-          // }
-          // if (node.internalMetadata.kind === "empty-slot") {
-          //   // console.log("early return");
-          //   continue;
-          // }
-          //       // console.log("existing node", node.internalMetadata);
-          //       if (node.internalMetadata.id === child.id) {
-          //         return node;
-          //       }
-
-          //       const res = aux(node);
-
-          //       if (res) {
-          //         return res;
-          //       }
-          //     }
-          //   };
-
-          //   if (!currentTreeRef.renderTree?.root) {
-          //     throw new Error(
-          //       "Invariant Error: Cannot search for a node when the tree isn't initialized"
-          //     );
-          //   }
-          //   if (
-          //     currentTreeRef.renderTree?.root.kind === "real-element" &&
-          //     currentTreeRef.renderTree.root.internalMetadata.kind ===
-          //       "real-element" &&
-          //     currentTreeRef.renderTree.root.internalMetadata.id === child.id
-          //   ) {
-          //     return currentTreeRef.renderTree.root;
-          //   }
-
-          //   const result = aux(currentTreeRef.renderTree.root);
-
-          //   if (!result) {
-          //     throw new Error("detached node or wrong id:" + "\n\n");
-          //   }
-          //   return result;
-          // });
-          // const existingRenderTreeNode = Utils.findNodeOrThrow<ReactRenderTreeNode>((node) => node.internalMetadata.id === child.id , currentTreeRef.renderTree.root)
           const reRenderChild = () => {
-            // need to find the generated render node for that child
-            // may need to call the child and then generate a render node for it here...
-            // i think create if not exists is probably the right strategy...
-
             const viewNode = generateViewTreeHelper({
               renderNode: existingRenderTreeNode,
               startingFromRenderNodeId: startingFromRenderNodeId,
             });
-            // if (!viewNode) {
-            //   console.log("no view node");
-            //   return {
-            //     viewNode: {kind: 'empty-slot' as const, id: viewNod},
-            //     renderNode: existingRenderTreeNode,
-            //   };
-            // }
 
             if (viewNode.kind === "empty-slot") {
-              // if (!(existingRenderTreeNode.kind === "empty-slot")) {
-              //   existingRenderTreeNode.computedViewTreeNodeId = viewNode.id;
-              // }
-
               return {
                 viewNode: viewNode,
                 renderNode: existingRenderTreeNode,
@@ -1438,8 +992,6 @@ const generateViewTreeHelper = ({
             return { viewNode, renderNode: existingRenderTreeNode };
           };
 
-          // if (!child.computedViewTreeNodeId) {
-          // }
           if (!currentTreeRef.viewTree) {
             return reRenderChild();
           }
@@ -1450,8 +1002,6 @@ const generateViewTreeHelper = ({
               renderNode: existingRenderTreeNode,
             };
           }
-          // the problem is this is a new view node with no integrity compared to the old
-          // throws here
 
           const computedNode =
             currentTreeRef.viewTree.root &&
@@ -1475,18 +1025,8 @@ const generateViewTreeHelper = ({
                   potentialParentId: parentRenderTreeNode.internalMetadata.id,
                 });
 
-          // console.log(
-          //   "should re-render",
-          //   shouldReRender,
-          //   child.component,
-          //   existingRenderTreeNode,
-          //   parentRenderTreeNode,
-          //   currentTreeRef.renderTree
-          // );
           if (!shouldReRender) {
-            // rahh why does it skip
             console.log("Skipping re-render of", getComponentName(child));
-            // skip re-rendering if not a child in the render tree
             return {
               viewNode: computedNode,
               renderNode: existingRenderTreeNode,
@@ -1510,25 +1050,7 @@ const generateViewTreeHelper = ({
             }
           : false;
       currentTreeRef.renderTree.currentLocalCurrentHookOrder = 0;
-      // currentTreeRef.renderTree.localComponentRenderMap = {};
-      // currentTreeRef.renderTree.currentLocalComponentCreateElementCallTree = {
-      //   childNodes: [],
-      //   order: 0,
-      // };
-      // currentTreeRef.renderTree.currentLocalComponentCreateElementCallTree = {
-      //   childNodes: [],
-      //   order: 0,
-      // };
-      // currentTreeRef.renderTree.currentLastRenderChildNodes =
-      //   internalMetadata.childNodes;
-      // renderNode.childNodes = [];
       currentTreeRef.renderTree.currentlyRendering = renderNode;
-      // currentTreeRef.renderTree.currentLocalBranchCount = 0;
-
-      // this output is the root "render node" generated by createElement of the fn
-      // the render tree is built out internally every time createElement is called
-
-      // where do we fetch if exists to get the render node?
       console.log(
         "Rendering:",
         renderNode.internalMetadata.component.function.name
@@ -1538,19 +1060,6 @@ const generateViewTreeHelper = ({
           ...renderNode.internalMetadata.props,
           ...childrenSpreadProps,
         });
-      // do we want the root output by the internal metadata?
-
-      //       const outputAssociatedRenderNode: ReactRenderTreeNode = renderNode.childNodes.find((prevChildNode) => {
-      //         if (prevChildNode.kind === 'empty-slot') {
-      //           return false
-      //         }
-      //         if (outputInternalMetadata.kind === 'empty-slot') {
-      //   return false
-      // }
-
-      // return compareIndexPaths(prevChildNode, outputInternalMetadata)
-      // })
-
       const generatedRenderChildNodes = generateRenderNodeChildNodes({
         internalMetadata: outputInternalMetadata,
       });
@@ -1565,49 +1074,29 @@ const generateViewTreeHelper = ({
           return false;
         }
         return node.indexPath.length === 0;
-        // console.log(node);
       }) ?? { kind: "empty-slot" };
+      const removedRenderNodes = renderNode.childNodes.filter(
+        (node) =>
+          !generatedRenderChildNodes.some(
+            (newNode) =>
+              newNode.kind !== "empty-slot" &&
+              node.kind !== "empty-slot" &&
+              compareIndexPaths(newNode.indexPath, node.indexPath)
+          )
+      );
+
+      removedRenderNodes.forEach((node) => {
+        console.log(
+          "Unmounting",
+          node.kind === "empty-slot"
+            ? "empty-slot"
+            : getComponentName(node.internalMetadata)
+        );
+      });
 
       renderNode.childNodes = reconciledRenderChildNodes;
 
       renderNode.hasRendered = true;
-      // NOTE: Below is untested, but should be close to working considering state correctly persists/ is taken down
-      // const newRenderNodes = renderTreeNode.childNodes
-      //   .filter(
-      //     (node) =>
-      //       !currentTreeRef.renderTree!.currentLastRenderChildNodes.some(
-      //         (prevNode) => getKey(prevNode) === getKey(node)
-      //       )
-      //   )
-      //   .forEach((node) => {
-      //     // console.log(
-      //     //   "added to render tree:",
-      //     //   node,
-      //     //   // renderTreeNode.childNodes.at(-1),
-      //     //   "new",
-      //     //   renderTreeNode.childNodes.map(getKey),
-      //     //   renderTreeNode.childNodes,
-      //     //   "old",
-      //     //   currentTreeRef.renderTree!.lastRenderChildNodes.map(getKey),
-      //     //   currentTreeRef.renderTree!.lastRenderChildNodes
-      //     // );
-      //     // future mounting logic;
-      //   });
-      // const removedRenderNodes =
-      //   currentTreeRef.renderTree.currentLastRenderChildNodes
-      //     .filter(
-      //       (node) =>
-      //         !renderTreeNode.childNodes.some(
-      //           (newNode) => getKey(newNode) === getKey(node)
-      //         )
-      //     )
-      //     .forEach((node) => {
-      //       // console.log("removed from render tree", node);
-      //     });
-
-      // currentTreeRef.renderTree.currentLastRenderChildNodes = [];
-
-      // why did i think passing the same render node every time would work?
 
       const viewNode = generateViewTreeHelper({
         renderNode: nextNodeToProcess,
@@ -1674,10 +1163,6 @@ export function deepTraverseAndModify(obj: any): any {
 export const buildReactTrees = (
   rootComponentInternalMetadata: ReactComponentInternalMetadata
 ) => {
-  // if (!currentTreeRef.renderTree) {
-  //   throw new Error("Root node passed is not apart of any react render tree");
-  // }
-
   const rootRenderTreeNode: ReactRenderTreeNode =
     rootComponentInternalMetadata.kind === "empty-slot"
       ? {
@@ -1692,7 +1177,7 @@ export const buildReactTrees = (
           hasRendered: false,
           hooks: [],
           id: crypto.randomUUID(),
-          indexPath: [], // I don't think this really matters since it has no parent, and this is only relevant for the parent
+          indexPath: [],
           internalMetadata: {
             component: {
               kind: "function",
@@ -1749,10 +1234,6 @@ export const useState = <T>(initialValue: T) => {
       "Invariant Error: A node that triggered a set state cannot be an empty slot"
     );
   }
-  // const hasNode = findNode(
-  //   (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
-  //   currentTreeRef.renderTree.root
-  // );
 
   if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
     capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
@@ -1795,24 +1276,6 @@ export const useState = <T>(initialValue: T) => {
         "\n\nRENDER START----------------------------------------------"
       );
 
-      // const previousViewTreeParent = Utils.deepCloneTree(
-      //   Utils.findParentNode(
-      //     (node) => node.id === capturedCurrentlyRenderingRenderNode.id,
-      //     currentTreeRef.viewTree.root
-      //   )
-      // );
-
-      // if (!prev)
-
-      // const previousViewTree = Utils.deepCloneTree(
-      //   Utils.findNodeOrThrow(
-      //     (node) =>
-      //       node.id ===
-      //       capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId,
-      //     currentTreeRef.viewTree.root
-      //   )
-      // );
-
       const previousViewTree =
         clonedParentNode?.childNodes.find(
           (node) =>
@@ -1820,21 +1283,9 @@ export const useState = <T>(initialValue: T) => {
             capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
         ) ?? currentTreeRef.viewTree.root;
 
-      // if (!previousViewTree) {
-      //   console.log(parentNode);
-      //   throw new Error(
-      //     "Invariant: Parent was found using child, so must be a child of parent"
-      //   );
-      // }
-
-      // const previousEntireViewTree =
-
       const reGeneratedViewTree = generateViewTree({
         renderNode: capturedCurrentlyRenderingRenderNode,
       });
-
-      // console.log("the regenerated view tree", reGeneratedViewTree);
-
       console.log(
         "RENDER END----------------------------------------------\n\n"
       );
@@ -1875,23 +1326,6 @@ export const useState = <T>(initialValue: T) => {
         parentNode.childNodes[index] = reGeneratedViewTree;
       }
 
-      // const parentOfPreviousViewTree = Utils.findParentNode(
-      //   (node) => node.id === previousViewTree.id,
-      //   currentTreeRef.viewTree.root
-      // );
-      // const previousChild =
-      //   parentOfPreviousViewTree?.childNodes.reduce<null | ReactViewTreeNode>(
-      //     (prev, curr, index) => {
-      //       const nextSibling = parentOfPreviousViewTree.childNodes.at(
-      //         index + 1
-      //       );
-      //       if (nextSibling) {
-      //         return nextSibling;
-      //       }
-      //       return prev;
-      //     },
-      //     null
-      //   );
       reconcileDom({
         newViewTree: reGeneratedViewTree,
         oldViewTree: previousViewTree,
@@ -1912,7 +1346,7 @@ export const render = (
   reconcileDom({
     oldViewTree: null,
     newViewTree: reactViewTree.root,
-    // startingDomNode: domEl,
+
     insertInfo: {
       kind: "root",
       root: domEl,
