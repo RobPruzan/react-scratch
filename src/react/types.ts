@@ -88,6 +88,7 @@ export type RealElement = {
   indexPath: Array<number>;
   hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
 };
+
 export type EmptySlot = {
   kind: "empty-slot";
 };

@@ -1188,12 +1188,8 @@ const generateRenderNodeChildNodes = ({
 
             return node.internalMetadata.id === internalMetadata.id;
           }, currentTreeRef.renderTree.root);
-    console.log(
-      "but i found it here??",
-      Utils.deepCloneTree(currentTreeRef.renderTree.root)
-    );
+
     if (existingNode) {
-      console.log("SKIPING", existingNode);
       return;
     }
     // console.log({ existingNode });
@@ -1321,12 +1317,7 @@ const generateViewTreeHelper = ({
           if (!currentTreeRef.renderTree?.root) {
             throw new Error("determine the invariant error type later");
           }
-          console.log(
-            "search for",
-            child,
-            "on",
-            Utils.deepCloneTree(currentTreeRef.renderTree.root)
-          );
+
           const existingRenderTreeNode = findRenderNodeOrThrow((node) => {
             if (node.kind === "empty-slot") {
               // console.log("early return");
@@ -1494,13 +1485,7 @@ const generateViewTreeHelper = ({
           // );
           if (!shouldReRender) {
             // rahh why does it skip
-            console.log("skipping re-render", {
-              computedNode,
-              existingRenderTreeNode,
-              child,
-              startingFromRenderNodeId,
-              renderTree: currentTreeRef.renderTree,
-            });
+            console.log("Skipping re-render of", getComponentName(child));
             // skip re-rendering if not a child in the render tree
             return {
               viewNode: computedNode,
@@ -1544,6 +1529,10 @@ const generateViewTreeHelper = ({
       // the render tree is built out internally every time createElement is called
 
       // where do we fetch if exists to get the render node?
+      console.log(
+        "Rendering:",
+        renderNode.internalMetadata.component.function.name
+      );
       const outputInternalMetadata =
         renderNode.internalMetadata.component.function({
           ...renderNode.internalMetadata.props,
@@ -1579,13 +1568,6 @@ const generateViewTreeHelper = ({
         // console.log(node);
       }) ?? { kind: "empty-slot" };
 
-      console.log(
-        "passing these child nodes",
-        generatedRenderChildNodes,
-        renderNode.childNodes,
-
-        reconciledRenderChildNodes
-      );
       renderNode.childNodes = reconciledRenderChildNodes;
 
       renderNode.hasRendered = true;
@@ -1701,7 +1683,9 @@ export const buildReactTrees = (
       ? {
           kind: "empty-slot",
         }
-      : {
+      : // this looks super weird, but we transform the root metadata into an implicit
+        // component that returns the provided internal metadata
+        {
           kind: "real-element",
           childNodes: [],
           computedViewTreeNodeId: null,
@@ -1709,7 +1693,17 @@ export const buildReactTrees = (
           hooks: [],
           id: crypto.randomUUID(),
           indexPath: [], // I don't think this really matters since it has no parent, and this is only relevant for the parent
-          internalMetadata: rootComponentInternalMetadata,
+          internalMetadata: {
+            component: {
+              kind: "function",
+              function: () => rootComponentInternalMetadata,
+              name: "root",
+            },
+            children: [],
+            id: crypto.randomUUID(),
+            kind: "real-element",
+            props: null,
+          },
         };
 
   currentTreeRef.renderTree = {
@@ -1723,7 +1717,6 @@ export const buildReactTrees = (
   const output = generateViewTree({
     renderNode: rootRenderTreeNode,
   });
-  console.log("first output??", rootRenderTreeNode);
 
   console.log("RENDER END----------------------------------------------\n\n");
   const reactViewTree: ReactViewTree = {

@@ -450,6 +450,11 @@ if (typeof window === "undefined") {
         null,
         React.createElement(MegaChild, null)
       ),
+      // React.createElement(
+      //   SimpleParent,
+      //   null,
+      //   React.createElement(SimpleChild, null)
+      // ),
       // React.createElement(IsItARootTHing, null),
       // React.createElement(Repro, null),
       // OuterWrapper
