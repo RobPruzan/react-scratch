@@ -94,7 +94,7 @@ export const findNodeOrThrow = <T extends { id: string; childNodes: Array<T> }>(
   return result;
 };
 
-export const findNode = <T extends { id: string; childNodes: Array<T> }>(
+export const findNode = <T extends { id: string; childNodes: Array<T> }, R>(
   eq: (node: T) => boolean,
   tree: T
 ): T | null => {

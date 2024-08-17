@@ -163,6 +163,9 @@ const updateDom = ({
 };
 
 const findFirstTagNode = (viewNode: ReactViewTreeNode) => {
+  if (viewNode.kind === "empty-slot") {
+    return null;
+  }
   if (viewNode.metadata.kind === "empty-slot") {
     return null;
   }
@@ -479,7 +482,11 @@ const reconcileDom = (args: {
     lastUpdatedSibling: HTMLElement | null;
   }): { lastUpdated: HTMLElement | null } => {
     let x = 2;
-    if (!newViewTree || newViewTree.metadata.kind === "empty-slot") {
+    if (
+      !newViewTree ||
+      newViewTree.kind === "empty-slot" ||
+      newViewTree.metadata.kind === "empty-slot"
+    ) {
       if (!oldViewTree) {
         // then there's nothing to do
         return { lastUpdated: null };
@@ -495,7 +502,11 @@ const reconcileDom = (args: {
       );
       return { lastUpdated: null };
     }
-    if (!oldViewTree || oldViewTree.metadata.kind === "empty-slot") {
+    if (
+      !oldViewTree ||
+      oldViewTree.kind === "empty-slot" ||
+      oldViewTree.metadata.kind === "empty-slot"
+    ) {
       // add case
       switch (newViewTree.metadata.component.kind) {
         // case "empty-slot": {
@@ -725,22 +736,29 @@ const reconcileDom = (args: {
         }
 
         const previousChild =
-          args.insertInfo.previousViewTreeParent?.childNodes.reduce<null | ReactViewTreeNode>(
-            (prev, _, index) => {
-              if (!(args.insertInfo.kind === "child")) {
-                throw new Error(
-                  "No longer a non escaping closure, unsafe access"
-                );
-              }
-              const nextSibling =
-                args.insertInfo.previousViewTreeParent.childNodes.at(index + 1);
-              if (nextSibling) {
-                return nextSibling;
-              }
-              return prev;
-            },
-            null
-          );
+          args.insertInfo.previousViewTreeParent.kind === "empty-slot"
+            ? null
+            : args.insertInfo.previousViewTreeParent?.childNodes.reduce<null | ReactViewTreeNode>(
+                (prev, _, index) => {
+                  if (
+                    !(args.insertInfo.kind === "child") ||
+                    args.insertInfo.previousViewTreeParent.kind === "empty-slot"
+                  ) {
+                    throw new Error(
+                      "No longer a non escaping closure, unsafe access"
+                    );
+                  }
+                  const nextSibling =
+                    args.insertInfo.previousViewTreeParent.childNodes.at(
+                      index + 1
+                    );
+                  if (nextSibling) {
+                    return nextSibling;
+                  }
+                  return prev;
+                },
+                null
+              );
 
         const tagNode = previousChild ? findFirstTagNode(previousChild) : null;
 
@@ -880,6 +898,9 @@ export const createElement = <T extends AnyProps>(
 
 const findParentViewNode = (id: string): ReactViewTreeNode => {
   const aux = (viewNode: ReactViewTreeNode): ReactViewTreeNode | undefined => {
+    if (viewNode.kind === "empty-slot") {
+      return;
+    }
     for (const node of viewNode.childNodes) {
       if (node.id === id) {
         return viewNode;
@@ -959,7 +980,10 @@ const isChildOf = ({
     if (node.kind === "empty-slot") {
       return;
     }
-    if (node.id === searchId) {
+    if (node.internalMetadata.kind === "empty-slot") {
+      return;
+    }
+    if (node.internalMetadata.id === searchId) {
       return node;
     }
 
@@ -982,7 +1006,6 @@ const isChildOf = ({
     node: currentTreeRef.renderTree.root,
     searchId: potentialParentId,
   });
-
   if (!start) {
     throw new Error("Invariant error can't start from a detached node");
   }
@@ -1016,6 +1039,89 @@ const compareIndexPaths = (
   return true;
 };
 
+export const findViewNodeOrThrow = (
+  eq: (node: ReactViewTreeNode) => boolean,
+  tree: ReactViewTreeNode
+): ReactViewTreeNode => {
+  const aux = (viewNode: ReactViewTreeNode): ReactViewTreeNode | undefined => {
+    if (viewNode.kind === "empty-slot") {
+      return;
+    }
+    for (const node of viewNode.childNodes) {
+      if (eq(node)) {
+        return node;
+      }
+
+      const res = aux(node);
+
+      if (res) {
+        return res;
+      }
+    }
+  };
+
+  if (eq(tree)) {
+    return tree;
+  }
+
+  const result = aux(tree);
+
+  if (!result) {
+    throw new Error(
+      "detached node or wrong id:" + "\n\n" + JSON.stringify(tree)
+    );
+  }
+  return result;
+};
+
+const findRenderNode = (
+  eq: (node: ReactRenderTreeNode) => boolean,
+  tree: ReactRenderTreeNode
+) => {
+  try {
+    return findRenderNodeOrThrow(eq, tree);
+  } catch {
+    return null;
+  }
+};
+
+export const findRenderNodeOrThrow = (
+  eq: (node: ReactRenderTreeNode) => boolean,
+  tree: ReactRenderTreeNode
+): ReactRenderTreeNode => {
+  const aux = (
+    viewNode: ReactRenderTreeNode
+  ): ReactRenderTreeNode | undefined => {
+    if (viewNode.kind === "empty-slot") {
+      return;
+    }
+    for (const node of viewNode.childNodes) {
+      if (eq(node)) {
+        return node;
+      }
+
+      const res = aux(node);
+
+      if (res) {
+        return res;
+      }
+    }
+  };
+
+  if (eq(tree)) {
+    return tree;
+  }
+
+  const result = aux(tree);
+
+  if (!result) {
+    throw new Error(
+      "detached node or wrong id:" + "\n\n" + JSON.stringify(tree)
+    );
+  }
+  return result;
+};
+
 const reconcileRenderNodeChildNodes = ({
   oldRenderTreeNodes,
   newRenderTreeNodes,
@@ -1024,12 +1130,10 @@ const reconcileRenderNodeChildNodes = ({
   newRenderTreeNodes: Array<ReactRenderTreeNode>;
 }) => {
   const reconciledChildNodes: Array<ReactRenderTreeNode> = [];
-  console.log("old and new nodes", oldRenderTreeNodes, newRenderTreeNodes);
   newRenderTreeNodes.forEach((newChildNode, index) => {
     const oldChildNode = oldRenderTreeNodes.at(index);
-    console.log("got", oldChildNode, "at", index, "for", oldRenderTreeNodes);
     if (!oldChildNode) {
-      reconciledChildNodes.push({ ...newChildNode, coldD: false });
+      reconciledChildNodes.push(newChildNode);
       return;
     }
     // we want the newer node in both cases since we don't track empty slot equality
@@ -1037,16 +1141,16 @@ const reconcileRenderNodeChildNodes = ({
       oldChildNode.kind === "empty-slot" ||
       newChildNode.kind === "empty-slot"
     ) {
-      reconciledChildNodes.push({ ...newChildNode, oldA: false });
+      reconciledChildNodes.push(newChildNode);
       return;
     }
 
     if (!compareIndexPaths(oldChildNode.indexPath, newChildNode.indexPath)) {
-      reconciledChildNodes.push({ ...newChildNode, oldB: false });
+      reconciledChildNodes.push(newChildNode);
       return;
     }
     oldChildNode.internalMetadata = newChildNode.internalMetadata;
-    reconciledChildNodes.push({ ...oldChildNode, oldC: true });
+    reconciledChildNodes.push(oldChildNode);
   });
   return reconciledChildNodes;
 };
@@ -1065,6 +1169,34 @@ const generateRenderNodeChildNodes = ({
 
     indexPath: Array<number>;
   }) => {
+    if (!currentTreeRef.renderTree) {
+      throw new Error("invariant error");
+    }
+    // extremely inefficient, but it works :P
+    const existingNode =
+      internalMetadata.kind === "empty-slot"
+        ? null
+        : findRenderNode((node) => {
+            if (node.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
+            }
+            if (node.internalMetadata.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
+            }
+
+            return node.internalMetadata.id === internalMetadata.id;
+          }, currentTreeRef.renderTree.root);
+    console.log(
+      "but i found it here??",
+      Utils.deepCloneTree(currentTreeRef.renderTree.root)
+    );
+    if (existingNode) {
+      console.log("SKIPING", existingNode);
+      return;
+    }
+    // console.log({ existingNode });
     const newNode: ReactRenderTreeNode = {
       indexPath,
       childNodes: [],
@@ -1105,9 +1237,13 @@ const generateViewTree = ({
   renderNode,
 }: {
   renderNode: ReactRenderTreeNode;
-}): ReturnType<typeof generateViewTreeHelper> | null => {
+}): ReturnType<typeof generateViewTreeHelper> => {
+  console.log(calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
   if (renderNode.kind === "empty-slot") {
-    return null;
+    return {
+      kind: "empty-slot",
+      id: crypto.randomUUID(),
+    };
   }
 
   return generateViewTreeHelper({
@@ -1122,13 +1258,18 @@ const generateViewTreeHelper = ({
 }: {
   renderNode: ReactRenderTreeNode;
   startingFromRenderNodeId: string;
-}): ReactViewTreeNode | null => {
+}): ReactViewTreeNode => {
   if (!currentTreeRef.renderTree) {
     throw new Error("Cannot render component outside of react tree");
   }
   // if the node itself represents nothing, don't traverse
   if (renderNode.kind === "empty-slot") {
-    return null;
+    const newId = crypto.randomUUID();
+    // renderNode.computedViewTreeNodeId = newId;
+    return {
+      kind: "empty-slot",
+      id: newId,
+    };
   }
 
   // console.log(
@@ -1137,7 +1278,15 @@ const generateViewTreeHelper = ({
   // );
   // if the component directly outputs an empty slot, nothing to generate so don't traverse
   if (renderNode.internalMetadata.kind === "empty-slot") {
-    return null;
+    const newId = crypto.randomUUID();
+    renderNode.computedViewTreeNodeId = newId;
+    return {
+      id: newId,
+      metadata: renderNode.internalMetadata,
+      childNodes: [{ kind: "empty-slot", id: crypto.randomUUID() }],
+      indexPath: renderNode.indexPath,
+      kind: "real-element",
+    };
   }
 
   const newNode: ReactViewTreeNode = {
@@ -1145,6 +1294,7 @@ const generateViewTreeHelper = ({
     metadata: renderNode.internalMetadata,
     childNodes: [],
     indexPath: renderNode.indexPath,
+    kind: "real-element",
     // key: getKey(renderNode), // i probably don't want this...
   };
 
@@ -1156,83 +1306,135 @@ const generateViewTreeHelper = ({
         (
           child
         ): {
-          viewNode: ReactViewTreeNode | null;
+          viewNode: ReactViewTreeNode;
           renderNode: ReactRenderTreeNode;
         } => {
           if (child.kind === "empty-slot") {
             return {
               renderNode: { kind: "empty-slot" },
-              viewNode: null,
+              viewNode: {
+                kind: "empty-slot",
+                id: crypto.randomUUID(), // no idea what to put for these ideas if im being real
+              },
             };
           }
           if (!currentTreeRef.renderTree?.root) {
             throw new Error("determine the invariant error type later");
           }
-
-          const existingRenderTreeNode = Utils.run(() => {
-            const aux = (
-              viewNode: ReactRenderTreeNode
-            ): ReactRenderTreeNode | undefined => {
-              if (viewNode.kind === "empty-slot") {
-                throw new Error(
-                  "Invariant Error: a root that is an empty slot can never have children in its tree"
-                );
-              }
-              for (const node of viewNode.childNodes) {
-                if (node.kind === "empty-slot") {
-                  return;
-                }
-                if (node.internalMetadata.kind === "empty-slot") {
-                  return;
-                }
-                if (node.internalMetadata.id === child.id) {
-                  return node;
-                }
-
-                const res = aux(node);
-
-                if (res) {
-                  return res;
-                }
-              }
-            };
-
-            if (!currentTreeRef.renderTree?.root) {
-              throw new Error(
-                "Invariant Error: Cannot search for a node when the tree isn't initialized"
-              );
+          console.log(
+            "search for",
+            child,
+            "on",
+            Utils.deepCloneTree(currentTreeRef.renderTree.root)
+          );
+          const existingRenderTreeNode = findRenderNodeOrThrow((node) => {
+            if (node.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
             }
-            if (
-              currentTreeRef.renderTree?.root.kind === "real-element" &&
-              currentTreeRef.renderTree.root.internalMetadata.kind ===
-                "real-element" &&
-              currentTreeRef.renderTree.root.internalMetadata.id === child.id
-            ) {
-              return currentTreeRef.renderTree.root;
+            if (node.internalMetadata.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
+            }
+            return node.internalMetadata.id === child.id;
+          }, currentTreeRef.renderTree.root);
+
+          const parentRenderTreeNode = findRenderNodeOrThrow((node) => {
+            if (node.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
+            }
+            if (node.internalMetadata.kind === "empty-slot") {
+              // console.log("early return");
+              return false;
             }
 
-            const result = aux(currentTreeRef.renderTree.root);
+            return node.id === startingFromRenderNodeId;
+          }, currentTreeRef.renderTree.root);
+          if (
+            parentRenderTreeNode.kind === "empty-slot" ||
+            parentRenderTreeNode.internalMetadata.kind === "empty-slot"
+          ) {
+            throw new Error("Invariant Error: Parent cannot be an empty slot");
+          }
+          // const existingRenderTreeNode = Utils.run(() => {
+          //   const aux = (
+          //     viewNode: ReactRenderTreeNode
+          //   ): ReactRenderTreeNode | undefined => {
+          //     if (viewNode.kind === "empty-slot") {
+          //       throw new Error(
+          //         "Invariant Error: a root that is an empty slot can never have children in its tree"
+          //       );
+          //     }
 
-            if (!result) {
-              throw new Error("detached node or wrong id:" + "\n\n");
-            }
-            return result;
-          });
+          //     for (const node of viewNode.childNodes) {
+          // if (node.kind === "empty-slot") {
+          //   // console.log("early return");
+          //   continue;
+          // }
+          // if (node.internalMetadata.kind === "empty-slot") {
+          //   // console.log("early return");
+          //   continue;
+          // }
+          //       // console.log("existing node", node.internalMetadata);
+          //       if (node.internalMetadata.id === child.id) {
+          //         return node;
+          //       }
+
+          //       const res = aux(node);
+
+          //       if (res) {
+          //         return res;
+          //       }
+          //     }
+          //   };
+
+          //   if (!currentTreeRef.renderTree?.root) {
+          //     throw new Error(
+          //       "Invariant Error: Cannot search for a node when the tree isn't initialized"
+          //     );
+          //   }
+          //   if (
+          //     currentTreeRef.renderTree?.root.kind === "real-element" &&
+          //     currentTreeRef.renderTree.root.internalMetadata.kind ===
+          //       "real-element" &&
+          //     currentTreeRef.renderTree.root.internalMetadata.id === child.id
+          //   ) {
+          //     return currentTreeRef.renderTree.root;
+          //   }
+
+          //   const result = aux(currentTreeRef.renderTree.root);
+
+          //   if (!result) {
+          //     throw new Error("detached node or wrong id:" + "\n\n");
+          //   }
+          //   return result;
+          // });
           // const existingRenderTreeNode = Utils.findNodeOrThrow<ReactRenderTreeNode>((node) => node.internalMetadata.id === child.id , currentTreeRef.renderTree.root)
           const reRenderChild = () => {
             // need to find the generated render node for that child
             // may need to call the child and then generate a render node for it here...
             // i think create if not exists is probably the right strategy...
-            console.log("wadu", child, currentTreeRef.renderTree);
+
             const viewNode = generateViewTreeHelper({
               renderNode: existingRenderTreeNode,
               startingFromRenderNodeId: startingFromRenderNodeId,
             });
-            console.log("genned view node re-rendering child node", viewNode);
-            if (!viewNode) {
-              console.log("no view node");
+            // if (!viewNode) {
+            //   console.log("no view node");
+            //   return {
+            //     viewNode: {kind: 'empty-slot' as const, id: viewNod},
+            //     renderNode: existingRenderTreeNode,
+            //   };
+            // }
+
+            if (viewNode.kind === "empty-slot") {
+              // if (!(existingRenderTreeNode.kind === "empty-slot")) {
+              //   existingRenderTreeNode.computedViewTreeNodeId = viewNode.id;
+              // }
+
               return {
-                viewNode: null,
+                viewNode: viewNode,
                 renderNode: existingRenderTreeNode,
               };
             }
@@ -1253,38 +1455,58 @@ const generateViewTreeHelper = ({
 
           if (existingRenderTreeNode.kind === "empty-slot") {
             return {
-              viewNode: null,
+              viewNode: { kind: "empty-slot", id: crypto.randomUUID() },
               renderNode: existingRenderTreeNode,
             };
           }
+          // the problem is this is a new view node with no integrity compared to the old
+          // throws here
 
-          const computedNode = currentTreeRef.viewTree.root
-            ? Utils.findNode(
-                (node) =>
-                  node.id === existingRenderTreeNode.computedViewTreeNodeId,
-                currentTreeRef.viewTree.root
-              )
-            : null;
+          const computedNode =
+            currentTreeRef.viewTree.root &&
+            existingRenderTreeNode.computedViewTreeNodeId
+              ? findViewNodeOrThrow(
+                  (node) =>
+                    node.id === existingRenderTreeNode.computedViewTreeNodeId,
+                  currentTreeRef.viewTree.root
+                )
+              : null;
+
           if (!computedNode) {
             return reRenderChild();
           }
-          const shouldReRender = isChildOf({
-            potentialChildId: child.id,
-            potentialParentId: startingFromRenderNodeId,
-          });
-          // const parentRenderNode = findNodeOrThrow(
-          //   (node) => node.id === startingFromRenderNodeId,
-          //   currentTreeRef.renderTree?.root!
-          // );
 
-          // if (!shouldReRender) { // rahh why does it skip
-          //   console.log("skipping re-render");
-          //   // skip re-rendering if not a child in the render tree
-          //   return {
-          //     viewNode: computedNode,
-          //     renderNode: existingRenderTreeNode,
-          //   };
-          // }
+          const shouldReRender =
+            existingRenderTreeNode.internalMetadata.kind === "empty-slot"
+              ? false
+              : isChildOf({
+                  potentialChildId: child.id,
+                  potentialParentId: parentRenderTreeNode.internalMetadata.id,
+                });
+
+          // console.log(
+          //   "should re-render",
+          //   shouldReRender,
+          //   child.component,
+          //   existingRenderTreeNode,
+          //   parentRenderTreeNode,
+          //   currentTreeRef.renderTree
+          // );
+          if (!shouldReRender) {
+            // rahh why does it skip
+            console.log("skipping re-render", {
+              computedNode,
+              existingRenderTreeNode,
+              child,
+              startingFromRenderNodeId,
+              renderTree: currentTreeRef.renderTree,
+            });
+            // skip re-rendering if not a child in the render tree
+            return {
+              viewNode: computedNode,
+              renderNode: existingRenderTreeNode,
+            };
+          }
           return reRenderChild();
         }
       );
@@ -1292,10 +1514,10 @@ const generateViewTreeHelper = ({
       newNode.childNodes = fullyComputedChildren
         .map(({ viewNode }) => viewNode)
         .filter((viewNode) => viewNode !== null);
+
       break;
     }
     case "function": {
-      console.log("function, got", Utils.deepCloneTree(renderNode));
       const childrenSpreadProps =
         renderNode.internalMetadata.children.length > 0
           ? {
@@ -1357,13 +1579,13 @@ const generateViewTreeHelper = ({
         // console.log(node);
       }) ?? { kind: "empty-slot" };
 
-      console.log({
-        newRenderTreeNodes: generatedRenderChildNodes,
-        oldRenderTreeNodes: Utils.deepCloneTree(renderNode.childNodes),
-        // generatedRenderChildNodes,
-        renderNode: Utils.deepCloneTree(renderNode),
-        reconciledRenderChildNodes,
-      });
+      console.log(
+        "passing these child nodes",
+        generatedRenderChildNodes,
+        renderNode.childNodes,
+
+        reconciledRenderChildNodes
+      );
       renderNode.childNodes = reconciledRenderChildNodes;
 
       renderNode.hasRendered = true;
@@ -1404,15 +1626,12 @@ const generateViewTreeHelper = ({
       // currentTreeRef.renderTree.currentLastRenderChildNodes = [];
 
       // why did i think passing the same render node every time would work?
-      console.log(
-        "next to process",
-        nextNodeToProcess,
-        reconciledRenderChildNodes
-      );
+
       const viewNode = generateViewTreeHelper({
         renderNode: nextNodeToProcess,
         startingFromRenderNodeId: renderNode.id,
       });
+
       if (!viewNode) {
         break;
       }
@@ -1504,6 +1723,7 @@ export const buildReactTrees = (
   const output = generateViewTree({
     renderNode: rootRenderTreeNode,
   });
+  console.log("first output??", rootRenderTreeNode);
 
   console.log("RENDER END----------------------------------------------\n\n");
   const reactViewTree: ReactViewTree = {
@@ -1512,10 +1732,7 @@ export const buildReactTrees = (
 
   currentTreeRef.viewTree = reactViewTree;
   currentTreeRef.renderTree.currentlyRendering = null;
-  console.log({
-    view: reactViewTree,
-    render: currentTreeRef.renderTree,
-  });
+
   return {
     reactRenderTree: currentTreeRef.renderTree,
     reactViewTree: currentTreeRef.viewTree,
@@ -1573,8 +1790,14 @@ export const useState = <T>(initialValue: T) => {
         capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
       );
 
+      if (parentNode.kind === "empty-slot") {
+        throw new Error(
+          "Invariant Error: An empty slot cannot have any children"
+        );
+      }
+
       const clonedParentNode = Utils.deepCloneTree(parentNode);
-      console.log("twee", Utils.deepCloneTree(currentTreeRef.renderTree));
+
       console.log(
         "\n\nRENDER START----------------------------------------------"
       );
@@ -1612,10 +1835,6 @@ export const useState = <T>(initialValue: T) => {
       // }
 
       // const previousEntireViewTree =
-      console.log(
-        "cpatured currently rendering",
-        Utils.deepCloneTree(capturedCurrentlyRenderingRenderNode)
-      );
 
       const reGeneratedViewTree = generateViewTree({
         renderNode: capturedCurrentlyRenderingRenderNode,
@@ -1626,9 +1845,17 @@ export const useState = <T>(initialValue: T) => {
       console.log(
         "RENDER END----------------------------------------------\n\n"
       );
+
       // its a detached node and because of that we set it as the root
       const index = parentNode?.childNodes.findIndex(
-        (node) => capturedCurrentlyRenderingRenderNode.id === node.id // changes this might be dangerous, but no idea why we used the key before
+        (node) =>
+          capturedCurrentlyRenderingRenderNode.internalMetadata.kind ===
+            "empty-slot" ||
+          node.kind === "empty-slot" ||
+          node.metadata.kind === "empty-slot"
+            ? false
+            : capturedCurrentlyRenderingRenderNode.internalMetadata.id ===
+              node.metadata.id // changes this might be dangerous, but no idea why we used the key before
       );
       // this will always be in the parent nodes children (or is root)
       // because we re-rendered at capturedCurrentlyRenderingRenderNode,
@@ -1644,23 +1871,17 @@ export const useState = <T>(initialValue: T) => {
             "Invariant Error: This implies an empty slot generated a not null view tree"
           );
         }
+        // should not do an upper mutate here...
+
         currentTreeRef.viewTree.root = reGeneratedViewTree;
         if (currentTreeRef.renderTree.root.kind === "real-element") {
           currentTreeRef.renderTree.root.computedViewTreeNodeId =
             reGeneratedViewTree?.id ?? null;
         }
       } else {
-        if (!reGeneratedViewTree) {
-          parentNode.childNodes.splice(index, 1);
-        } else {
-          parentNode.childNodes[index] = reGeneratedViewTree;
-        }
+        parentNode.childNodes[index] = reGeneratedViewTree;
       }
-      console.log(
-        "the trees",
-        currentTreeRef.viewTree,
-        currentTreeRef.renderTree
-      );
+
       // const parentOfPreviousViewTree = Utils.findParentNode(
       //   (node) => node.id === previousViewTree.id,
       //   currentTreeRef.viewTree.root

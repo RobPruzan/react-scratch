@@ -113,10 +113,10 @@ export const SimpleParent = (props: any) => {
     null,
     React.createElement("button", {
       onclick: () => {
-        setTimeout(() => {
-          console.log("doing it!!");
-          document.getElementById("nest-this")!.id = "test";
-        }, 1500);
+        // setTimeout(() => {
+        //   console.log("doing it!!");
+        //   document.getElementById("nest-this")!.id = "test";
+        // }, 1500);
         setX(x + 1);
       },
       innerText: "trigger update",
@@ -360,6 +360,7 @@ export const MainComponent = ({ children }: any) => {
 };
 
 export const MegaChild = () => {
+  console.log("megachild re-render");
   return React.createElement("div", {
     innerText: "ima mega child",
   });
@@ -442,15 +443,88 @@ if (typeof window === "undefined") {
 } else {
   window.onload = () => {
     React.render(
-      // React.createElement(
-      //   MainComponent,
-      //   null,
-      //   React.createElement(MegaChild, null)
-      // ),
+      // DeadParent,
+      // React.createElement(DeadParent, null),
+      React.createElement(
+        MainComponent,
+        null,
+        React.createElement(MegaChild, null)
+      ),
+      // React.createElement(IsItARootTHing, null),
+      // React.createElement(Repro, null),
+      // OuterWrapper
       // React.createElement(Wrapper, null),
-      React.createElement(AddItemsTest, null),
+      // React.createElement(OuterWrapper, null),
+      // React.createElement(AddItemsTest, null),
       // React.createElement(Increment, null),
+      // React.createElement(ConditionalTest, null),
       document.getElementById("root")!
     );
   };
 }
+
+const IsItARootTHing = () => {
+  return React.createElement(
+    "div",
+    null,
+    React.createElement(
+      SimpleParent,
+      null,
+      React.createElement(SimpleChild, null)
+    )
+  );
+};
+const DeadParent = () => {
+  const [x, setX] = React.useState(0);
+  return React.createElement(
+    "div",
+    {
+      style: "color:blue",
+    },
+    React.createElement("button", {
+      innerText: "parent dies" + x,
+      onclick: () => {
+        setX(x + 1);
+      },
+      style: "color: orange",
+    }),
+    React.createElement(ConditionalTest, null),
+    React.createElement(RenrenderedChild, null)
+  );
+};
+
+const RenrenderedChild = () => {
+  const [x, setX] = React.useState(10);
+  return React.createElement(
+    "div",
+    {
+      style: "color:blue",
+    },
+    React.createElement("button", {
+      innerText: "re-render child" + x,
+      onclick: () => {
+        setX(x + 1);
+      },
+      // style: "color: orange",
+    })
+  );
+};
+
+const Repro = () => {
+  const [toggleInner, setToggleInner] = React.useState(true);
+
+  return React.createElement(
+    "div",
+    {
+      id: "outer-wrapper",
+      style: "border: 2px solid black; padding: 10px; margin: 10px;",
+    },
+    React.createElement("button", {
+      onclick: () => setToggleInner(!toggleInner),
+      innerText: toggleInner ? "Hide Inner" : "Show Inner",
+    }),
+
+    toggleInner && React.createElement("div", { innerText: "pls break" }),
+    React.createElement("div", null)
+  );
+};

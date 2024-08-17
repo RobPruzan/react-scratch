@@ -44,13 +44,19 @@ export type ReactComponentInternalMetadata =
   | RealElementReactComponentInternalMetadata
   | EmptySlotReactComponentInternalMetadata;
 
-export type ReactViewTreeNode = {
+export type ReactViewTreeNodeRealElement = {
+  kind: "real-element";
   id: string;
   childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
   // key: string;
   indexPath: Array<number>; // allows for optimized diffs to know what to map with
 };
+
+export type ReactViewTreeNodeEmptySlot = { kind: "empty-slot"; id: string };
+export type ReactViewTreeNode =
+  | ReactViewTreeNodeRealElement
+  | ReactViewTreeNodeEmptySlot;
 
 export type ReactViewTree = {
   root: ReactViewTreeNode | null;
