@@ -768,7 +768,7 @@ const reconcileRenderNodeChildNodes = ({
       reconciledChildNodes.push(newChildNode);
       return;
     }
-
+    // lets test this later to see if it would of broke, i want to make sure it is doing something (with that left == left bug)
     if (!compareIndexPaths(oldChildNode.indexPath, newChildNode.indexPath)) {
       reconciledChildNodes.push(newChildNode);
       return;
@@ -1051,6 +1051,10 @@ const generateViewTreeHelper = ({
           : false;
       currentTreeRef.renderTree.currentLocalCurrentHookOrder = 0;
       currentTreeRef.renderTree.currentlyRendering = renderNode;
+      const previousRenderEffects = renderNode.hooks
+        .filter((hook) => hook.kind === "effect")
+        .map((hook) => hook.deps);
+      const hasRendered = renderNode.hasRendered;
       console.log(
         "Rendering:",
         renderNode.internalMetadata.component.function.name
@@ -1060,6 +1064,46 @@ const generateViewTreeHelper = ({
           ...renderNode.internalMetadata.props,
           ...childrenSpreadProps,
         });
+
+      const currentRenderEffects = renderNode.hooks
+        .filter((hook) => hook.kind === "effect")
+        .map((hook) => hook.deps);
+
+      const didDepsChange = Utils.run(() => {
+        if (!hasRendered) {
+          return true;
+        }
+
+        previousRenderEffects.forEach((deps, index) => {
+          const currentDeps = currentRenderEffects[index]; // will always be a safe access
+
+          if (deps.length !== currentDeps.length) {
+            return true;
+          }
+
+          return !deps.every((dep, index) => {
+            const currentDep = currentDeps[index];
+            return dep === currentDep;
+          });
+        });
+      });
+
+      if (!hasRendered) {
+        renderNode.hooks.forEach((hook) => {
+          if (hook.kind !== "effect") {
+            return;
+          }
+          if (hook.cleanup) {
+            hook.cleanup();
+          }
+
+          const cleanup = hook.cb();
+
+          if (typeof cleanup === "function") {
+            hook.cleanup = cleanup;
+          }
+        });
+      }
       const generatedRenderChildNodes = generateRenderNodeChildNodes({
         internalMetadata: outputInternalMetadata,
       });
@@ -1075,6 +1119,17 @@ const generateViewTreeHelper = ({
         }
         return node.indexPath.length === 0;
       }) ?? { kind: "empty-slot" };
+
+      // console.log(
+      //   Utils.deepCloneTree(addedRenderNodes),
+      //   reconciledRenderChildNodes
+      // );
+      // console.log({ addedRenderNodes });
+
+      // addedRenderNodes.forEach((addedNode) => {
+
+      // });
+
       const removedRenderNodes = renderNode.childNodes.filter(
         (node) =>
           !generatedRenderChildNodes.some(
@@ -1086,12 +1141,19 @@ const generateViewTreeHelper = ({
       );
 
       removedRenderNodes.forEach((node) => {
-        console.log(
-          "Unmounting",
-          node.kind === "empty-slot"
-            ? "empty-slot"
-            : getComponentName(node.internalMetadata)
-        );
+        if (node.kind === "empty-slot") {
+          return;
+        }
+
+        node.hooks.forEach((hook) => {
+          if (hook.kind !== "effect") {
+            return;
+          }
+
+          if (hook.cleanup) {
+            hook.cleanup();
+          }
+        });
       });
 
       renderNode.childNodes = reconciledRenderChildNodes;
@@ -1217,6 +1279,80 @@ export const buildReactTrees = (
   };
 };
 
+export const useRef = <T>(initialValue: T) => {
+  if (!currentTreeRef.renderTree) {
+    throw new Error("Cannot call use state outside of a react component");
+  }
+  if (!currentTreeRef.renderTree.currentlyRendering) {
+    throw new Error("Component being called outside of react internals");
+  }
+  const currentlyRendering = currentTreeRef.renderTree?.currentlyRendering;
+
+  if (!currentlyRendering) {
+    throw new Error("Cannot call use state outside of a react component");
+  }
+
+  if (currentlyRendering.kind === "empty-slot") {
+    throw new Error("A slot will never call a hook");
+  }
+
+  if (!currentlyRendering.hasRendered) {
+    const refTo = {
+      current: initialValue,
+    };
+    currentlyRendering.hooks.push({
+      kind: "ref",
+      refTo,
+    });
+    return refTo;
+  }
+
+  const hookValue =
+    currentlyRendering.hooks[
+      currentTreeRef.renderTree.currentLocalCurrentHookOrder
+    ];
+  if (hookValue.kind !== "ref") {
+    throw new Error("Different hooks called compared previous render");
+  }
+
+  return hookValue.refTo as { current: T };
+};
+
+export const useEffect = (cb: () => void, deps: Array<unknown>) => {
+  if (!currentTreeRef.renderTree) {
+    throw new Error("Cannot call use state outside of a react component");
+  }
+  if (!currentTreeRef.renderTree.currentlyRendering) {
+    throw new Error("Component being called outside of react internals");
+  }
+  const currentlyRendering = currentTreeRef.renderTree?.currentlyRendering;
+
+  if (!currentlyRendering) {
+    throw new Error("Cannot call use state outside of a react component");
+  }
+
+  if (currentlyRendering.kind === "empty-slot") {
+    throw new Error("A slot will never call a hook");
+  }
+
+  if (!currentlyRendering.hasRendered) {
+    currentlyRendering.hooks.push({
+      kind: "effect",
+      cb,
+      deps,
+      cleanup: null,
+    });
+  }
+
+  // const hookValue =
+  //   currentlyRendering.hooks[
+  //     currentTreeRef.renderTree.currentLocalCurrentHookOrder
+  //   ];
+  // if (hookValue.kind !== "ref") {
+  //   throw new Error("Different hooks called compared previous render");
+  // }
+};
+
 export const useState = <T>(initialValue: T) => {
   if (!currentTreeRef.renderTree?.currentlyRendering) {
     throw new Error("Cannot call use state outside of a react component");
@@ -1236,14 +1372,22 @@ export const useState = <T>(initialValue: T) => {
   }
 
   if (!capturedCurrentlyRenderingRenderNode.hasRendered) {
-    capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
+    // capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder] = {
+    //   kind: "state",
+    //   value: initialValue,
+    // };
+    capturedCurrentlyRenderingRenderNode.hooks.push({
       kind: "state",
       value: initialValue,
-    };
+    });
   }
 
   const hookMetadata =
     capturedCurrentlyRenderingRenderNode.hooks[currentStateOrder];
+
+  if (hookMetadata.kind !== "state") {
+    throw new Error("Different number of hooks rendered between render");
+  }
 
   return [
     hookMetadata.value as T,

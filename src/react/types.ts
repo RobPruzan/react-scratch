@@ -10,9 +10,19 @@ export type ReactComponentExternalMetadata<T extends AnyProps> = {
   children: Array<ReactComponentInternalMetadata | null | false | undefined>;
 };
 
-export type ReactHookMetadata = {
+export type UseStateMetadata = {
   kind: "state";
   value: unknown;
+};
+export type UseEffectMetadata = {
+  kind: "effect";
+  deps: Array<unknown>;
+  cb: () => void;
+  cleanup: (() => void) | null;
+};
+export type UseRefMetadata = {
+  kind: "ref";
+  refTo: { current: unknown };
 };
 
 export type TagComponent = {
@@ -84,7 +94,7 @@ export type RealElement = {
   childNodes: Array<ReactRenderTreeNode>;
   computedViewTreeNodeId: string | null;
   internalMetadata: ReactComponentInternalMetadata;
-  hooks: Array<ReactHookMetadata>;
+  hooks: Array<UseStateMetadata | UseRefMetadata | UseEffectMetadata>;
   indexPath: Array<number>;
   hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
 };

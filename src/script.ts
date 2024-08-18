@@ -195,6 +195,14 @@ export const SimpleChild = () => {
 };
 export const RandomElement = () => {
   const [random] = React.useState(Math.random());
+  const ref = React.useRef(0);
+
+  React.useEffect(() => {
+    console.log("mounting!", random);
+    return () => {
+      console.log("cleanup");
+    };
+  }, []);
 
   return React.createElement("div", {
     innerText: random,
