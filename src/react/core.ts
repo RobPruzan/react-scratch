@@ -18,7 +18,8 @@ const getComponentProps = (meta: ReactComponentInternalMetadata) => {
   }
   return meta.props;
 };
-// this function is pretty useless since we only compare on order now
+
+// this function is not really doing anything, at this point is just to help clarity, no point to remove it now
 const mapChildNodes = ({
   leftNodes,
   rightNodes,
@@ -40,7 +41,7 @@ const mapChildNodes = ({
     aMap: Record<string, ReactViewTreeNode | null>;
   }) => {
     a.forEach((leftNode, index) => {
-      const associatedRightNode = b.at(index);
+      const associatedRightNode = null;
       aMap[leftNode.id] = associatedRightNode ?? null;
     });
   };
@@ -67,7 +68,7 @@ const mapChildNodes = ({
   return [leftToRight, rightToLeft, definedAssociation] as const;
 };
 
-const updateDom = ({
+const updateElement = ({
   props,
   tagComponent,
   previousDomRef,
@@ -130,7 +131,7 @@ const findFirstTagNode = (viewNode: ReactViewTreeNode) => {
   viewNode.metadata.component satisfies never;
 };
 
-const reconcileDom = (args: {
+const updateDom = (args: {
   oldViewTree: ReactViewTreeNode | null;
   newViewTree: ReactViewTreeNode | null;
   insertInfo:
@@ -196,7 +197,8 @@ const reconcileDom = (args: {
 
         case "tag": {
           // then we can trivially add a node to the dom before the last updated sibling (it must be a sibling)
-          const updatedElement = updateDom({
+
+          const updatedElement = updateElement({
             insertedBefore: lastUpdatedSibling,
             lastParent: parentDomNode,
             previousDomRef: null,
@@ -270,9 +272,11 @@ const reconcileDom = (args: {
                   !Utils.deepEqual(
                     oldViewTree.metadata.props,
                     newViewTree.metadata.props
-                  )
+                  ) ||
+                  oldViewTree.metadata.component.tagName !==
+                    newViewTree.metadata.component.tagName
                 ) {
-                  return updateDom({
+                  return updateElement({
                     insertedBefore: lastUpdatedSibling,
                     lastParent: parentDomNode,
                     previousDomRef: oldViewTree.metadata.component.domRef,
@@ -774,6 +778,8 @@ const reconcileRenderNodeChildNodes = ({
       return;
     }
     oldChildNode.internalMetadata = newChildNode.internalMetadata;
+    oldChildNode.computedViewTreeNodeId = null;
+
     reconciledChildNodes.push(oldChildNode);
   });
   return reconciledChildNodes;
@@ -814,7 +820,6 @@ const generateRenderNodeChildNodes = ({
     if (existingNode) {
       return;
     }
-    // console.log({ existingNode });
     const newNode: ReactRenderTreeNode = {
       indexPath,
       childNodes: [],
@@ -942,11 +947,9 @@ const generateViewTreeHelper = ({
 
           const existingRenderTreeNode = findRenderNodeOrThrow((node) => {
             if (node.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
             if (node.internalMetadata.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
             return node.internalMetadata.id === child.id;
@@ -954,11 +957,9 @@ const generateViewTreeHelper = ({
 
           const parentRenderTreeNode = findRenderNodeOrThrow((node) => {
             if (node.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
             if (node.internalMetadata.kind === "empty-slot") {
-              // console.log("early return");
               return false;
             }
 
@@ -984,11 +985,6 @@ const generateViewTreeHelper = ({
               };
             }
 
-            if (viewNode.childNodes.length > 1) {
-              throw new Error(
-                "Invariant error, should never have more than one child"
-              );
-            }
             return { viewNode, renderNode: existingRenderTreeNode };
           };
 
@@ -1088,7 +1084,7 @@ const generateViewTreeHelper = ({
         });
       });
 
-      if (!hasRendered) {
+      if (didDepsChange) {
         renderNode.hooks.forEach((hook) => {
           if (hook.kind !== "effect") {
             return;
@@ -1119,16 +1115,6 @@ const generateViewTreeHelper = ({
         }
         return node.indexPath.length === 0;
       }) ?? { kind: "empty-slot" };
-
-      // console.log(
-      //   Utils.deepCloneTree(addedRenderNodes),
-      //   reconciledRenderChildNodes
-      // );
-      // console.log({ addedRenderNodes });
-
-      // addedRenderNodes.forEach((addedNode) => {
-
-      // });
 
       const removedRenderNodes = renderNode.childNodes.filter(
         (node) =>
@@ -1403,7 +1389,6 @@ export const useState = <T>(initialValue: T) => {
       }
 
       hookMetadata.value = value;
-
       const parentNode = findParentViewNode(
         capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId
       );
@@ -1470,7 +1455,7 @@ export const useState = <T>(initialValue: T) => {
         parentNode.childNodes[index] = reGeneratedViewTree;
       }
 
-      reconcileDom({
+      updateDom({
         newViewTree: reGeneratedViewTree,
         oldViewTree: previousViewTree,
         insertInfo: {
@@ -1487,7 +1472,7 @@ export const render = (
   domEl: HTMLElement
 ) => {
   const { reactViewTree } = buildReactTrees(rootElement);
-  reconcileDom({
+  updateDom({
     oldViewTree: null,
     newViewTree: reactViewTree.root,
 

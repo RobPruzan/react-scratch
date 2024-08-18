@@ -246,7 +246,10 @@ export const OuterWrapper = () => {
     React.createElement(DualIncrementer, null),
     ...items.map((i) =>
       React.createElement("div", null, React.createElement(RandomElement, null))
-    )
+    ),
+    // need to do some light debugging on this
+    React.createElement(DualIncrementer, null),
+    React.createElement(DualIncrementer, null)
     // React.createElement(DualIncrementer, null)
   );
 };
@@ -443,6 +446,33 @@ const Wrapper = () => {
   return React.createElement(ListTest, {});
 };
 
+const ListAndItemUnder = () => {
+  const [items, setItems] = React.useState([1, 2, 3]);
+
+  return React.createElement(
+    "div",
+    { style: "display:flex; flex-direction: column" },
+    React.createElement("button", {
+      innerText: "add item",
+      onclick: () => setItems([...items, items.length + 1]),
+    }),
+    React.createElement("button", {
+      innerText: "remove item",
+      onclick: () => setItems([...items.slice(0, -1)]),
+    }),
+    React.createElement("span", { innerText: "above probably bugged" }),
+    // React.createElement(
+    //   "div",
+    //   { style: "display:flex; flex-direction: column" },
+    ...items.map((item) => React.createElement("span", { innerText: item })),
+    // ),
+    React.createElement("div", {
+      style: "border: 2px solid black",
+      innerText: "im bugged",
+    })
+  );
+};
+
 if (typeof window === "undefined") {
   const { reactViewTree, reactRenderTree } = React.buildReactTrees(
     React.createElement(Increment, null)
@@ -453,6 +483,7 @@ if (typeof window === "undefined") {
     React.render(
       // DeadParent,
       // React.createElement(DeadParent, null),
+      // React.createElement(ListAndItemUnder, null),
       React.createElement(
         MainComponent,
         null,
