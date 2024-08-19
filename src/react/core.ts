@@ -103,6 +103,7 @@ const updateElement = ({
 
     return newEl;
   }
+  console.log("appending", newEl);
   lastParent.appendChild(newEl);
 
   tagComponent.domRef = newEl;
@@ -171,6 +172,7 @@ const updateDom = (args: {
         // nothing to delete, its an empty slot
         return { lastUpdated: null };
       }
+      console.log("removing", tagNode);
       tagNode.component.domRef?.parentElement?.removeChild(
         tagNode.component.domRef
       );
@@ -286,71 +288,69 @@ const updateDom = (args: {
                 }
                 newViewTree.metadata.component.domRef =
                   oldViewTree.metadata.component.domRef;
+
+                // const findParenTag = (node: ReactViewTreeNode) => {
+                //   // if (node.kind === 'empty-slot')
+                // }
                 return oldViewTree.metadata.component.domRef!;
               });
               // then there's an associated existing dom node and we just update its props
-              // const lastUpdated = updateDom({
-              //   insertedBefore: lastUpdatedSibling,
-              //   lastParent: parentDomNode,
-              //   previousDomRef: oldViewTree.metadata.component.domRef,
-              //   props: newViewTree.metadata.props,
-              //   tagComponent: newViewTree.metadata.component,
-              // });
 
               // now we recursively apply aux to the children nodes
-              const [oldToNew, newToOld, definedAssociation] = mapChildNodes({
-                leftNodes: oldViewTree.childNodes,
-                rightNodes: newViewTree.childNodes,
-              });
+              // const [oldToNew, newToOld, definedAssociation] = mapChildNodes({
+              //   leftNodes: oldViewTree.childNodes,
+              //   rightNodes: newViewTree.childNodes,
+              // });
 
               let trackedLastUpdatedSibling: HTMLElement | null = null;
 
               // handles deleting any extra nodes from the previous tree not associated with a new view tree node
-              oldViewTree.childNodes.forEach((oldNode) => {
-                const associatedWith = oldToNew[oldNode.id];
+              oldViewTree.childNodes.forEach((oldNode, index) => {
+                // const associatedWith = newViewTree.childNodes.at(index);
 
-                if (!associatedWith) {
-                  // we don't care about the return result since it wont update or add anything
-                  aux({
-                    parentDomNode: lastUpdated,
-                    lastUpdatedSibling: trackedLastUpdatedSibling,
-                    newViewTree: null,
-                    oldViewTree: oldNode,
-                  });
-                  // trackedLastUpdatedChild = auxResult.lastUpdated;
+                if (index < newViewTree.childNodes.length) {
+                  return;
                 }
+                // if (!associatedWith) {
+                // we don't care about the return result since it wont update or add anything
+                aux({
+                  parentDomNode: lastUpdated,
+                  lastUpdatedSibling: trackedLastUpdatedSibling,
+                  newViewTree: null,
+                  oldViewTree: oldNode,
+                });
+                // trackedLastUpdatedChild = auxResult.lastUpdated;
+                // }
               });
               // handles adding any extra nodes that appeared in the new view tree
-              newViewTree.childNodes.forEach((newNode) => {
-                const associatedWith = newToOld[newNode.id];
+              newViewTree.childNodes.forEach((newNode, index) => {
+                const associatedWith = oldViewTree.childNodes.at(index);
 
-                if (!associatedWith) {
-                  // we do care about the return result since it may add to the dom
-                  const auxResult = aux({
-                    lastUpdatedSibling: trackedLastUpdatedSibling,
-                    newViewTree: newNode,
-                    oldViewTree: null,
-                    parentDomNode: lastUpdated,
-                  });
-                  // incase it didn't add anything (e.g. the new node was a slot), we want to not destroy the last sibling
-                  trackedLastUpdatedSibling =
-                    auxResult.lastUpdated ?? trackedLastUpdatedSibling;
-                }
+                // we do care about the return result since it may add to the dom
+                const auxResult = aux({
+                  lastUpdatedSibling: trackedLastUpdatedSibling,
+                  newViewTree: newNode,
+                  oldViewTree: associatedWith ?? null,
+                  parentDomNode: lastUpdated,
+                });
+                // incase it didn't add anything (e.g. the new node was a slot), we want to not destroy the last sibling
+                trackedLastUpdatedSibling =
+                  auxResult.lastUpdated ?? trackedLastUpdatedSibling;
               });
 
-              definedAssociation.forEach(
-                ({ left: oldChildNode, right: newChildNode }) => {
-                  const auxResult = aux({
-                    lastUpdatedSibling: trackedLastUpdatedSibling,
-                    newViewTree: newChildNode,
-                    oldViewTree: oldChildNode,
-                    parentDomNode: lastUpdated,
-                  });
-                  // same reasoning when updating trackedLastUpdatedSibling in the add loop
-                  trackedLastUpdatedSibling =
-                    auxResult.lastUpdated ?? trackedLastUpdatedSibling;
-                }
-              );
+              // definedAssociation.forEach(
+              //   ({ left: oldChildNode, right: newChildNode }) => {
+              //     const auxResult = aux({
+              //       lastUpdatedSibling: trackedLastUpdatedSibling,
+              //       newViewTree: newChildNode,
+              //       oldViewTree: oldChildNode,
+              //       parentDomNode: lastUpdated,
+              //     });
+              //     // same reasoning when updating trackedLastUpdatedSibling in the add loop
+              //     trackedLastUpdatedSibling =
+              //       auxResult.lastUpdated ?? trackedLastUpdatedSibling;
+              //   }
+              // );
               return { lastUpdated: lastUpdated };
             }
           }
