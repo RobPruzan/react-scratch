@@ -339,6 +339,7 @@ const ActionButton = () => {
 
 export const MainComponent = ({ children }: any) => {
   const [x, setX] = React.useState(2);
+  const memoXPlusOne = React.useMemo(() => x + 1, [x]);
 
   return React.createElement(
     "div",
@@ -355,6 +356,7 @@ export const MainComponent = ({ children }: any) => {
     // React.createElement(DualIncrementer, null),
     React.createElement(ActionButton, null),
     React.createElement(OuterWrapper, null),
+    React.createElement("div", { innerText: "memo'd x + 1: " + memoXPlusOne }),
     React.createElement(
       "div",
       {

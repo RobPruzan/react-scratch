@@ -1225,6 +1225,10 @@ export const useRef = <T>(initialValue: T) => {
   if (!currentTreeRef.renderTree.currentlyRendering) {
     throw new Error("Component being called outside of react internals");
   }
+
+  const currentStateOrder =
+    currentTreeRef.renderTree.currentLocalCurrentHookOrder;
+  currentTreeRef.renderTree.currentLocalCurrentHookOrder += 1;
   const currentlyRendering = currentTreeRef.renderTree?.currentlyRendering;
 
   if (!currentlyRendering) {
@@ -1246,10 +1250,7 @@ export const useRef = <T>(initialValue: T) => {
     return refTo;
   }
 
-  const hookValue =
-    currentlyRendering.hooks[
-      currentTreeRef.renderTree.currentLocalCurrentHookOrder
-    ];
+  const hookValue = currentlyRendering.hooks[currentStateOrder];
   if (hookValue.kind !== "ref") {
     throw new Error("Different hooks called compared previous render");
   }
@@ -1257,9 +1258,10 @@ export const useRef = <T>(initialValue: T) => {
   return hookValue.refTo as { current: T };
 };
 
+// this is wrong, need to potentially update deps and cb
 export const useEffect = (cb: () => void, deps: Array<unknown>) => {
   if (!currentTreeRef.renderTree) {
-    throw new Error("Cannot call use state outside of a react component");
+    throw new Error("Cannot call use effect outside of a react component");
   }
   if (!currentTreeRef.renderTree.currentlyRendering) {
     throw new Error("Component being called outside of react internals");
@@ -1267,13 +1269,16 @@ export const useEffect = (cb: () => void, deps: Array<unknown>) => {
   const currentlyRendering = currentTreeRef.renderTree?.currentlyRendering;
 
   if (!currentlyRendering) {
-    throw new Error("Cannot call use state outside of a react component");
+    throw new Error("Cannot call use effect outside of a react component");
   }
 
   if (currentlyRendering.kind === "empty-slot") {
     throw new Error("A slot will never call a hook");
   }
 
+  const currentStateOrder =
+    currentTreeRef.renderTree.currentLocalCurrentHookOrder;
+  currentTreeRef.renderTree.currentLocalCurrentHookOrder += 1;
   if (!currentlyRendering.hasRendered) {
     currentlyRendering.hooks.push({
       kind: "effect",
@@ -1283,13 +1288,82 @@ export const useEffect = (cb: () => void, deps: Array<unknown>) => {
     });
   }
 
-  // const hookValue =
-  //   currentlyRendering.hooks[
-  //     currentTreeRef.renderTree.currentLocalCurrentHookOrder
-  //   ];
-  // if (hookValue.kind !== "ref") {
-  //   throw new Error("Different hooks called compared previous render");
-  // }
+  const effect = currentlyRendering.hooks[currentStateOrder];
+
+  if (effect.kind !== "effect") {
+    throw new Error(
+      "Called hooks in different order compared to previous render"
+    );
+  }
+
+  if (
+    effect.deps.length !== deps.length ||
+    !effect.deps.every((dep, index) => {
+      const newDep = deps[index];
+      return newDep === dep;
+    })
+  ) {
+    effect.deps = deps;
+    effect.cb = cb;
+  }
+};
+
+export const useMemo = <T>(fn: () => T, deps: Array<unknown>): T => {
+  if (!currentTreeRef.renderTree) {
+    throw new Error("Cannot call use memo outside of a react component");
+  }
+  if (!currentTreeRef.renderTree.currentlyRendering) {
+    throw new Error("Component being called outside of react internals");
+  }
+  const currentlyRendering = currentTreeRef.renderTree?.currentlyRendering;
+
+  if (!currentlyRendering) {
+    throw new Error("Cannot call use memo outside of a react component");
+  }
+
+  if (currentlyRendering.kind === "empty-slot") {
+    throw new Error("A slot will never call a hook");
+  }
+
+  const currentStateOrder =
+    currentTreeRef.renderTree.currentLocalCurrentHookOrder;
+  currentTreeRef.renderTree.currentLocalCurrentHookOrder += 1;
+
+  if (!currentlyRendering.hasRendered) {
+    currentlyRendering.hooks.push({
+      kind: "memo",
+      deps: deps,
+      memoizedValue: fn(),
+    });
+  }
+
+  const memo = currentlyRendering.hooks[currentStateOrder];
+
+  if (memo.kind !== "memo") {
+    throw new Error(
+      "Called hooks in different order compared to previous render"
+    );
+  }
+
+  if (
+    memo.deps.length !== deps.length ||
+    !memo.deps.every((dep, index) => {
+      const newDep = deps[index];
+      return newDep === dep;
+    })
+  ) {
+    memo.deps = deps;
+    memo.memoizedValue = fn();
+  }
+
+  return memo.memoizedValue as T;
+};
+
+export const useCallback = <T>(
+  fn: () => T,
+  deps: Array<unknown>
+): (() => T) => {
+  return useMemo(() => fn, deps);
 };
 
 export const useState = <T>(initialValue: T) => {

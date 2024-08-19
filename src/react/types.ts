@@ -25,6 +25,11 @@ export type UseRefMetadata = {
   refTo: { current: unknown };
 };
 
+export type UseMemoMetadata = {
+  kind: "memo";
+  memoizedValue: unknown;
+  deps: Array<unknown>;
+};
 export type TagComponent = {
   kind: "tag";
   tagName: keyof HTMLElementTagNameMap;
@@ -94,7 +99,9 @@ export type RealElement = {
   childNodes: Array<ReactRenderTreeNode>;
   computedViewTreeNodeId: string | null;
   internalMetadata: ReactComponentInternalMetadata;
-  hooks: Array<UseStateMetadata | UseRefMetadata | UseEffectMetadata>;
+  hooks: Array<
+    UseStateMetadata | UseRefMetadata | UseEffectMetadata | UseMemoMetadata
+  >;
   indexPath: Array<number>;
   hasRendered: boolean; // im confident we don't need ths and can just derive this from existing info on the trees
 };
