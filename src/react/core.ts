@@ -83,6 +83,8 @@ const updateElement = ({
 }) => {
   if (previousDomRef) {
     Object.assign(previousDomRef, props);
+    previousDomRef.style.cssText =
+      typeof props?.style === "string" ? props.style : "";
     tagComponent.domRef = previousDomRef;
     return previousDomRef;
   }
