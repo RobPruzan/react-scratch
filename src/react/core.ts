@@ -19,55 +19,6 @@ const getComponentProps = (meta: ReactComponentInternalMetadata) => {
   return meta.props;
 };
 
-// this function is not really doing anything, at this point is just to help clarity, no point to remove it now
-const mapChildNodes = ({
-  leftNodes,
-  rightNodes,
-}: {
-  leftNodes: Array<ReactViewTreeNode>;
-  rightNodes: Array<ReactViewTreeNode>;
-}) => {
-  // one determines if we immediately delete nodes
-  // one determines if we immediately add nodes
-  const leftToRight: Record<string, ReactViewTreeNode | null> = {};
-  const rightToLeft: Record<string, ReactViewTreeNode | null> = {};
-  const associate = ({
-    a,
-    b,
-    aMap,
-  }: {
-    a: Array<ReactViewTreeNode>;
-    b: Array<ReactViewTreeNode>;
-    aMap: Record<string, ReactViewTreeNode | null>;
-  }) => {
-    a.forEach((leftNode, index) => {
-      const associatedRightNode = null;
-      aMap[leftNode.id] = associatedRightNode ?? null;
-    });
-  };
-
-  associate({
-    a: leftNodes,
-    b: rightNodes,
-    aMap: leftToRight,
-  });
-  associate({
-    a: rightNodes,
-    b: leftNodes,
-    aMap: rightToLeft,
-  });
-
-  let definedAssociation = Object.entries(leftToRight)
-    .map(([left, right]) => ({
-      left: leftNodes.find((ln) => ln.id === left),
-      right,
-    }))
-    .filter(({ left, right }) => left && right)
-    .map(({ left, right }) => ({ left: left!, right: right! }));
-
-  return [leftToRight, rightToLeft, definedAssociation] as const;
-};
-
 const updateElement = ({
   props,
   tagComponent,
