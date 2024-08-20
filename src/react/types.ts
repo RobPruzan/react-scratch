@@ -73,7 +73,7 @@ export type ReactViewTreeNodeRealElement = {
   indexPath: Array<number>; // allows for optimized diffs to know what to map with
 };
 
-type Provider = {
+export type Provider = {
   state: unknown;
   contextId: string;
 };

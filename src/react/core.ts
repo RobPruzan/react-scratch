@@ -10,6 +10,7 @@ import type {
   ReactRenderTree,
   RealElement,
   RealElementReactComponentInternalMetadata,
+  Provider,
 } from "./types";
 
 const getComponentProps = (meta: ReactComponentInternalMetadata) => {
@@ -820,9 +821,14 @@ const searchForContextStateUpwards = (
   ctxId: string
 ) => {
   if (renderNode.parent === null) {
-    throw new Error(
-      "Are you sure your component is being rendered under the intended context provider?"
+    const defaultContext = currentTreeRef.defaultContextState.find(
+      (ctx) => ctx.contextId === ctxId
     );
+    if (!defaultContext) {
+      throw new Error("Invalid ctxId, not created by createContext");
+    }
+
+    return defaultContext.state;
   }
   console.log("searching up on", renderNode, ctxId);
   if (renderNode.kind === "empty-slot") {
@@ -831,7 +837,6 @@ const searchForContextStateUpwards = (
   const ctxState = renderNode.contextState.find(
     (ctx) => ctx.contextId === ctxId
   );
-  console.log("found it?", ctxState);
   if (ctxState) {
     return ctxState.state;
   }
@@ -840,13 +845,14 @@ const searchForContextStateUpwards = (
 };
 
 export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
+  const contextId = context.Provider({
+    value: {
+      "__internal-context": true,
+    },
+  } as any) as unknown as string;
   if (!currentTreeRef.renderTree?.currentlyRendering) {
     throw new Error("Cannot call use context outside of a react component");
   }
-
-  // const currentStateOrder =
-  //   currentTreeRef.renderTree.currentLocalCurrentHookOrder;
-  // currentTreeRef.renderTree.currentLocalCurrentHookOrder += 1;
 
   const capturedCurrentlyRenderingRenderNode =
     currentTreeRef.renderTree.currentlyRendering;
@@ -856,12 +862,6 @@ export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
       "Invariant Error: A node that called use context cannot be an empty slot"
     );
   }
-
-  const contextId = context.Provider({
-    value: {
-      "__internal-context": true,
-    },
-  } as any) as unknown as string;
 
   const state = searchForContextStateUpwards(
     capturedCurrentlyRenderingRenderNode,
@@ -873,8 +873,13 @@ export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
   return state as T;
 };
 
-export const createContext = <T>(state: T) => {
+export const createContext = <T>(initialValue: T) => {
   const contextId = crypto.randomUUID();
+
+  currentTreeRef.defaultContextState.push({
+    contextId,
+    state: initialValue,
+  });
   return {
     // will not impl consumer
 
@@ -1244,9 +1249,11 @@ const generateViewTreeHelper = ({
 const currentTreeRef: {
   viewTree: ReactViewTree | null;
   renderTree: ReactRenderTree | null;
+  defaultContextState: Array<Provider>;
 } = {
   viewTree: null,
   renderTree: null,
+  defaultContextState: [],
 };
 
 export function deepTraverseAndModify(obj: any): any {
