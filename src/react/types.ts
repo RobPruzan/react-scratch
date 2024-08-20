@@ -106,7 +106,7 @@ export type RealElement = {
   hooks: Array<
     UseStateMetadata | UseRefMetadata | UseEffectMetadata | UseMemoMetadata
   >;
-  contextState: Array<Provider>;
+  contextState: Provider | null;
   // | UseContextMetadata
 
   indexPath: Array<number>;

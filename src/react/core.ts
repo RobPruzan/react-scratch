@@ -791,7 +791,7 @@ const generateRenderNodeChildNodes = ({
       internalMetadata: internalMetadata,
       kind: "real-element",
       parent,
-      contextState: [],
+      contextState: null,
     };
 
     accumulatedSiblings.push(newNode);
@@ -834,11 +834,9 @@ const searchForContextStateUpwards = (
   if (renderNode.kind === "empty-slot") {
     return searchForContextStateUpwards(renderNode.parent, ctxId);
   }
-  const ctxState = renderNode.contextState.find(
-    (ctx) => ctx.contextId === ctxId
-  );
-  if (ctxState) {
-    return ctxState.state;
+
+  if (renderNode.contextState) {
+    return renderNode.contextState.state;
   }
 
   return searchForContextStateUpwards(renderNode.parent, ctxId);
@@ -1123,24 +1121,16 @@ const generateViewTreeHelper = ({
       if (
         outputInternalMetadata.kind === "real-element" &&
         outputInternalMetadata.provider &&
-        !renderNode.contextState.find(
-          (ctx) => ctx.contextId === outputInternalMetadata.provider?.contextId
-        )
+        !renderNode.contextState
       ) {
-        renderNode.contextState.push(outputInternalMetadata.provider);
+        renderNode.contextState = outputInternalMetadata.provider;
       } else if (
         outputInternalMetadata.kind === "real-element" &&
         outputInternalMetadata.provider &&
-        renderNode.contextState.find(
-          (ctx) =>
-            ctx.contextId === outputInternalMetadata.provider?.contextId &&
-            ctx.state !== outputInternalMetadata.provider.state
-        )
+        renderNode.contextState &&
+        renderNode.contextState !== outputInternalMetadata.provider.state
       ) {
-        const index = renderNode.contextState.findIndex(
-          (ctx) => ctx.contextId === outputInternalMetadata.provider?.contextId
-        );
-        renderNode.contextState[index] = outputInternalMetadata.provider;
+        renderNode.contextState = outputInternalMetadata.provider;
       }
 
       const currentRenderEffects = renderNode.hooks
@@ -1327,7 +1317,7 @@ export const buildReactTrees = (
             // parent: null
           },
           parent: null,
-          contextState: [],
+          contextState: null,
         };
 
   currentTreeRef.renderTree = {
