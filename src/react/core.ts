@@ -738,7 +738,13 @@ const reconcileRenderNodeChildNodes = ({
 
     reconciledChildNodes.push(oldChildNode);
   });
-  return reconciledChildNodes;
+  return reconciledChildNodes.filter(
+    (node) =>
+      node.kind !== "empty-slot" &&
+      node.internalMetadata.kind !== "empty-slot" &&
+      (node.internalMetadata.component.kind === "function" ||
+        node.internalMetadata.provider)
+  );
 };
 
 const generateRenderNodeChildNodes = ({
