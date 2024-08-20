@@ -729,7 +729,11 @@ const reconcileRenderNodeChildNodes = ({
       return;
     }
     // lets test this later to see if it would of broke, i want to make sure it is doing something (with that left == left bug)
-    if (!compareIndexPaths(oldChildNode.indexPath, newChildNode.indexPath)) {
+    if (
+      !compareIndexPaths(oldChildNode.indexPath, newChildNode.indexPath) ||
+      getComponentName(newChildNode.internalMetadata) !==
+        getComponentName(oldChildNode.internalMetadata)
+    ) {
       reconciledChildNodes.push(newChildNode);
       return;
     }
