@@ -56,7 +56,7 @@ const updateElement = ({
 
     return newEl;
   }
-  console.log("appending", newEl);
+
   lastParent.appendChild(newEl);
 
   tagComponent.domRef = newEl;
@@ -408,6 +408,7 @@ const mapExternalMetadataToInternalMetadata = ({
 }: {
   externalMetadata: ReactComponentExternalMetadata<AnyProps>;
 }): ReactComponentInternalMetadata => ({
+  provider: null,
   kind: "real-element",
   component: mapComponentToTaggedUnion(externalMetadata.component),
   children: externalMetadata.children.map(
@@ -466,6 +467,7 @@ export const createElement = <T extends AnyProps>(
   props: T,
   ...children: Array<ReactComponentInternalMetadata | null | false | undefined>
 ): ReactComponentInternalMetadata => {
+  console.log("rec children", children);
   const internalMetadata = mapExternalMetadataToInternalMetadata({
     externalMetadata: {
       children: children,
@@ -740,16 +742,19 @@ const reconcileRenderNodeChildNodes = ({
 
 const generateRenderNodeChildNodes = ({
   internalMetadata,
+  parent,
 }: {
   internalMetadata: ReactComponentInternalMetadata;
+  parent: ReactRenderTreeNode;
 }) => {
   const accumulatedSiblings: Array<ReactRenderTreeNode> = [];
   const aux = ({
     internalMetadata,
     indexPath,
+    parent,
   }: {
     internalMetadata: ReactComponentInternalMetadata;
-
+    parent: ReactRenderTreeNode;
     indexPath: Array<number>;
   }) => {
     if (!currentTreeRef.renderTree) {
@@ -773,7 +778,9 @@ const generateRenderNodeChildNodes = ({
     if (existingNode) {
       return;
     }
-    const newNode: ReactRenderTreeNode = {
+    const newNode: ReactRenderTreeNode & {
+      parent: ReactRenderTreeNode | null;
+    } = {
       indexPath,
       childNodes: [],
       computedViewTreeNodeId: null,
@@ -781,7 +788,9 @@ const generateRenderNodeChildNodes = ({
       hooks: [],
       id: crypto.randomUUID(),
       internalMetadata: internalMetadata,
-      kind: internalMetadata.kind,
+      kind: "real-element",
+      parent,
+      contextState: [],
     };
 
     accumulatedSiblings.push(newNode);
@@ -792,6 +801,7 @@ const generateRenderNodeChildNodes = ({
       aux({
         internalMetadata: child,
         indexPath: [...indexPath, index],
+        parent: newNode,
       });
     });
   };
@@ -799,9 +809,100 @@ const generateRenderNodeChildNodes = ({
   aux({
     indexPath: [],
     internalMetadata,
+    parent,
   });
 
   return accumulatedSiblings;
+};
+
+const searchForContextStateUpwards = (
+  renderNode: ReactRenderTreeNode,
+  ctxId: string
+) => {
+  if (renderNode.parent === null) {
+    throw new Error(
+      "Are you sure your component is being rendered under the intended context provider?"
+    );
+  }
+  console.log("searching up on", renderNode, ctxId);
+  if (renderNode.kind === "empty-slot") {
+    return searchForContextStateUpwards(renderNode.parent, ctxId);
+  }
+  const ctxState = renderNode.contextState.find(
+    (ctx) => ctx.contextId === ctxId
+  );
+  console.log("found it?", ctxState);
+  if (ctxState) {
+    return ctxState.state;
+  }
+
+  return searchForContextStateUpwards(renderNode.parent, ctxId);
+};
+
+export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
+  if (!currentTreeRef.renderTree?.currentlyRendering) {
+    throw new Error("Cannot call use context outside of a react component");
+  }
+
+  // const currentStateOrder =
+  //   currentTreeRef.renderTree.currentLocalCurrentHookOrder;
+  // currentTreeRef.renderTree.currentLocalCurrentHookOrder += 1;
+
+  const capturedCurrentlyRenderingRenderNode =
+    currentTreeRef.renderTree.currentlyRendering;
+
+  if (capturedCurrentlyRenderingRenderNode.kind === "empty-slot") {
+    throw new Error(
+      "Invariant Error: A node that called use context cannot be an empty slot"
+    );
+  }
+
+  const contextId = context.Provider({
+    value: {
+      "__internal-context": true,
+    },
+  } as any) as unknown as string;
+
+  const state = searchForContextStateUpwards(
+    capturedCurrentlyRenderingRenderNode,
+    contextId
+  );
+
+  console.log("did we read it?", state);
+
+  return state as T;
+};
+
+export const createContext = <T>(state: T) => {
+  const contextId = crypto.randomUUID();
+  return {
+    // will not impl consumer
+
+    Provider: (data: {
+      value: T;
+      children: Array<
+        ReactComponentInternalMetadata | null | false | undefined
+      >;
+    }) => {
+      if (
+        typeof data.value === "object" &&
+        data.value &&
+        "__internal-context" in data.value
+      ) {
+        return contextId as unknown as ReturnType<typeof createElement>;
+      }
+      const el = createElement("div", null, ...data.children); // for i have sinned, ideally would of used a fragment
+      console.log(el);
+      if (!(el.kind === "real-element")) {
+        throw new Error();
+      }
+      el.provider = {
+        state: data.value,
+        contextId,
+      };
+      return el;
+    },
+  };
 };
 
 /**
@@ -814,7 +915,7 @@ const generateViewTree = ({
 }: {
   renderNode: ReactRenderTreeNode;
 }): ReturnType<typeof generateViewTreeHelper> => {
-  console.log(calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
+  // console.log(calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
   if (renderNode.kind === "empty-slot") {
     return {
       kind: "empty-slot",
@@ -887,7 +988,7 @@ const generateViewTreeHelper = ({
         } => {
           if (child.kind === "empty-slot") {
             return {
-              renderNode: { kind: "empty-slot" },
+              renderNode: { kind: "empty-slot", parent: renderNode },
               viewNode: {
                 kind: "empty-slot",
                 id: crypto.randomUUID(), // no idea what to put for these ideas if im being real
@@ -1014,6 +1115,29 @@ const generateViewTreeHelper = ({
           ...childrenSpreadProps,
         });
 
+      if (
+        outputInternalMetadata.kind === "real-element" &&
+        outputInternalMetadata.provider &&
+        !renderNode.contextState.find(
+          (ctx) => ctx.contextId === outputInternalMetadata.provider?.contextId
+        )
+      ) {
+        renderNode.contextState.push(outputInternalMetadata.provider);
+      } else if (
+        outputInternalMetadata.kind === "real-element" &&
+        outputInternalMetadata.provider &&
+        renderNode.contextState.find(
+          (ctx) =>
+            ctx.contextId === outputInternalMetadata.provider?.contextId &&
+            ctx.state !== outputInternalMetadata.provider.state
+        )
+      ) {
+        const index = renderNode.contextState.findIndex(
+          (ctx) => ctx.contextId === outputInternalMetadata.provider?.contextId
+        );
+        renderNode.contextState[index] = outputInternalMetadata.provider;
+      }
+
       const currentRenderEffects = renderNode.hooks
         .filter((hook) => hook.kind === "effect")
         .map((hook) => hook.deps);
@@ -1055,6 +1179,7 @@ const generateViewTreeHelper = ({
       }
       const generatedRenderChildNodes = generateRenderNodeChildNodes({
         internalMetadata: outputInternalMetadata,
+        parent: renderNode,
       });
 
       const reconciledRenderChildNodes = reconcileRenderNodeChildNodes({
@@ -1062,12 +1187,13 @@ const generateViewTreeHelper = ({
         oldRenderTreeNodes: renderNode.childNodes,
       });
 
-      const nextNodeToProcess = reconciledRenderChildNodes.find((node) => {
-        if (node.kind === "empty-slot") {
-          return false;
-        }
-        return node.indexPath.length === 0;
-      }) ?? { kind: "empty-slot" };
+      const nextNodeToProcess: ReactRenderTreeNode =
+        reconciledRenderChildNodes.find((node) => {
+          if (node.kind === "empty-slot") {
+            return false;
+          }
+          return node.indexPath.length === 0;
+        }) ?? { kind: "empty-slot", parent: renderNode };
 
       const removedRenderNodes = renderNode.childNodes.filter(
         (node) =>
@@ -1168,6 +1294,7 @@ export const buildReactTrees = (
     rootComponentInternalMetadata.kind === "empty-slot"
       ? {
           kind: "empty-slot",
+          parent: null,
         }
       : // this looks super weird, but we transform the root metadata into an implicit
         // component that returns the provided internal metadata
@@ -1189,7 +1316,11 @@ export const buildReactTrees = (
             id: crypto.randomUUID(),
             kind: "real-element",
             props: null,
+            provider: null,
+            // parent: null
           },
+          parent: null,
+          contextState: [],
         };
 
   currentTreeRef.renderTree = {

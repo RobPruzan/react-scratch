@@ -198,9 +198,9 @@ export const RandomElement = () => {
   const ref = React.useRef(0);
 
   React.useEffect(() => {
-    console.log("mounting!", random);
+    // console.log("mounting!", random);
     return () => {
-      console.log("cleanup");
+      // console.log("cleanup");
     };
   }, []);
 
@@ -324,6 +324,8 @@ export const DualIncrementer = () => {
 };
 
 const ActionButton = () => {
+  const testReadContext = React.useContext(TestContext);
+  console.log({ testReadContext });
   return React.createElement(
     "div",
     {
@@ -332,7 +334,7 @@ const ActionButton = () => {
     },
     React.createElement("button", {
       onclick: () => alert("Action performed!"),
-      innerText: "Perform Action",
+      innerText: "Perform Action, reading value of: " + testReadContext.hello,
     })
   );
 };
@@ -342,10 +344,9 @@ export const MainComponent = ({ children }: any) => {
   const memoXPlusOne = React.useMemo(() => x + 1, [x]);
 
   return React.createElement(
-    "div",
-    {
-      id: "main-component",
-    },
+    // @ts-ignore
+    TestContext.Provider,
+    { value: { hello: x } },
     React.createElement(LeafComponent, null),
     // React.createElement(
     //   ContainerComponent,
@@ -572,5 +573,39 @@ const Repro = () => {
 
     toggleInner && React.createElement("div", { innerText: "pls break" }),
     React.createElement("div", null)
+  );
+};
+
+const TestContext = React.createContext({ hello: 2 });
+const ContextTest = () => {
+  const readContext = React.useContext(TestContext);
+
+  console.log("being rendered");
+  console.log(readContext);
+
+  return React.createElement(
+    "span",
+    { innerText: "test" + readContext.hello },
+    React.createElement(EvenLower, null)
+  );
+};
+
+const EvenLower = () => {
+  const readContext = React.useContext(TestContext);
+
+  console.log("being rendered lower");
+  console.log(readContext);
+
+  return React.createElement("span", {
+    innerText: "test lower" + readContext.hello,
+  });
+};
+
+const ParentContextTest = () => {
+  return React.createElement(
+    // @ts-ignore
+    TestContext.Provider,
+    { value: { hello: 10 } },
+    React.createElement(ContextTest, null)
   );
 };
