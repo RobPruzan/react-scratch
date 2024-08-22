@@ -743,13 +743,14 @@ const reconcileRenderNodeChildNodes = ({
 
     reconciledChildNodes.push(oldChildNode);
   });
-  return reconciledChildNodes.filter(
-    (node) =>
-      node.kind !== "empty-slot" &&
-      node.internalMetadata.kind !== "empty-slot" &&
-      (node.internalMetadata.component.kind === "function" ||
-        node.internalMetadata.provider)
-  );
+  return reconciledChildNodes
+  //   .filter(
+  //   (node) =>
+  //     node.kind !== "empty-slot" &&
+  //     node.internalMetadata.kind !== "empty-slot" &&
+  //     (node.internalMetadata.component.kind === "function" ||
+  //       node.internalMetadata.provider)
+  // );
 };
 
 const generateRenderNodeChildNodes = ({
@@ -881,21 +882,21 @@ export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
 
   // console.log(currentTreeRef, capturedCurrentlyRenderingRenderNode);
 
-  // const computedViewNode = currentTreeRef.tempViewTreeNodes.find(node => node.id === capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId)!
+  const computedViewNode = currentTreeRef.tempViewTreeNodes.find(node => node.id === capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId)!
 
-  // console.log('wat',computedViewNode,capturedCurrentlyRenderingRenderNode, currentTreeRef.tempViewTreeNodes);
+  console.log('wat',computedViewNode,capturedCurrentlyRenderingRenderNode, currentTreeRef.tempViewTreeNodes);
 
 
   // // const computedViewNode = findViewNodeOrThrow((node) => node.id === capturedCurrentlyRenderingRenderNode.id, currentTreeRef.tempViewTree)
 
-  // const state = searchForContextStateUpwards(
-  //   computedViewNode,
-  //   contextId
-  // );
+  const state = searchForContextStateUpwards(
+    computedViewNode,
+    contextId
+  );
 
-  // console.log("did we read it?", state);
+  console.log("did we read it?", state);
 
-  return 2 as T;
+  return state as T;
 };
 
 export const createContext = <T>(initialValue: T) => {

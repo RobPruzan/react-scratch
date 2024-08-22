@@ -38,7 +38,7 @@ export const deepEqual = (a: any, b: any): boolean => {
   return false;
 };
 
-export const deepCloneTree = <T>(obj: T): T => {
+export const deepCloneTree = <T>(obj: T, seen = new WeakSet()): T => {
   if (obj === null || typeof obj !== "object") {
     return obj;
   }
@@ -51,16 +51,26 @@ export const deepCloneTree = <T>(obj: T): T => {
     return (obj as any).bind({});
   }
 
+  if (seen.has(obj)) {
+    return obj as T; //
+  }
+
+  seen.add(obj);
+
   const copy: any = Array.isArray(obj) ? [] : {};
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      copy[key] = deepCloneTree(obj[key]);
+      copy[key] = deepCloneTree(obj[key], seen);
     }
   }
 
+  
+  seen.delete(obj);
+
   return copy;
 };
+
 
 export const findNodeOrThrow = <T extends { id: string; childNodes: Array<T> }>(
   eq: (node: T) => boolean,
