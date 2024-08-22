@@ -11,6 +11,7 @@ import type {
   RealElement,
   RealElementReactComponentInternalMetadata,
   Provider,
+  ReactViewTreeNodeRealElement,
 } from "./types";
 
 const getComponentProps = (meta: ReactComponentInternalMetadata) => {
@@ -380,7 +381,7 @@ const updateDom = (args: {
           );
         }
         if (!parentTagNode.component.domRef) {
-          console.log(JSON.stringify(args.insertInfo.previousViewTreeParent));
+          // console.log(JSON.stringify(args.insertInfo.previousViewTreeParent));
           throw new Error(
             "Invariant Error: Previous view tree must always have dom nodes on tags"
           );
@@ -508,8 +509,8 @@ const findParentViewNode = (id: string): ReactViewTreeNode => {
     throw new Error(
       "detached node or wrong id:" +
         id +
-        "\n\n" +
-        JSON.stringify(currentTreeRef.viewTree)
+        "\n\n" 
+
     );
   }
   return result;
@@ -652,7 +653,7 @@ export const findViewNodeOrThrow = (
 
   if (!result) {
     throw new Error(
-      "detached node or wrong id:" + "\n\n" + JSON.stringify(tree)
+      "detached node or wrong id:" + "\n\n" 
     );
   }
   return result;
@@ -700,7 +701,7 @@ export const findRenderNodeOrThrow = (
 
   if (!result) {
     throw new Error(
-      "detached node or wrong id:" + "\n\n" + JSON.stringify(tree)
+      "detached node or wrong id:" + "\n\n" 
     );
   }
   return result;
@@ -801,7 +802,7 @@ const generateRenderNodeChildNodes = ({
       internalMetadata: internalMetadata,
       kind: "real-element",
       parent,
-      contextState: null,
+
     };
 
     accumulatedSiblings.push(newNode);
@@ -827,10 +828,10 @@ const generateRenderNodeChildNodes = ({
 };
 
 const searchForContextStateUpwards = (
-  renderNode: ReactRenderTreeNode,
+  viewNode: ReactViewTreeNode,
   ctxId: string
 ) => {
-  if (renderNode.parent === null) {
+  if (viewNode.parent === null) {
     const defaultContext = currentTreeRef.defaultContextState.find(
       (ctx) => ctx.contextId === ctxId
     );
@@ -840,16 +841,19 @@ const searchForContextStateUpwards = (
 
     return defaultContext.state;
   }
-  console.log("searching up on", renderNode, ctxId);
-  if (renderNode.kind === "empty-slot") {
-    return searchForContextStateUpwards(renderNode.parent, ctxId);
+  console.log("searching up on", viewNode, ctxId);
+  if (viewNode.kind === "empty-slot") {
+    return searchForContextStateUpwards(viewNode.parent, ctxId);
+  }
+  if (viewNode.metadata.kind === "empty-slot") {
+    return searchForContextStateUpwards(viewNode.parent, ctxId);
   }
 
-  if (renderNode.contextState) {
-    return renderNode.contextState.state;
+  if (viewNode.metadata.provider) {
+    return viewNode.metadata.provider.state;
   }
 
-  return searchForContextStateUpwards(renderNode.parent, ctxId);
+  return searchForContextStateUpwards(viewNode.parent, ctxId);
 };
 
 export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
@@ -871,14 +875,27 @@ export const useContext = <T>(context: ReturnType<typeof createContext<T>>) => {
     );
   }
 
-  const state = searchForContextStateUpwards(
-    capturedCurrentlyRenderingRenderNode,
-    contextId
-  );
+  // if (!currentTreeRef.tempViewTree) {
+  //   throw new Error("Invariant error, a partial view tree must have been built by now")
+  // }
 
-  console.log("did we read it?", state);
+  // console.log(currentTreeRef, capturedCurrentlyRenderingRenderNode);
 
-  return state as T;
+  // const computedViewNode = currentTreeRef.tempViewTreeNodes.find(node => node.id === capturedCurrentlyRenderingRenderNode.computedViewTreeNodeId)!
+
+  // console.log('wat',computedViewNode,capturedCurrentlyRenderingRenderNode, currentTreeRef.tempViewTreeNodes);
+
+
+  // // const computedViewNode = findViewNodeOrThrow((node) => node.id === capturedCurrentlyRenderingRenderNode.id, currentTreeRef.tempViewTree)
+
+  // const state = searchForContextStateUpwards(
+  //   computedViewNode,
+  //   contextId
+  // );
+
+  // console.log("did we read it?", state);
+
+  return 2 as T;
 };
 
 export const createContext = <T>(initialValue: T) => {
@@ -925,29 +942,44 @@ export const createContext = <T>(initialValue: T) => {
  */
 const generateViewTree = ({
   renderNode,
+  parentViewNode
 }: {
   renderNode: ReactRenderTreeNode;
+  parentViewNode: ReactViewTreeNode | null
 }): ReturnType<typeof generateViewTreeHelper> => {
   // console.log(calculateJsonBytes(JSON.stringify(currentTreeRef.renderTree)));
   if (renderNode.kind === "empty-slot") {
     return {
       kind: "empty-slot",
       id: crypto.randomUUID(),
+      parent: parentViewNode
     };
   }
 
-  return generateViewTreeHelper({
+  const newViewTree = generateViewTreeHelper({
     renderNode: renderNode,
     startingFromRenderNodeId: renderNode.id,
+    parentViewNode,
+    isEntrypoint: true
   });
+
+  currentTreeRef.tempViewTreeNodes = []
+
+  return newViewTree
 };
 
 const generateViewTreeHelper = ({
   renderNode,
   startingFromRenderNodeId,
+  parentViewNode,
+  isEntrypoint=false
 }: {
   renderNode: ReactRenderTreeNode;
+ 
+  parentViewNode: ReactViewTreeNode | null
   startingFromRenderNodeId: string;
+  isEntrypoint?: boolean
+
 }): ReactViewTreeNode => {
   if (!currentTreeRef.renderTree) {
     throw new Error("Cannot render component outside of react tree");
@@ -959,6 +991,7 @@ const generateViewTreeHelper = ({
     return {
       kind: "empty-slot",
       id: newId,
+      parent: parentViewNode
     };
   }
 
@@ -970,23 +1003,33 @@ const generateViewTreeHelper = ({
   if (renderNode.internalMetadata.kind === "empty-slot") {
     const newId = crypto.randomUUID();
     renderNode.computedViewTreeNodeId = newId;
-    return {
+    const node: ReactViewTreeNodeRealElement =  {
       id: newId,
       metadata: renderNode.internalMetadata,
-      childNodes: [{ kind: "empty-slot", id: crypto.randomUUID() }],
+      childNodes: [],
       indexPath: renderNode.indexPath,
       kind: "real-element",
+      parent: parentViewNode,
     };
+node.childNodes.push({ kind: "empty-slot", id: crypto.randomUUID(),parent: node })
+    return node 
   }
 
-  const newNode: ReactViewTreeNode = {
+  const newNode: ReactViewTreeNodeRealElement = {
     id: crypto.randomUUID(),
     metadata: renderNode.internalMetadata,
     childNodes: [],
     indexPath: renderNode.indexPath,
     kind: "real-element",
+    parent: parentViewNode,
+
     // key: getKey(renderNode), // i probably don't want this...
   };
+
+  // if (isEntrypoint) {
+  //   currentTreeRef.tempViewTree = newNode
+  // }
+  currentTreeRef.tempViewTreeNodes.push(newNode)
 
   renderNode.computedViewTreeNodeId = newNode.id;
 
@@ -1005,6 +1048,7 @@ const generateViewTreeHelper = ({
               viewNode: {
                 kind: "empty-slot",
                 id: crypto.randomUUID(), // no idea what to put for these ideas if im being real
+                parent: newNode // is that the right parent? 
               },
             };
           }
@@ -1043,6 +1087,7 @@ const generateViewTreeHelper = ({
             const viewNode = generateViewTreeHelper({
               renderNode: existingRenderTreeNode,
               startingFromRenderNodeId: startingFromRenderNodeId,
+              parentViewNode: newNode
             });
 
             if (viewNode.kind === "empty-slot") {
@@ -1061,7 +1106,7 @@ const generateViewTreeHelper = ({
 
           if (existingRenderTreeNode.kind === "empty-slot") {
             return {
-              viewNode: { kind: "empty-slot", id: crypto.randomUUID() },
+              viewNode: { kind: "empty-slot", id: crypto.randomUUID(), parent: newNode },
               renderNode: existingRenderTreeNode,
             };
           }
@@ -1128,20 +1173,20 @@ const generateViewTreeHelper = ({
           ...childrenSpreadProps,
         });
 
-      if (
-        outputInternalMetadata.kind === "real-element" &&
-        outputInternalMetadata.provider &&
-        !renderNode.contextState
-      ) {
-        renderNode.contextState = outputInternalMetadata.provider;
-      } else if (
-        outputInternalMetadata.kind === "real-element" &&
-        outputInternalMetadata.provider &&
-        renderNode.contextState &&
-        renderNode.contextState !== outputInternalMetadata.provider.state
-      ) {
-        renderNode.contextState = outputInternalMetadata.provider;
-      }
+      // if (
+      //   outputInternalMetadata.kind === "real-element" &&
+      //   outputInternalMetadata.provider &&
+      //   !
+      // ) {
+      //   renderNode.contextState = outputInternalMetadata.provider;
+      // } else if (
+      //   outputInternalMetadata.kind === "real-element" &&
+      //   outputInternalMetadata.provider &&
+      //   renderNode.contextState &&
+      //   renderNode.contextState !== outputInternalMetadata.provider.state
+      // ) {
+      //   renderNode.contextState = outputInternalMetadata.provider;
+      // }
 
       const currentRenderEffects = renderNode.hooks
         .filter((hook) => hook.kind === "effect")
@@ -1233,6 +1278,7 @@ const generateViewTreeHelper = ({
       const viewNode = generateViewTreeHelper({
         renderNode: nextNodeToProcess,
         startingFromRenderNodeId: renderNode.id,
+        parentViewNode: newNode
       });
 
       if (!viewNode) {
@@ -1247,6 +1293,7 @@ const generateViewTreeHelper = ({
   return newNode;
 };
 const currentTreeRef: {
+  tempViewTreeNodes: Array<ReactViewTreeNodeRealElement>
   viewTree: ReactViewTree | null;
   renderTree: ReactRenderTree | null;
   defaultContextState: Array<Provider>;
@@ -1254,6 +1301,7 @@ const currentTreeRef: {
   viewTree: null,
   renderTree: null,
   defaultContextState: [],
+  tempViewTreeNodes: []
 };
 
 export function deepTraverseAndModify(obj: any): any {
@@ -1327,7 +1375,7 @@ export const buildReactTrees = (
             // parent: null
           },
           parent: null,
-          contextState: null,
+
         };
 
   currentTreeRef.renderTree = {
@@ -1340,6 +1388,7 @@ export const buildReactTrees = (
   console.log("\n\nRENDER START----------------------------------------------");
   const output = generateViewTree({
     renderNode: rootRenderTreeNode,
+    parentViewNode: null
   });
 
   console.log("RENDER END----------------------------------------------\n\n");
@@ -1579,6 +1628,7 @@ export const useState = <T>(initialValue: T) => {
 
       const reGeneratedViewTree = generateViewTree({
         renderNode: capturedCurrentlyRenderingRenderNode,
+        parentViewNode:parentNode
       });
       console.log(
         "RENDER END----------------------------------------------\n\n"

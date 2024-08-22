@@ -71,6 +71,7 @@ export type ReactViewTreeNodeRealElement = {
   childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
   indexPath: Array<number>; // allows for optimized diffs to know what to map with
+  parent: ReactViewTreeNode | null
 };
 
 export type Provider = {
@@ -78,10 +79,9 @@ export type Provider = {
   contextId: string;
 };
 
-export type ReactViewTreeNodeEmptySlot = { kind: "empty-slot"; id: string };
+export type ReactViewTreeNodeEmptySlot = { kind: "empty-slot"; id: string ,  parent: ReactViewTreeNode | null};
 export type ReactViewTreeNode =
-  | ReactViewTreeNodeRealElement
-  | ReactViewTreeNodeEmptySlot;
+  | (ReactViewTreeNodeRealElement | ReactViewTreeNodeEmptySlot) 
 
 export type ReactViewTree = {
   root: ReactViewTreeNode | null;
@@ -106,7 +106,6 @@ export type RealElement = {
   hooks: Array<
     UseStateMetadata | UseRefMetadata | UseEffectMetadata | UseMemoMetadata
   >;
-  contextState: Provider | null;
   // | UseContextMetadata
 
   indexPath: Array<number>;
@@ -117,9 +116,7 @@ export type EmptySlot = {
   kind: "empty-slot";
 };
 // render tree node has a direct link to view tree node
-export type ReactRenderTreeNode = (RealElement | EmptySlot) & {
-  parent: ReactRenderTreeNode | null;
-};
+export type ReactRenderTreeNode =(  RealElement | EmptySlot ) & {parent: null | ReactRenderTreeNode};
 
 // export type CreateElementMetadataNode = {
 //   id: string;
