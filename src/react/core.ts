@@ -850,7 +850,7 @@ const searchForContextStateUpwards = (
     return searchForContextStateUpwards(viewNode.parent, ctxId);
   }
 
-  if (viewNode.metadata.provider) {
+  if (viewNode.metadata.provider?.contextId === ctxId) {
     return viewNode.metadata.provider.state;
   }
 
