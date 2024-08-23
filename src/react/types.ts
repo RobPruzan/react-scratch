@@ -1,11 +1,11 @@
 export type AnyProps = Record<string, unknown> | null;
 
-export type ReactComponentFunction<T extends AnyProps> = (
+export type ReactComponentFunction = (
   props: AnyProps
 ) => ReactComponentInternalMetadata;
 
 export type ReactComponentExternalMetadata<T extends AnyProps> = {
-  component: keyof HTMLElementTagNameMap | ReactComponentFunction<T>;
+  component: keyof HTMLElementTagNameMap | ReactComponentFunction;
   props: T;
   children: Array<ReactComponentInternalMetadata | null | false | undefined>;
 };
@@ -17,7 +17,7 @@ export type UseStateMetadata = {
 export type UseEffectMetadata = {
   kind: "effect";
   deps: Array<unknown>;
-  cb: () => void;
+  cb: () => unknown;
   cleanup: (() => void) | null;
 };
 export type UseRefMetadata = {
@@ -44,7 +44,7 @@ export type TagComponent = {
 export type FunctionalComponent = {
   kind: "function";
   name: string;
-  function: ReactComponentFunction<AnyProps>;
+  function: ReactComponentFunction;
 };
 
 export type RealElementReactComponentInternalMetadata = {
@@ -71,7 +71,7 @@ export type ReactViewTreeNodeRealElement = {
   childNodes: Array<ReactViewTreeNode>;
   metadata: ReactComponentInternalMetadata;
   indexPath: Array<number>; // allows for optimized diffs to know what to map with
-  parent: ReactViewTreeNode | null
+  parent: ReactViewTreeNode | null;
 };
 
 export type Provider = {
@@ -79,9 +79,13 @@ export type Provider = {
   contextId: string;
 };
 
-export type ReactViewTreeNodeEmptySlot = { kind: "empty-slot"; id: string ,  parent: ReactViewTreeNode | null};
+export type ReactViewTreeNodeEmptySlot = {
+  kind: "empty-slot";
+  id: string;
+  parent: ReactViewTreeNode | null;
+};
 export type ReactViewTreeNode =
-  | (ReactViewTreeNodeRealElement | ReactViewTreeNodeEmptySlot) 
+  | ReactViewTreeNodeRealElement | ReactViewTreeNodeEmptySlot;
 
 export type ReactViewTree = {
   root: ReactViewTreeNode | null;
@@ -116,7 +120,9 @@ export type EmptySlot = {
   kind: "empty-slot";
 };
 // render tree node has a direct link to view tree node
-export type ReactRenderTreeNode =(  RealElement | EmptySlot ) & {parent: null | ReactRenderTreeNode};
+export type ReactRenderTreeNode = (RealElement | EmptySlot) & {
+  parent: null | ReactRenderTreeNode;
+};
 
 // export type CreateElementMetadataNode = {
 //   id: string;
