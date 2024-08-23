@@ -369,6 +369,7 @@ export const MainComponent = ({ children }: any) => {
         style: "color: orange",
       })
     ),
+
     ...children
   );
 };
@@ -490,7 +491,7 @@ if (typeof window === "undefined") {
       React.createElement(
         MainComponent,
         null,
-        React.createElement(MegaChild, null)
+        React.createElement(DataFetcher, null)
       ),
       // React.createElement(
       //   SimpleParent,
@@ -607,5 +608,28 @@ const ParentContextTest = () => {
     TestContext.Provider,
     { value: { hello: 10 } },
     React.createElement(ContextTest, null)
+  );
+};
+
+const DataFetcher = () => {
+  const [data, setData] = React.useState<Array<any>>([]);
+
+  React.useEffect(() => {
+    console.log("fetching");
+    fetch("https://jsonplaceholder.typicode.com/posts")
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data);
+      });
+
+    return () => {
+      setData([]);
+    };
+  }, []);
+
+  return React.createElement(
+    "div",
+    null,
+    ...data.map((item) => React.createElement("div", { innerText: item.title }))
   );
 };
