@@ -9,7 +9,9 @@ While adhering to the existing API and external behavior:
 - Same render behaviors
 - Same API (other than minor differences that weren't important to implement)
 
-To run the project for development run:
+If you are interested in how this was developed, I made an article going through the internal architecture: https://www.rob.directory/blog/react-from-scratch
+
+To run the project for development:
 
 ```
 bun run react
