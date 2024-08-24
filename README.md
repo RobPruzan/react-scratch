@@ -30,3 +30,7 @@ The demo website is supposed to be an example of all the different features impl
 - Fetching data
 - Conditional components
 - Rendering components in lists, with removing + adding items
+- Optimized DOM updates
+
+
+![Screen-2024-08-23-182000-ezgif com-optimize](https://github.com/user-attachments/assets/0004b129-eed0-4706-94b2-a94e22470ec4)
