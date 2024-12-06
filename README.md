@@ -1,6 +1,6 @@
 This codebase attempts to implement React, including:
 
-- internal view hierarchy (normally known as the virtual dom)
+- internal view hierarchy + reconciliation 
 - application of view hierarchy to dom
 - a subset of hooks (useState, useEffect, useContext, useMemo, useCallback, useRef)
 
